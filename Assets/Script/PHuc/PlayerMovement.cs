@@ -1,65 +1,77 @@
 using UnityEngine;
-using UnityEngine.UI; // Dùng để liên kết với UI Slider thanh thể lực
-using UnityEngine.InputSystem; // Hệ thống Input System mới của Unity
+using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(CapsuleCollider))]
 public class PlayerMovement : MonoBehaviour
 {
     [Header("--- Thành phần tham chiếu ---")]
-    [Tooltip("Thành phần CharacterController để xử lý va chạm và di chuyển")]
-    public CharacterController boDieuKhienNhanVat;
+    [Tooltip("Thành phần Rigidbody để xử lý di chuyển vật lý")]
+    public Rigidbody boDieuKhienNhanVat;
+
+    [Tooltip("Thành phần CapsuleCollider để chỉnh chiều cao khi ngồi")]
+    public CapsuleCollider vaChamNhanVat;
 
     [Tooltip("Thanh Slider hiển thị thể lực trên giao diện UI")]
     public Slider thanhTheLucUI;
 
+    [Tooltip("Camera chính trong Game (Nếu để trống script sẽ tự tìm MainCamera)")]
+    public Transform cameraChinh;
+
     [Header("--- Tốc độ di chuyển ---")]
-    [Tooltip("Tốc độ di chuyển bình thường (Mặc định)")]
+    [Tooltip("Tốc độ di chuyển bình thường")]
     public float tocDoDiBo = 4f;
 
     [Tooltip("Tốc độ khi giữ Shift (Chạy nhanh)")]
     public float tocDoChay = 7f;
 
-    [Tooltip("Tốc độ khi giữ Alt (Đi chậm/Rón rén)")]
+    [Tooltip("Tốc độ khi giữ Alt (Đi chậm)")]
     public float tocDoDiCham = 2f;
 
     [Tooltip("Tốc độ khi giữ Ctrl (Ngồi)")]
     public float tocDoNgoi = 1.5f;
 
-    [Tooltip("Tốc độ xoay thân nhân vật theo hướng di chuyển TPS")]
+    [Tooltip("Tốc độ xoay thân nhân vật theo hướng Camera")]
     public float tocDoXoayNhanVat = 12f;
 
-    [Header("--- Cấu hình Nhảy & Trọng lực ---")]
-    [Tooltip("Lực nhảy của nhân vật")]
-    public float lucNhay = 1.5f;
+    [Header("--- Cấu hình Nhảy & Kiểm tra chạm đất ---")]
+    [Tooltip("Lực nhảy bộc phát áp dụng vào Rigidbody")]
+    public float lucNhay = 5f;
 
-    [Tooltip("Gia tốc trọng lực kéo nhân vật xuống")]
-    public float trongLuc = -9.81f;
+    [Tooltip("Điểm kiểm tra vị trí chân nhân vật")]
+    public Transform diemKiemTraChan;
 
-    [Header("--- Cấu hình Tư thế Ngồi (Crouch) ---")]
-    [Tooltip("Chiều cao nhân vật khi đứng")]
+    [Tooltip("Bán kính hình cầu kiểm tra chạm đất")]
+    public float banKinhKiemTraDat = 0.2f;
+
+    [Tooltip("Layer đánh dấu các bề mặt được coi là mặt đất")]
+    public LayerMask lopMatDat;
+
+    [Header("--- Cấu hình Tư thế Ngồi ---")]
+    [Tooltip("Chiều cao CapsuleCollider khi đứng")]
     public float chieuCaoDung = 2.0f;
 
-    [Tooltip("Chiều cao nhân vật khi ngồi")]
+    [Tooltip("Chiều cao CapsuleCollider khi ngồi")]
     public float chieuCaoNgoi = 1.0f;
 
     [Tooltip("Tốc độ chuyển đổi giữa đứng và ngồi")]
     public float tocDoChuyenTuThe = 8f;
 
-    [Header("--- Cấu hình Thể lực (Stamina) ---")]
+    [Header("--- Cấu hình Thể lực ---")]
     [Tooltip("Thể lực tối đa")]
     public float theLucToiDa = 100f;
 
     [Tooltip("Lượng thể lực tiêu hao mỗi giây khi chạy")]
     public float theLucTieuHaoMoiGiay = 20f;
 
-    [Tooltip("Lượng thể lực hồi phục mỗi giây khi không chạy")]
+    [Tooltip("Lượng thể lực hồi phục mỗi giây")]
     public float theLucHoiPhucMoiGiay = 15f;
 
-    // --- Biến nội bộ quản lý trạng thái (Giữ nguyên không đổi tên) ---
+    // --- Biến nội bộ quản lý trạng thái ---
     private float theLucHienTai;
     private float tocDoHienTai;
-    private Vector3 vanTocTrongLuc; // Vận tốc rơi tự do
-    private Vector2 giaTriDiChuyenDauVao; // Dữ liệu phím WASD
+    private Vector2 giaTriDiChuyenDauVao;
 
     private bool dangNhanChay = false;
     private bool dangNhanNgoi = false;
@@ -69,16 +81,29 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        // Lấy component CharacterController nếu chưa kéo vào Inspector
         if (boDieuKhienNhanVat == null)
         {
-            boDieuKhienNhanVat = GetComponent<CharacterController>();
+            boDieuKhienNhanVat = GetComponent<Rigidbody>();
         }
 
-        // Khởi tạo thể lực ban đầu
+        if (vaChamNhanVat == null)
+        {
+            vaChamNhanVat = GetComponent<CapsuleCollider>();
+        }
+
+        // Tự động tìm Main Camera nếu chưa gán trong Inspector
+        if (cameraChinh == null && Camera.main != null)
+        {
+            cameraChinh = Camera.main.transform;
+        }
+
+        if (boDieuKhienNhanVat != null)
+        {
+            boDieuKhienNhanVat.freezeRotation = true;
+        }
+
         theLucHienTai = theLucToiDa;
 
-        // Khởi tạo UI Slider
         if (thanhTheLucUI != null)
         {
             thanhTheLucUI.maxValue = theLucToiDa;
@@ -88,162 +113,140 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        // 1. Kiểm tra trạng thái chạm đất
-        kiemTraDanGiapDat = boDieuKhienNhanVat.isGrounded;
-        if (kiemTraDanGiapDat && vanTocTrongLuc.y < 0)
+        if (diemKiemTraChan != null)
         {
-            // Đặt vận tốc rơi nhỏ để đảm bảo nhân vật bám sát mặt đất
-            vanTocTrongLuc.y = -2f;
+            kiemTraDanGiapDat = Physics.CheckSphere(diemKiemTraChan.position, banKinhKiemTraDat, lopMatDat);
+        }
+        else
+        {
+            kiemTraDanGiapDat = Physics.Raycast(transform.position, Vector3.down, 1.1f, lopMatDat);
         }
 
-        // 2. Xử lý thể lực và xác định tốc độ di chuyển
         XuLyTheLucVaTocDo();
-
-        // 3. Xử lý di chuyển & xoay hướng nhân vật chuẩn TPS
-        XuLyDiChuyen();
-
-        // 4. Xử lý tư thế Ngồi (Crouch)
         XuLyTudTheNgoi();
-
-        // 5. Xử lý Nhảy
-        XuLyNhay();
-
-        // 6. Áp dụng trọng lực rơi
-        vanTocTrongLuc.y += trongLuc * Time.deltaTime;
-        boDieuKhienNhanVat.Move(vanTocTrongLuc * Time.deltaTime);
-
-        // 7. Cập nhật giao diện UI
         CapNhatGiaoDienUI();
     }
 
-    #region Các Hàm Nhận Input Từ Input System Mới
-    // Nhận sự kiện phím WASD
+    private void FixedUpdate()
+    {
+        XuLyDiChuyenTheoCamera();
+        XuLyNhay();
+    }
+
+    #region Input Events
     public void OnMove(InputAction.CallbackContext context)
     {
         giaTriDiChuyenDauVao = context.ReadValue<Vector2>();
     }
 
-    // Nhận sự kiện phím Shift (Chạy)
     public void OnSprint(InputAction.CallbackContext context)
     {
-        if (context.started || context.performed)
-            dangNhanChay = true;
-        else if (context.canceled)
-            dangNhanChay = false;
+        if (context.started || context.performed) dangNhanChay = true;
+        else if (context.canceled) dangNhanChay = false;
     }
 
-    // Nhận sự kiện phím Ctrl (Ngồi)
     public void OnCrouch(InputAction.CallbackContext context)
     {
-        if (context.started || context.performed)
-            dangNhanNgoi = true;
-        else if (context.canceled)
-            dangNhanNgoi = false;
+        if (context.started || context.performed) dangNhanNgoi = true;
+        else if (context.canceled) dangNhanNgoi = false;
     }
 
-    // Nhận sự kiện phím Alt (Đi chậm)
     public void OnWalkSlow(InputAction.CallbackContext context)
     {
-        if (context.started || context.performed)
-            dangNhanDiCham = true;
-        else if (context.canceled)
-            dangNhanDiCham = false;
+        if (context.started || context.performed) dangNhanDiCham = true;
+        else if (context.canceled) dangNhanDiCham = false;
     }
 
-    // Nhận sự kiện phím Space (Nhảy)
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (context.performed)
-        {
-            dangDaThietLapNhay = true;
-        }
+        if (context.performed) dangDaThietLapNhay = true;
     }
     #endregion
 
-    // Logic tính toán tốc độ di chuyển và trừ/hồi thể lực
     private void XuLyTheLucVaTocDo()
     {
         bool dangDiChuyen = giaTriDiChuyenDauVao.sqrMagnitude > 0.01f;
 
-        // Nếu người dùng giữ Shift, có di chuyển và còn thể lực -> Cho phép chạy
         if (dangNhanChay && dangDiChuyen && theLucHienTai > 0 && !dangNhanNgoi)
         {
             tocDoHienTai = tocDoChay;
-            // Trừ thể lực theo thời gian
             theLucHienTai -= theLucTieuHaoMoiGiay * Time.deltaTime;
             if (theLucHienTai < 0) theLucHienTai = 0;
         }
         else
         {
-            // Tự động hồi phục thể lực nếu không chạy
             if (theLucHienTai < theLucToiDa)
             {
                 theLucHienTai += theLucHoiPhucMoiGiay * Time.deltaTime;
                 if (theLucHienTai > theLucToiDa) theLucHienTai = theLucToiDa;
             }
 
-            // Phân bổ tốc độ dựa trên tư thế
-            if (dangNhanNgoi)
-            {
-                tocDoHienTai = tocDoNgoi;
-            }
-            else if (dangNhanDiCham)
-            {
-                tocDoHienTai = tocDoDiCham;
-            }
-            else
-            {
-                tocDoHienTai = tocDoDiBo;
-            }
+            if (dangNhanNgoi) tocDoHienTai = tocDoNgoi;
+            else if (dangNhanDiCham) tocDoHienTai = tocDoDiCham;
+            else tocDoHienTai = tocDoDiBo;
         }
     }
 
-    // Logic di chuyển thực tế bằng CharacterController và xoay nhân vật theo hướng di chuyển (TPS Style)
-    private void XuLyDiChuyen()
+    // ĐÃ SỬA: Tính toán di chuyển dựa 100% theo hướng quay của Camera
+    private void XuLyDiChuyenTheoCamera()
     {
-        // Tạo hướng di chuyển 3D trên mặt phẳng XZ từ phím bấm WASD
-        Vector3 huongDiChuyen = new Vector3(giaTriDiChuyenDauVao.x, 0f, giaTriDiChuyenDauVao.y).normalized;
-
-        // Kiểm tra xem người chơi có đang bấm phím di chuyển không
-        if (huongDiChuyen.magnitude >= 0.1f)
+        if (giaTriDiChuyenDauVao.sqrMagnitude >= 0.01f)
         {
-            // Tính góc xoay target theo hướng bấm phím
-            float gocXoayMucTieu = Mathf.Atan2(huongDiChuyen.x, huongDiChuyen.z) * Mathf.Rad2Deg;
+            Vector3 camForward = Vector3.forward;
+            Vector3 camRight = Vector3.right;
 
-            // Xoay thân nhân vật mượt mà về hướng di chuyển bằng Quaternion.Slerp
-            Quaternion gocXoayMoi = Quaternion.Euler(0f, gocXoayMucTieu, 0f);
-            transform.rotation = Quaternion.Slerp(transform.rotation, gocXoayMoi, Time.deltaTime * tocDoXoayNhanVat);
+            if (cameraChinh != null)
+            {
+                // Lấy hướng nhìn của Camera
+                camForward = cameraChinh.forward;
+                camRight = cameraChinh.right;
 
-            // Thực hiện di chuyển nhân vật tới hướng đó
-            boDieuKhienNhanVat.Move(huongDiChuyen * tocDoHienTai * Time.deltaTime);
+                // Triệt tiêu trục Y để di chuyển phẳng trên mặt đất, không bị cắm mặt xuống đất
+                camForward.y = 0f;
+                camRight.y = 0f;
+                camForward.Normalize();
+                camRight.Normalize();
+            }
+
+            // Tính toán hướng di chuyển thực tế theo góc quay Camera
+            Vector3 huongDiChuyen = (camForward * giaTriDiChuyenDauVao.y) + (camRight * giaTriDiChuyenDauVao.x);
+            huongDiChuyen.Normalize();
+
+            // Xoay mặt nhân vật hướng về phía đang di chuyển
+            Quaternion gocXoayMucTieu = Quaternion.LookRotation(huongDiChuyen);
+            transform.rotation = Quaternion.Slerp(transform.rotation, gocXoayMucTieu, Time.fixedDeltaTime * tocDoXoayNhanVat);
+
+            // Áp dụng vận tốc di chuyển vào Rigidbody
+            Vector3 vanTocMucTieu = huongDiChuyen * tocDoHienTai;
+            boDieuKhienNhanVat.linearVelocity = new Vector3(vanTocMucTieu.x, boDieuKhienNhanVat.linearVelocity.y, vanTocMucTieu.z);
+        }
+        else
+        {
+            // Dừng di chuyển ngang khi không bấm phím
+            boDieuKhienNhanVat.linearVelocity = new Vector3(0f, boDieuKhienNhanVat.linearVelocity.y, 0f);
         }
     }
 
-    // Logic thay đổi chiều cao CharacterController khi ngồi
     private void XuLyTudTheNgoi()
     {
+        if (vaChamNhanVat == null) return;
         float chieuCaoMucTieu = dangNhanNgoi ? chieuCaoNgoi : chieuCaoDung;
-        
-        // Mượt mà thay đổi chiều cao nhân vật
-        boDieuKhienNhanVat.height = Mathf.Lerp(boDieuKhienNhanVat.height, chieuCaoMucTieu, Time.deltaTime * tocDoChuyenTuThe);
+        vaChamNhanVat.height = Mathf.Lerp(vaChamNhanVat.height, chieuCaoMucTieu, Time.deltaTime * tocDoChuyenTuThe);
     }
 
-    // Logic thực hiện cú nhảy
     private void XuLyNhay()
     {
         if (dangDaThietLapNhay)
         {
-            // Chỉ cho nhảy khi đang chạm đất và không ở tư thế ngồi
             if (kiemTraDanGiapDat && !dangNhanNgoi)
             {
-                // Công thức tính vận tốc nhảy theo độ cao mong muốn: v = sqrt(h * -2 * g)
-                vanTocTrongLuc.y = Mathf.Sqrt(lucNhay * -2f * trongLuc);
+                boDieuKhienNhanVat.linearVelocity = new Vector3(boDieuKhienNhanVat.linearVelocity.x, 0f, boDieuKhienNhanVat.linearVelocity.z);
+                boDieuKhienNhanVat.AddForce(Vector3.up * lucNhay, ForceMode.Impulse);
             }
-            dangDaThietLapNhay = false; // Reset cờ nhảy
+            dangDaThietLapNhay = false;
         }
     }
 
-    // Cập nhật Slider UI
     private void CapNhatGiaoDienUI()
     {
         if (thanhTheLucUI != null)
