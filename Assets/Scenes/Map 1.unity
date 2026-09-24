@@ -635,6 +635,12 @@ MonoBehaviour:
   gocNhinCaoNhat: 90
   dinhChatKhongDoTre: 1
   tocDoBamMuot: 2
+  banKinhQuetCamera: 0.25
+  khoangCachDemTuong: 0.15
+  tocDoThuGiamKhoangCach: 25
+  layerVaChamTuong:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
