@@ -26,9 +26,6 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Tốc độ khi giữ Shift (Chạy nhanh)")]
     public float tocDoChay = 7f;
 
-    [Tooltip("Tốc độ khi giữ Alt (Đi chậm)")]
-    public float tocDoDiCham = 2f;
-
     [Tooltip("Tốc độ khi giữ Ctrl (Ngồi)")]
     public float tocDoNgoi = 1.5f;
 
@@ -45,10 +42,17 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Bán kính hình cầu kiểm tra chạm đất")]
     public float banKinhKiemTraDat = 0.2f;
 
-    [Tooltip("Layer đánh dấu các bề mặt được coi là mặt đất")]
+    [Tooltip("Layer đánh dấu các bề mặt được coi là mặt đất/bậc thang/trần nhà")]
     public LayerMask lopMatDat;
 
-    [Header("--- Cấu hình Tư thế Ngồi ---")]
+    [Header("--- Cấu hình Cầu Thang (Step Offset) ---")]
+    [Tooltip("Chiều cao tối đa của bậc thang mà nhân vật có thể bước lên")]
+    public float chieuCaoBacThangToidA = 0.5f;
+
+    [Tooltip("Tốc độ đẩy nhân vật lên bậc thang")]
+    public float tocDoLeoBacThang = 6f;
+
+    [Header("--- Cấu hình Tư thế Ngồi & Bắt Khu Vực Hẹp ---")]
     [Tooltip("Chiều cao CapsuleCollider khi đứng")]
     public float chieuCaoDung = 2.0f;
 
@@ -57,6 +61,9 @@ public class PlayerMovement : MonoBehaviour
 
     [Tooltip("Tốc độ chuyển đổi giữa đứng và ngồi")]
     public float tocDoChuyenTuThe = 8f;
+
+    [Tooltip("Bán kính hình cầu kiểm tra trần nhà phía trên khi muốn đứng dậy")]
+    public float banKinhKiemTraTran = 0.35f;
 
     [Header("--- Cấu hình Thể lực ---")]
     [Tooltip("Thể lực tối đa")]
@@ -73,11 +80,15 @@ public class PlayerMovement : MonoBehaviour
     private float tocDoHienTai;
     private Vector2 giaTriDiChuyenDauVao;
 
+    private bool dangGiuPhimNgoi = false; // Trạng thái phím Ctrl
+    private bool dangNhanNgoi = false;     // Trạng thái ngồi thực tế của nhân vật
     private bool dangNhanChay = false;
-    private bool dangNhanNgoi = false;
-    private bool dangNhanDiCham = false;
     private bool dangDaThietLapNhay = false;
     private bool kiemTraDanGiapDat = false;
+    private bool dangBiVuongTran = false;  // Đánh dấu trần nhà bị kẹt
+
+    // Biến thuộc tính khai báo công khai cho CameraController truy cập
+    public bool DangDiChuyen => giaTriDiChuyenDauVao.sqrMagnitude > 0.01f;
 
     private void Start()
     {
@@ -91,7 +102,6 @@ public class PlayerMovement : MonoBehaviour
             vaChamNhanVat = GetComponent<CapsuleCollider>();
         }
 
-        // Tự động tìm Main Camera nếu chưa kéo trong Inspector
         if (cameraChinh == null && Camera.main != null)
         {
             cameraChinh = Camera.main.transform;
@@ -113,6 +123,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        // 1. Kiểm tra vị trí chạm đất
         if (diemKiemTraChan != null)
         {
             kiemTraDanGiapDat = Physics.CheckSphere(diemKiemTraChan.position, banKinhKiemTraDat, lopMatDat);
@@ -122,8 +133,13 @@ public class PlayerMovement : MonoBehaviour
             kiemTraDanGiapDat = Physics.Raycast(transform.position, Vector3.down, 1.1f, lopMatDat);
         }
 
+        // 2. KIỂM TRA TRẦN NHÀ PHÍA TRÊN (CEILING CHECK)
+        KiemTraTranNhaPhiaTren();
+
+        // 3. Xử lý tư thế ngồi & cập nhật Collider
+        XuLyTuTheNgoi();
+
         XuLyTheLucVaTocDo();
-        XuLyTudTheNgoi();
         CapNhatGiaoDienUI();
     }
 
@@ -147,14 +163,8 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnCrouch(InputAction.CallbackContext context)
     {
-        if (context.started || context.performed) dangNhanNgoi = true;
-        else if (context.canceled) dangNhanNgoi = false;
-    }
-
-    public void OnWalkSlow(InputAction.CallbackContext context)
-    {
-        if (context.started || context.performed) dangNhanDiCham = true;
-        else if (context.canceled) dangNhanDiCham = false;
+        if (context.started || context.performed) dangGiuPhimNgoi = true;
+        else if (context.canceled) dangGiuPhimNgoi = false;
     }
 
     public void OnJump(InputAction.CallbackContext context)
@@ -163,11 +173,47 @@ public class PlayerMovement : MonoBehaviour
     }
     #endregion
 
+    // THUẬT TOÁN BẮT KHU VỰC HẸP PHÍA TRÊN ĐẦU
+    private void KiemTraTranNhaPhiaTren()
+    {
+        if (vaChamNhanVat == null) return;
+
+        // Vị trí quét từ đỉnh đầu của Collider hiện tại
+        Vector3 viTriDau = transform.position + Vector3.up * (vaChamNhanVat.height - banKinhKiemTraTran);
+        float khoangCachQuet = chieuCaoDung - vaChamNhanVat.height;
+
+        if (khoangCachQuet > 0.01f)
+        {
+            dangBiVuongTran = Physics.SphereCast(viTriDau, banKinhKiemTraTran, Vector3.up, out _, khoangCachQuet, lopMatDat);
+        }
+        else
+        {
+            dangBiVuongTran = false;
+        }
+
+        // NẾU đè phím Ctrl HOẶC bị vướng trần -> Ép nhân vật ở trạng thái ngồi
+        if (dangGiuPhimNgoi || dangBiVuongTran)
+        {
+            dangNhanNgoi = true;
+        }
+        else
+        {
+            dangNhanNgoi = false;
+        }
+    }
+
+    private void XuLyTuTheNgoi()
+    {
+        if (vaChamNhanVat == null) return;
+
+        // Chỉ thay đổi chiều cao height, giữ nguyên Center mặc định của Collider
+        float chieuCaoMucTieu = dangNhanNgoi ? chieuCaoNgoi : chieuCaoDung;
+        vaChamNhanVat.height = Mathf.Lerp(vaChamNhanVat.height, chieuCaoMucTieu, Time.deltaTime * tocDoChuyenTuThe);
+    }
+
     private void XuLyTheLucVaTocDo()
     {
-        bool dangDiChuyen = giaTriDiChuyenDauVao.sqrMagnitude > 0.01f;
-
-        if (dangNhanChay && dangDiChuyen && theLucHienTai > 0 && !dangNhanNgoi)
+        if (dangNhanChay && DangDiChuyen && theLucHienTai > 0 && !dangNhanNgoi)
         {
             tocDoHienTai = tocDoChay;
             theLucHienTai -= theLucTieuHaoMoiGiay * Time.deltaTime;
@@ -182,50 +228,60 @@ public class PlayerMovement : MonoBehaviour
             }
 
             if (dangNhanNgoi) tocDoHienTai = tocDoNgoi;
-            else if (dangNhanDiCham) tocDoHienTai = tocDoDiCham;
             else tocDoHienTai = tocDoDiBo;
         }
     }
 
-    // 🎯 THUẬT TOÁN DI CHUYỂN PHỤ THUỘC VÀO HUỚNG TẠO BỞI CAMERA
     private void XuLyDiChuyen()
     {
         if (giaTriDiChuyenDauVao.sqrMagnitude >= 0.01f)
         {
-            // 1. Lấy hướng Phía Trước (Forward) và Bên Phải (Right) của Camera
             Vector3 huongTruocCam = cameraChinh != null ? cameraChinh.forward : Vector3.forward;
             Vector3 huongPhaiCam = cameraChinh != null ? cameraChinh.right : Vector3.right;
 
-            // Triệt tiêu trục Y để nhân vật không bị di chuyển cắm đầu xuống đất hoặc bay lên trời khi nhìn lên/xuống
             huongTruocCam.y = 0f;
             huongPhaiCam.y = 0f;
-
             huongTruocCam.Normalize();
             huongPhaiCam.Normalize();
 
-            // 2. Tính toán Vector hướng di chuyển thực tế dựa theo góc nhìn Camera và phím bấm WASD
             Vector3 huongDiChuyenThucTe = (huongTruocCam * giaTriDiChuyenDauVao.y) + (huongPhaiCam * giaTriDiChuyenDauVao.x);
 
-            // 3. Xoay mặt nhân vật mượt mà về hướng di chuyển đó
             Quaternion gocXoayMucTieu = Quaternion.LookRotation(huongDiChuyenThucTe);
             transform.rotation = Quaternion.Slerp(transform.rotation, gocXoayMucTieu, Time.fixedDeltaTime * tocDoXoayNhanVat);
 
-            // 4. Áp dụng vận tốc cho Rigidbody
+            // Trượt tường
+            RaycastHit hitTuong;
+            if (Physics.Raycast(transform.position + Vector3.up * 0.5f, huongDiChuyenThucTe, out hitTuong, 0.6f, lopMatDat))
+            {
+                if (Vector3.Angle(hitTuong.normal, Vector3.up) > 60f)
+                {
+                    huongDiChuyenThucTe = Vector3.ProjectOnPlane(huongDiChuyenThucTe, hitTuong.normal).normalized;
+                }
+            }
+
             Vector3 vanTocMucTieu = huongDiChuyenThucTe * tocDoHienTai;
             boDieuKhienNhanVat.linearVelocity = new Vector3(vanTocMucTieu.x, boDieuKhienNhanVat.linearVelocity.y, vanTocMucTieu.z);
+
+            XuLyLeoCauThang(huongDiChuyenThucTe);
         }
         else
         {
-            // Khi không nhấn phím di chuyển, dừng vận tốc ngang lại (giữ nguyên vận tốc trọng lực Y)
             boDieuKhienNhanVat.linearVelocity = new Vector3(0f, boDieuKhienNhanVat.linearVelocity.y, 0f);
         }
     }
 
-    private void XuLyTudTheNgoi()
+    private void XuLyLeoCauThang(Vector3 huongDiChuyen)
     {
-        if (vaChamNhanVat == null) return;
-        float chieuCaoMucTieu = dangNhanNgoi ? chieuCaoNgoi : chieuCaoDung;
-        vaChamNhanVat.height = Mathf.Lerp(vaChamNhanVat.height, chieuCaoMucTieu, Time.deltaTime * tocDoChuyenTuThe);
+        Vector3 viTriGocChan = transform.position + Vector3.up * 0.05f;
+        Vector3 viTriGocDauGoi = transform.position + Vector3.up * chieuCaoBacThangToidA;
+
+        if (Physics.Raycast(viTriGocChan, huongDiChuyen, out _, 0.6f, lopMatDat))
+        {
+            if (!Physics.Raycast(viTriGocDauGoi, huongDiChuyen, out _, 0.7f, lopMatDat))
+            {
+                boDieuKhienNhanVat.position += new Vector3(0f, tocDoLeoBacThang * Time.fixedDeltaTime, 0f);
+            }
+        }
     }
 
     private void XuLyNhay()
@@ -246,6 +302,22 @@ public class PlayerMovement : MonoBehaviour
         if (thanhTheLucUI != null)
         {
             thanhTheLucUI.value = theLucHienTai;
+        }
+    }
+
+    // Hiển thị vòng cầu quét kiểm tra trần trong tab Scene
+    private void OnDrawGizmosSelected()
+    {
+        if (vaChamNhanVat == null) return;
+        Gizmos.color = dangBiVuongTran ? Color.red : Color.yellow;
+        Vector3 viTriDau = transform.position + Vector3.up * (vaChamNhanVat.height - banKinhKiemTraTran);
+        float khoangCachQuet = chieuCaoDung - vaChamNhanVat.height;
+
+        Gizmos.DrawWireSphere(viTriDau, banKinhKiemTraTran);
+        if (khoangCachQuet > 0)
+        {
+            Gizmos.DrawWireSphere(viTriDau + Vector3.up * khoangCachQuet, banKinhKiemTraTran);
+            Gizmos.DrawLine(viTriDau, viTriDau + Vector3.up * khoangCachQuet);
         }
     }
 }

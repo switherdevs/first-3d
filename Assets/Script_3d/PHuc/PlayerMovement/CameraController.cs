@@ -70,7 +70,7 @@ public class CameraController : MonoBehaviour
         XuLyXoayCameraTheoChuot();
     }
 
-    // Logic xoay camera phản hồi tức thì, không độ trễ
+    // Logic xoay camera phản hồi tức thì, giữ cố định khoảng cách khi di chuyển
     private void XuLyXoayCameraTheoChuot()
     {
         if (thanNhanVat == null) return;
@@ -107,13 +107,13 @@ public class CameraController : MonoBehaviour
             }
         }
 
-        // Xử lý thu/phóng khoảng cách mượt mà và không giật lắc bằng SmoothDamp
+        // Xử lý thu/phóng khoảng cách mượt mà khi chạm tường bằng SmoothDamp
         khoangCachHienTai = Mathf.SmoothDamp(khoangCachHienTai, khoangCachMucTieu, ref vanTocThuPhongBoDem, thoiGianThuPhongNeTuong);
 
-        // 7. Tính vị trí Camera chính xác tức thì
+        // 7. Tính vị trí Camera chính xác
         Vector3 viTriTarget = diemNhin - (huongXoay * Vector3.forward * khoangCachHienTai);
 
-        // 8. Cập nhật trực tiếp vị trí và góc xoay (Loại bỏ Vector3.Lerp vị trí để xóa bỏ độ trễ)
+        // 8. Cập nhật vị trí và góc xoay
         transform.position = viTriTarget;
         transform.rotation = huongXoay;
     }

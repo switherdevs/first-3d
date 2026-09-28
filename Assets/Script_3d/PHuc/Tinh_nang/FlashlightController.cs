@@ -11,6 +11,9 @@ public class FlashlightController : MonoBehaviour
     [Tooltip("Thanh Slider hiển thị lượng pin còn lại trên UI")]
     public Slider thanhPinUI;
 
+    [Tooltip("Tham chiếu đến Camera chính để đèn pin xoay lên/xuống theo góc nhìn")]
+    public Camera cameraChinh;
+
     [Header("--- Cấu hình Pin ---")]
     [Tooltip("Mức pin tối đa")]
     public float pinToiDa = 100f;
@@ -26,6 +29,12 @@ public class FlashlightController : MonoBehaviour
     {
         // Khởi tạo mức pin ban đầu
         pinHienTai = pinToiDa;
+
+        // Tự động tìm Main Camera nếu chưa kéo vào Inspector
+        if (cameraChinh == null)
+        {
+            cameraChinh = Camera.main;
+        }
 
         // Cấu hình thanh Slider UI nếu có tham chiếu
         if (thanhPinUI != null)
@@ -44,11 +53,27 @@ public class FlashlightController : MonoBehaviour
         CapNhatGiaoDienUI();
     }
 
+    // Cập nhật góc xoay ở LateUpdate để đồng bộ hoàn hảo với góc xoay của Camera
+    private void LateUpdate()
+    {
+        DongBoGocXoayTheoCamera();
+    }
+
+    // Thuật toán đồng bộ góc xoay đèn pin theo Camera
+    private void DongBoGocXoayTheoCamera()
+    {
+        if (dangBatDen && cameraChinh != null)
+        {
+            // Gán trực tiếp góc xoay của Đèn Pin bằng góc xoay của Camera
+            transform.rotation = cameraChinh.transform.rotation;
+        }
+    }
+
     #region Input Event (New Input System)
     // Gọi hàm này từ Player Input Component (Action "ToggleFlashlight" gán phím F)
     public void OnToggleFlashlight(InputAction.CallbackContext context)
     {
-        // Chỉ kích hoạt 1 lần khi người người chơi vừa nhấn phím down xuống
+        // Chỉ kích hoạt 1 lần khi người chơi vừa nhấn phím down xuống
         if (context.started)
         {
             // Chỉ cho phép bật nếu còn pin

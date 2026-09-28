@@ -1,7 +1,9 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem; // Sử dụng cho phím ESC
 
 public enum NgonNgu
 {
@@ -34,6 +36,19 @@ public class SettingsManager : MonoBehaviour
     public TextMeshProUGUI textSFXValue;
     public TextMeshProUGUI textSensitivityValue;
 
+    [Header("--- BỔ SUNG: ANIMATION & RESUME UI ---")]
+    [Tooltip("Animator để chạy Animation cho UI Setting")]
+    public Animator animatorSetting;
+
+    [Tooltip("Tên Trigger/State Animation xuất hiện cho Setting")]
+    public string tenAniIn = "ani_in";
+
+    [Tooltip("Tên Trigger/State Animation biến mất cho Setting")]
+    public string tenAniOut = "ani_out";
+
+    [Tooltip("Thời gian chờ (giây) để animation ani_out chạy hết trước khi ẩn GameObject")]
+    public float thoiGianChoAniOut = 0.5f;
+
     [Header("--- CẤU HÌNH NGÔN NGỮ ---")]
     public NgonNgu ngonNguHienTai = NgonNgu.TiengViet;
 
@@ -47,6 +62,8 @@ public class SettingsManager : MonoBehaviour
     private const string KEY_SENSITIVITY = "Save_MouseSensitivity";
     private const string KEY_LANGUAGE = "Save_Language";
 
+    private Coroutine coroutineChuyenGiaoUI;
+
     private void Awake()
     {
         if (Instance == null)
@@ -56,6 +73,8 @@ public class SettingsManager : MonoBehaviour
         }
         else
         {
+            // Nếu đã có Instance tồn tại, chuyển toàn bộ liên kết UI mới sang Instance cũ
+            Instance.CapNhatLienKetUIMoi(this);
             Destroy(gameObject);
             return;
         }
@@ -63,17 +82,61 @@ public class SettingsManager : MonoBehaviour
 
     private void Start()
     {
-        // 1. Cấu hình khoảng Min/Max cho Slider
+        KhoiTaoSettings();
+    }
+
+    private void Update()
+    {
+        // Nhấn ESC để Toggle/Resume Setting khi đang mở
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            if (gameObject.activeSelf)
+            {
+                ResumeGame();
+            }
+        }
+    }
+
+    public void KhoiTaoSettings()
+    {
+        // 1. Tự động lấy Animator nếu chưa kéo vào Inspector
+        if (animatorSetting == null)
+        {
+            animatorSetting = GetComponent<Animator>();
+        }
+
+        // 2. Cấu hình khoảng Min/Max cho Slider
         CauHinhSlider(sliderMaster, 0.0001f, 1f);
         CauHinhSlider(sliderMusic, 0.0001f, 1f);
         CauHinhSlider(sliderSFX, 0.0001f, 1f);
-        CauHinhSlider(sliderSensitivity, 0.05f, 2.0f); // Khoảng độ nhạy chuột phù hợp cho CameraController
+        CauHinhSlider(sliderSensitivity, 0.05f, 2.0f);
 
-        // 2. Lắng nghe sự kiện kéo Slider từ UI
+        // 3. Lắng nghe sự kiện kéo Slider từ UI
         DangKySuKienSliders();
 
-        // 3. Tải và áp dụng cài đặt đã lưu
+        // 4. Tải và áp dụng cài đặt đã lưu
         LoadAllSettings();
+    }
+
+    // Cập nhật lại các tham chiếu UI khi reload scene mới
+    public void CapNhatLienKetUIMoi(SettingsManager newSettings)
+    {
+        this.sliderMaster = newSettings.sliderMaster;
+        this.sliderMusic = newSettings.sliderMusic;
+        this.sliderSFX = newSettings.sliderSFX;
+        this.sliderSensitivity = newSettings.sliderSensitivity;
+
+        this.textMasterValue = newSettings.textMasterValue;
+        this.textMusicValue = newSettings.textMusicValue;
+        this.textSFXValue = newSettings.textSFXValue;
+        this.textSensitivityValue = newSettings.textSensitivityValue;
+
+        this.animatorSetting = newSettings.animatorSetting;
+        this.tenAniIn = newSettings.tenAniIn;
+        this.tenAniOut = newSettings.tenAniOut;
+        this.thoiGianChoAniOut = newSettings.thoiGianChoAniOut;
+
+        KhoiTaoSettings();
     }
 
     private void CauHinhSlider(Slider slider, float min, float max)
@@ -88,16 +151,86 @@ public class SettingsManager : MonoBehaviour
     private void DangKySuKienSliders()
     {
         if (sliderMaster != null)
+        {
+            sliderMaster.onValueChanged.RemoveAllListeners();
             sliderMaster.onValueChanged.AddListener(SetMasterVolume);
+        }
 
         if (sliderMusic != null)
+        {
+            sliderMusic.onValueChanged.RemoveAllListeners();
             sliderMusic.onValueChanged.AddListener(SetMusicVolume);
+        }
 
         if (sliderSFX != null)
+        {
+            sliderSFX.onValueChanged.RemoveAllListeners();
             sliderSFX.onValueChanged.AddListener(SetSFXVolume);
+        }
 
         if (sliderSensitivity != null)
+        {
+            sliderSensitivity.onValueChanged.RemoveAllListeners();
             sliderSensitivity.onValueChanged.AddListener(SetMouseSensitivity);
+        }
+    }
+
+    // =========================================================
+    // HÀM MỞ / ĐÓNG (RESUME) SETTING VỚI ANIMATION IN/OUT
+    // =========================================================
+
+    // 🎯 HÀM MỞ SETTING (Gán cho nút Setting hoặc phím Pause)
+    public void MoSettingUI()
+    {
+        gameObject.SetActive(true);
+
+        if (animatorSetting != null && !string.IsNullOrEmpty(tenAniIn))
+        {
+            animatorSetting.Play(tenAniIn, 0, 0f);
+        }
+
+        // Hiện chuột để thao tác UI
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    // 🎯 HÀM BỔ SUNG: NÚT RESUME (Gán vào Button Resume/Đóng trong Setting UI)
+    public void ResumeGame()
+    {
+        // An toàn chống lỗi Coroutine nếu GameObject bị Inactive
+        if (!gameObject.activeInHierarchy)
+        {
+            gameObject.SetActive(false);
+            Time.timeScale = 1f;
+            return;
+        }
+
+        if (coroutineChuyenGiaoUI != null)
+        {
+            StopCoroutine(coroutineChuyenGiaoUI);
+        }
+
+        coroutineChuyenGiaoUI = StartCoroutine(Routine_ResumeGame());
+    }
+
+    private IEnumerator Routine_ResumeGame()
+    {
+        // 1. Chạy Animation ani_out biến mất
+        if (animatorSetting != null && !string.IsNullOrEmpty(tenAniOut))
+        {
+            animatorSetting.Play(tenAniOut, 0, 0f);
+        }
+
+        // 2. Chờ thời gian chạy hết animation ani_out (Realtime không bị ảnh hưởng bởi Time.timeScale = 0)
+        yield return new WaitForSecondsRealtime(thoiGianChoAniOut);
+
+        // 3. Tắt GameObject Setting UI
+        gameObject.SetActive(false);
+
+        // 4. Khôi phục lại thời gian Game
+        Time.timeScale = 1f;
+
+        coroutineChuyenGiaoUI = null;
     }
 
     // 🎯 1. XỬ LÝ ÂM THANH MASTER
@@ -156,7 +289,6 @@ public class SettingsManager : MonoBehaviour
         if (sliderSensitivity != null && sliderSensitivity.value != value) sliderSensitivity.value = value;
         CapNhatTextHienThi(textSensitivityValue, value, "x");
 
-        // Liên kết trực tiếp sang CameraController trong Scene
         CameraController camControl = Object.FindFirstObjectByType<CameraController>();
         if (camControl != null)
         {
@@ -176,8 +308,6 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.Save();
 
         Debug.Log("<color=cyan>[SettingsManager]</color> Đã chuyển ngôn ngữ sang: " + ngonNguHienTai.ToString());
-
-        // Có thể phát sự kiện để các UI khác cập nhật văn bản nếu cần
     }
 
     public void ChuyenDoiQuaLaiNgonNgu()
