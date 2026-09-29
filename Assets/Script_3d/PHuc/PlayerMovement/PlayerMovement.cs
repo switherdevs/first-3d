@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
+[RequireComponent(typeof(AudioSource))]
 public class PlayerMovement : MonoBehaviour
 {
     [Header("--- Thành phần tham chiếu ---")]
@@ -13,11 +14,20 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Thành phần CapsuleCollider để chỉnh chiều cao khi ngồi")]
     public CapsuleCollider vaChamNhanVat;
 
+    [Tooltip("Model Mesh hiển thị nhân vật để co giãn Scale Y riêng biệt")]
+    public Transform moHinhNhanVat;
+
     [Tooltip("Thanh Slider hiển thị thể lực trên giao diện UI")]
     public Slider thanhTheLucUI;
 
     [Tooltip("Camera chính dùng để tính toán hướng di chuyển theo góc nhìn")]
     public Transform cameraChinh;
+
+    [Tooltip("Thành phần AudioSource để phát âm thanh bước chân")]
+    public AudioSource nguonAmThanh;
+
+    [Tooltip("File âm thanh tiếng bước chân dùng chung")]
+    public AudioClip amThanhBuocChan;
 
     [Header("--- Tốc độ di chuyển ---")]
     [Tooltip("Tốc độ di chuyển bình thường")]
@@ -62,7 +72,11 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Tốc độ chuyển đổi giữa đứng và ngồi")]
     public float tocDoChuyenTuThe = 8f;
 
-    [Tooltip("Bán kính hình cầu kiểm tra trần nhà phía trên khi muốn đứng dậy")]
+    [Header("--- Kiểm tra Trần Nhà Độc Lập ---")]
+    [Tooltip("Transform điểm check trần (đặt ở vị trí đỉnh đầu khi đứng)")]
+    public Transform diemKiemTraTran;
+
+    [Tooltip("Bán kính quả cầu kiểm tra vật cản ở đỉnh đầu")]
     public float banKinhKiemTraTran = 0.35f;
 
     [Header("--- Cấu hình Thể lực ---")]
@@ -79,38 +93,32 @@ public class PlayerMovement : MonoBehaviour
     private float theLucHienTai;
     private float tocDoHienTai;
     private Vector2 giaTriDiChuyenDauVao;
+    private float scaleYMoHinhGoc = 1f;
 
-    private bool dangGiuPhimNgoi = false; // Trạng thái phím Ctrl
-    private bool dangNhanNgoi = false;     // Trạng thái ngồi thực tế của nhân vật
+    private bool dangGiuPhimNgoi = false;
+    private bool dangNhanNgoi = false;
     private bool dangNhanChay = false;
     private bool dangDaThietLapNhay = false;
     private bool kiemTraDanGiapDat = false;
-    private bool dangBiVuongTran = false;  // Đánh dấu trần nhà bị kẹt
+    private bool dangBiVuongTran = false;
 
-    // Biến thuộc tính khai báo công khai cho CameraController truy cập
+    // Biến đếm thời gian cho nhịp phát âm thanh bước chân
+    private float demThoiGianBuocChan = 0f;
+
+    private Collider[] vaChamKiemTraTranBuffer = new Collider[5];
+
     public bool DangDiChuyen => giaTriDiChuyenDauVao.sqrMagnitude > 0.01f;
 
     private void Start()
     {
-        if (boDieuKhienNhanVat == null)
-        {
-            boDieuKhienNhanVat = GetComponent<Rigidbody>();
-        }
+        if (boDieuKhienNhanVat == null) boDieuKhienNhanVat = GetComponent<Rigidbody>();
+        if (vaChamNhanVat == null) vaChamNhanVat = GetComponent<CapsuleCollider>();
+        if (nguonAmThanh == null) nguonAmThanh = GetComponent<AudioSource>();
 
-        if (vaChamNhanVat == null)
-        {
-            vaChamNhanVat = GetComponent<CapsuleCollider>();
-        }
+        if (cameraChinh == null && Camera.main != null) cameraChinh = Camera.main.transform;
 
-        if (cameraChinh == null && Camera.main != null)
-        {
-            cameraChinh = Camera.main.transform;
-        }
-
-        if (boDieuKhienNhanVat != null)
-        {
-            boDieuKhienNhanVat.freezeRotation = true;
-        }
+        if (boDieuKhienNhanVat != null) boDieuKhienNhanVat.freezeRotation = true;
+        if (moHinhNhanVat != null) scaleYMoHinhGoc = moHinhNhanVat.localScale.y;
 
         theLucHienTai = theLucToiDa;
 
@@ -133,13 +141,13 @@ public class PlayerMovement : MonoBehaviour
             kiemTraDanGiapDat = Physics.Raycast(transform.position, Vector3.down, 1.1f, lopMatDat);
         }
 
-        // 2. KIỂM TRA TRẦN NHÀ PHÍA TRÊN (CEILING CHECK)
+        // 2. Kiểm tra trần nhà
         KiemTraTranNhaPhiaTren();
 
-        // 3. Xử lý tư thế ngồi & cập nhật Collider
+        // 3. Xử lý tư thế ngồi & âm thanh
         XuLyTuTheNgoi();
-
         XuLyTheLucVaTocDo();
+        XuLyAmThanhBuocChan();
         CapNhatGiaoDienUI();
     }
 
@@ -173,42 +181,100 @@ public class PlayerMovement : MonoBehaviour
     }
     #endregion
 
-    // THUẬT TOÁN BẮT KHU VỰC HẸP PHÍA TRÊN ĐẦU
+    private Vector3 LayViTriKiemTraTran()
+    {
+        if (diemKiemTraTran != null) return diemKiemTraTran.position;
+        return transform.position + Vector3.up * (chieuCaoDung * 0.8f);
+    }
+
     private void KiemTraTranNhaPhiaTren()
     {
-        if (vaChamNhanVat == null) return;
+        Vector3 viTriCheck = LayViTriKiemTraTran();
+        dangBiVuongTran = false;
 
-        // Vị trí quét từ đỉnh đầu của Collider hiện tại
-        Vector3 viTriDau = transform.position + Vector3.up * (vaChamNhanVat.height - banKinhKiemTraTran);
-        float khoangCachQuet = chieuCaoDung - vaChamNhanVat.height;
+        int soLuongVaCham = Physics.OverlapSphereNonAlloc(viTriCheck, banKinhKiemTraTran, vaChamKiemTraTranBuffer, lopMatDat);
 
-        if (khoangCachQuet > 0.01f)
+        for (int i = 0; i < soLuongVaCham; i++)
         {
-            dangBiVuongTran = Physics.SphereCast(viTriDau, banKinhKiemTraTran, Vector3.up, out _, khoangCachQuet, lopMatDat);
-        }
-        else
-        {
-            dangBiVuongTran = false;
+            if (vaChamKiemTraTranBuffer[i] != vaChamNhanVat)
+            {
+                dangBiVuongTran = true;
+                break;
+            }
         }
 
-        // NẾU đè phím Ctrl HOẶC bị vướng trần -> Ép nhân vật ở trạng thái ngồi
-        if (dangGiuPhimNgoi || dangBiVuongTran)
-        {
-            dangNhanNgoi = true;
-        }
-        else
-        {
-            dangNhanNgoi = false;
-        }
+        if (dangGiuPhimNgoi || dangBiVuongTran) dangNhanNgoi = true;
+        else dangNhanNgoi = false;
     }
 
     private void XuLyTuTheNgoi()
     {
         if (vaChamNhanVat == null) return;
 
-        // Chỉ thay đổi chiều cao height, giữ nguyên Center mặc định của Collider
         float chieuCaoMucTieu = dangNhanNgoi ? chieuCaoNgoi : chieuCaoDung;
         vaChamNhanVat.height = Mathf.Lerp(vaChamNhanVat.height, chieuCaoMucTieu, Time.deltaTime * tocDoChuyenTuThe);
+        vaChamNhanVat.center = Vector3.zero;
+
+        if (moHinhNhanVat != null)
+        {
+            float tiLeScale = vaChamNhanVat.height / chieuCaoDung;
+            Vector3 scaleHienTai = moHinhNhanVat.localScale;
+            moHinhNhanVat.localScale = new Vector3(scaleHienTai.x, scaleYMoHinhGoc * tiLeScale, scaleHienTai.z);
+        }
+    }
+
+    // TỐI ƯU ÂM THANH BƯỚC CHÂN CHẠY VÀ ĐI BỘ DÙNG CHUNG 1 CLIP
+    private void XuLyAmThanhBuocChan()
+    {
+        // Chỉ phát âm thanh khi nhân vật đang di chuyển thực sự trên mặt đất
+        if (DangDiChuyen && kiemTraDanGiapDat)
+        {
+            demThoiGianBuocChan -= Time.deltaTime;
+
+            if (demThoiGianBuocChan <= 0f)
+            {
+                float thoiGianKhoangCach;
+                float doCaoPitch;
+                float amLuongVolume;
+
+                // TH1: Đang chạy nhanh
+                if (tocDoHienTai == tocDoChay)
+                {
+                    thoiGianKhoangCach = 0.28f; // Nhịp bước chân dồn dập (ngắn hơn)
+                    doCaoPitch = 1.25f;         // Tăng pitch giúp tiếng bước nhanh và giật hơn
+                    amLuongVolume = 1.0f;       // Âm thanh to, đầm chân
+                }
+                // TH2: Đang ngồi (Rón rén)
+                else if (dangNhanNgoi)
+                {
+                    thoiGianKhoangCach = 0.65f; // Nhịp bước chân chậm rãi
+                    doCaoPitch = 0.85f;         // Tông giọng trầm hơn
+                    amLuongVolume = 0.35f;      // Nhỏ nhẹ
+                }
+                // TH3: Đi bộ bình thường
+                else
+                {
+                    thoiGianKhoangCach = 0.45f; // Nhịp tiêu chuẩn
+                    doCaoPitch = 1.0f;          // Âm gốc
+                    amLuongVolume = 0.7f;
+                }
+
+                // Áp dụng các thông số đã tính toán vào AudioSource
+                if (nguonAmThanh != null && amThanhBuocChan != null)
+                {
+                    nguonAmThanh.pitch = doCaoPitch;
+                    nguonAmThanh.PlayOneShot(amThanhBuocChan, amLuongVolume);
+                }
+
+                // Reset timer cho nhịp bước chân tiếp theo
+                demThoiGianBuocChan = thoiGianKhoangCach;
+            }
+        }
+        else
+        {
+            // Reset timer về 0 để khi vừa di chuyển là phát ngay tiếng bước chân đầu tiên
+            demThoiGianBuocChan = 0f;
+        }
     }
 
     private void XuLyTheLucVaTocDo()
@@ -249,7 +315,6 @@ public class PlayerMovement : MonoBehaviour
             Quaternion gocXoayMucTieu = Quaternion.LookRotation(huongDiChuyenThucTe);
             transform.rotation = Quaternion.Slerp(transform.rotation, gocXoayMucTieu, Time.fixedDeltaTime * tocDoXoayNhanVat);
 
-            // Trượt tường
             RaycastHit hitTuong;
             if (Physics.Raycast(transform.position + Vector3.up * 0.5f, huongDiChuyenThucTe, out hitTuong, 0.6f, lopMatDat))
             {
@@ -288,7 +353,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (dangDaThietLapNhay)
         {
-            if (kiemTraDanGiapDat && !dangNhanNgoi)
+            if (kiemTraDanGiapDat && !dangNhanNgoi && !dangBiVuongTran)
             {
                 boDieuKhienNhanVat.linearVelocity = new Vector3(boDieuKhienNhanVat.linearVelocity.x, 0f, boDieuKhienNhanVat.linearVelocity.z);
                 boDieuKhienNhanVat.AddForce(Vector3.up * lucNhay, ForceMode.Impulse);
@@ -305,19 +370,10 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // Hiển thị vòng cầu quét kiểm tra trần trong tab Scene
     private void OnDrawGizmosSelected()
     {
-        if (vaChamNhanVat == null) return;
+        Vector3 viTriCheck = LayViTriKiemTraTran();
         Gizmos.color = dangBiVuongTran ? Color.red : Color.yellow;
-        Vector3 viTriDau = transform.position + Vector3.up * (vaChamNhanVat.height - banKinhKiemTraTran);
-        float khoangCachQuet = chieuCaoDung - vaChamNhanVat.height;
-
-        Gizmos.DrawWireSphere(viTriDau, banKinhKiemTraTran);
-        if (khoangCachQuet > 0)
-        {
-            Gizmos.DrawWireSphere(viTriDau + Vector3.up * khoangCachQuet, banKinhKiemTraTran);
-            Gizmos.DrawLine(viTriDau, viTriDau + Vector3.up * khoangCachQuet);
-        }
+        Gizmos.DrawWireSphere(viTriCheck, banKinhKiemTraTran);
     }
 }
