@@ -17,6 +17,7 @@
 /[Mm]emoryCaptures/
 /[Rr]ecordings/
 /[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin.meta
+/Assets/donotopen/
 
 
 # ------------------------------------------------------------
