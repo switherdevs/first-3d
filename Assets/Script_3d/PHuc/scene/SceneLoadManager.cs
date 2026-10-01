@@ -10,7 +10,7 @@ public class SceneLoadManager : MonoBehaviour
         [Tooltip("Gán nút Button kích hoạt mở bảng hỏi")]
         public Button nutMoBangHoi;
 
-        [Tooltip("Gán GameObject UI Bảng hỏi xáp nhận (Popup Confirm UI)")]
+        [Tooltip("Gán GameObject UI Bảng hỏi xác nhận (Popup Confirm UI)")]
         public GameObject bangHoiXacNhanUI;
 
         [Tooltip("Gán nút ĐỒNG Ý trong Bảng hỏi để chuyển Scene")]
@@ -39,10 +39,36 @@ public class SceneLoadManager : MonoBehaviour
     [Header("--- MỤC 2: CHUYỂN SCENE TRỰC TIẾP ---")]
     public ChuyenSceneThang[] danhSachChuyenSceneThang;
 
+    [Header("--- CẤU HÌNH ÂM THANH CLICK BUTTON ---")]
+    [Tooltip("AudioClip tiếng Click khi bấm các nút chuyển scene")]
+    public AudioClip amThanhClick;
+
+    [Tooltip("AudioSource dùng để phát âm thanh Click (Nếu để trống sẽ tự lấy/tạo)")]
+    public AudioSource amThanhSource;
+
     private void Start()
     {
+        // Tự động kiểm tra và tạo AudioSource nếu bị thiếu
+        if (amThanhSource == null)
+        {
+            amThanhSource = GetComponent<AudioSource>();
+            if (amThanhSource == null)
+            {
+                amThanhSource = gameObject.AddComponent<AudioSource>();
+            }
+        }
+
         KhoiTaoMuc1_CoXacNhan();
         KhoiTaoMuc2_ChuyenThang();
+    }
+
+    // --- HÀM PHÁT ÂM THANH CLICK 1 LẦN ---
+    public void PhatAmThanhClick()
+    {
+        if (amThanhSource != null && amThanhClick != null)
+        {
+            amThanhSource.PlayOneShot(amThanhClick);
+        }
     }
 
     // --- CẤU HÌNH MỤC 1 ---
@@ -65,10 +91,12 @@ public class SceneLoadManager : MonoBehaviour
             {
                 item.nutMoBangHoi.onClick.AddListener(() =>
                 {
+                    PhatAmThanhClick();
+
                     if (item.bangHoiXacNhanUI != null)
                     {
                         item.bangHoiXacNhanUI.SetActive(true);
-                        
+
                         // Hien va mo khoa con tro chuot de nguoi choi click nut UI
                         Cursor.lockState = CursorLockMode.None;
                         Cursor.visible = true;
@@ -81,6 +109,7 @@ public class SceneLoadManager : MonoBehaviour
             {
                 item.nutDongYChuyenScene.onClick.AddListener(() =>
                 {
+                    PhatAmThanhClick();
                     ThucHienChuyenScene(item.tenSceneMucTieu);
                 });
             }
@@ -90,10 +119,12 @@ public class SceneLoadManager : MonoBehaviour
             {
                 item.nutHuyBo.onClick.AddListener(() =>
                 {
+                    PhatAmThanhClick();
+
                     if (item.bangHoiXacNhanUI != null)
                     {
                         item.bangHoiXacNhanUI.SetActive(false);
-                        
+
                         // Khoa lai con tro chuot neu quay lai game
                         Cursor.lockState = CursorLockMode.Locked;
                         Cursor.visible = false;
@@ -116,6 +147,7 @@ public class SceneLoadManager : MonoBehaviour
             {
                 item.nutChuyenScene.onClick.AddListener(() =>
                 {
+                    PhatAmThanhClick();
                     ThucHienChuyenScene(item.tenSceneMucTieu);
                 });
             }

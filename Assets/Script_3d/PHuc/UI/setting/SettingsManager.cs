@@ -49,6 +49,13 @@ public class SettingsManager : MonoBehaviour
     [Tooltip("Thời gian chờ (giây) để animation ani_out chạy hết trước khi ẩn GameObject")]
     public float thoiGianChoAniOut = 0.5f;
 
+    [Header("--- CẤU HÌNH ÂM THANH CLICK BUTTON ---")]
+    [Tooltip("AudioClip tiếng Click khi bấm các nút trên Setting UI")]
+    public AudioClip amThanhClick;
+
+    [Tooltip("AudioSource dùng để phát âm thanh Click (Nếu để trống sẽ tự tạo/lấy)")]
+    public AudioSource amThanhSource;
+
     [Header("--- CẤU HÌNH NGÔN NGỮ ---")]
     public NgonNgu ngonNguHienTai = NgonNgu.TiengViet;
 
@@ -97,8 +104,27 @@ public class SettingsManager : MonoBehaviour
         }
     }
 
+    // --- HÀM PHÁT ÂM THANH CLICK 1 LẦN ---
+    public void PhatAmThanhClick()
+    {
+        if (amThanhSource != null && amThanhClick != null)
+        {
+            amThanhSource.PlayOneShot(amThanhClick);
+        }
+    }
+
     public void KhoiTaoSettings()
     {
+        // Tự động tìm/tạo AudioSource nếu bị thiếu
+        if (amThanhSource == null)
+        {
+            amThanhSource = GetComponent<AudioSource>();
+            if (amThanhSource == null)
+            {
+                amThanhSource = gameObject.AddComponent<AudioSource>();
+            }
+        }
+
         // 1. Tự động lấy Animator nếu chưa kéo vào Inspector
         if (animatorSetting == null)
         {
@@ -135,6 +161,8 @@ public class SettingsManager : MonoBehaviour
         this.tenAniIn = newSettings.tenAniIn;
         this.tenAniOut = newSettings.tenAniOut;
         this.thoiGianChoAniOut = newSettings.thoiGianChoAniOut;
+
+        this.amThanhClick = newSettings.amThanhClick;
 
         KhoiTaoSettings();
     }
@@ -182,6 +210,7 @@ public class SettingsManager : MonoBehaviour
     // 🎯 HÀM MỞ SETTING (Gán cho nút Setting hoặc phím Pause)
     public void MoSettingUI()
     {
+        PhatAmThanhClick();
         gameObject.SetActive(true);
 
         if (animatorSetting != null && !string.IsNullOrEmpty(tenAniIn))
@@ -197,6 +226,8 @@ public class SettingsManager : MonoBehaviour
     // 🎯 HÀM BỔ SUNG: NÚT RESUME (Gán vào Button Resume/Đóng trong Setting UI)
     public void ResumeGame()
     {
+        PhatAmThanhClick();
+
         // An toàn chống lỗi Coroutine nếu GameObject bị Inactive
         if (!gameObject.activeInHierarchy)
         {
@@ -303,6 +334,7 @@ public class SettingsManager : MonoBehaviour
     // 🎯 5. HÀM ĐỔI NGÔN NGỮ (TIẾNG VIỆT / TIẾNG ANH)
     public void DoiNgonNgu(int indexNgonNgu)
     {
+        PhatAmThanhClick();
         ngonNguHienTai = (NgonNgu)indexNgonNgu;
         PlayerPrefs.SetInt(KEY_LANGUAGE, indexNgonNgu);
         PlayerPrefs.Save();
@@ -312,6 +344,7 @@ public class SettingsManager : MonoBehaviour
 
     public void ChuyenDoiQuaLaiNgonNgu()
     {
+        PhatAmThanhClick();
         if (ngonNguHienTai == NgonNgu.TiengViet)
         {
             DoiNgonNgu((int)NgonNgu.TiengAnh);
@@ -335,7 +368,11 @@ public class SettingsManager : MonoBehaviour
         SetMusicVolume(musicVal);
         SetSFXVolume(sfxVal);
         SetMouseSensitivity(sensitivityVal);
-        DoiNgonNgu(languageVal);
+
+        // Ẩn âm thanh click ban đầu khi vừa Load dữ liệu
+        ngonNguHienTai = (NgonNgu)languageVal;
+        PlayerPrefs.SetInt(KEY_LANGUAGE, languageVal);
+        PlayerPrefs.Save();
     }
 
     private void CapNhatTextHienThi(TextMeshProUGUI textComp, float value, string unit)

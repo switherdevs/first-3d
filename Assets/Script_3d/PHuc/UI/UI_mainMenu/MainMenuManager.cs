@@ -1,6 +1,7 @@
 using System.Collections;
 using System.IO;
 using UnityEngine;
+using UnityEngine.UI; // Bổ sung thư viện UI để dùng Image
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem; // Sử dụng cho phím ESC (Unity New Input System)
 
@@ -19,6 +20,13 @@ public class MainMenuManager : MonoBehaviour
     [Header("--- Cấu hình Chuyển Scene ---")]
     [Tooltip("Tên Scene sẽ load khi người chơi bấm Start Game mới")]
     public string tenSceneGameMoi = "ThanhTrucLam"; // Map khởi đầu
+
+    [Header("--- Cấu hình Fade Out Chuyển Map ---")]
+    [Tooltip("Gán UI Image màu đen phủ kín màn hình để làm hiệu ứng mờ dần")]
+    public Image anhFadeOut;
+
+    [Tooltip("Thời gian hiệu ứng Fade Out chuyển màn (mặc định 2 giây)")]
+    public float thoiGianFadeOut = 2f;
 
     [Header("--- UI Settings ---")]
     [Tooltip("GameObject chứa UI Setting (Gán Game Object Bảng Setting vào đây)")]
@@ -52,6 +60,13 @@ public class MainMenuManager : MonoBehaviour
     [Tooltip("Thời gian chờ (giây) để animation ani_out chạy hết trước khi ẩn GameObject")]
     public float thoiGianChoAniOut = 0.5f;
 
+    [Header("--- Cấu hình Âm Thanh Click Button ---")]
+    [Tooltip("AudioClip tiếng Click khi bấm các nút trên Menu")]
+    public AudioClip amThanhClick;
+
+    [Tooltip("AudioSource dùng để phát âm thanh Click")]
+    public AudioSource amThanhSource;
+
     private string duongDanFileSave;
     private Coroutine coroutineChuyenGiaoUI;
 
@@ -64,8 +79,30 @@ public class MainMenuManager : MonoBehaviour
 
     private void Start()
     {
+        // Đảm bảo ban đầu Image Fade Out trong suốt
+        if (anhFadeOut != null)
+        {
+            Color mauBanDau = anhFadeOut.color;
+            mauBanDau.a = 0f;
+            anhFadeOut.color = mauBanDau;
+            anhFadeOut.gameObject.SetActive(false);
+        }
+
+        // Tự động tìm/tạo AudioSource nếu bị thiếu
+        if (amThanhSource == null)
+        {
+            amThanhSource = GetComponent<AudioSource>();
+            if (amThanhSource == null)
+            {
+                amThanhSource = gameObject.AddComponent<AudioSource>();
+            }
+        }
+
         // Tự động kiểm tra và liên kết lại UI Setting nếu bị Null / Missing do DontDestroyOnLoad
         KiemTraVaGanLienKetSetting();
+
+        // Đảm bảo các Animator UI không bị đóng băng khi Time.timeScale = 0
+        CapNhatUnscaledTimeChoAnimators();
 
         // Đảm bảo khi vào Main Menu thì luôn HIỆN con trỏ chuột để bấm bấm nút
         DamBaoHienConTroChuot();
@@ -80,6 +117,20 @@ public class MainMenuManager : MonoBehaviour
         BatTatUIMainMenu(true);
     }
 
+    // --- HÀM BỔ SUNG: ĐẢM BẢO ANIMATOR VẪN CHẠY KHI TIME.TIMESCALE = 0 ---
+    private void CapNhatUnscaledTimeChoAnimators()
+    {
+        if (animatorMainMenu != null)
+        {
+            animatorMainMenu.updateMode = AnimatorUpdateMode.UnscaledTime;
+        }
+
+        if (animatorSetting != null)
+        {
+            animatorSetting.updateMode = AnimatorUpdateMode.UnscaledTime;
+        }
+    }
+
     private void KiemTraVaGanLienKetSetting()
     {
         if (gameObjectSetting == null && SettingsManager.Instance != null)
@@ -91,6 +142,9 @@ public class MainMenuManager : MonoBehaviour
         {
             animatorSetting = gameObjectSetting.GetComponent<Animator>();
         }
+
+        // Đảm bảo cập nhật lại UnscaledTime sau khi tự động gắn liên kết Setting mới
+        CapNhatUnscaledTimeChoAnimators();
     }
 
     private void Update()
@@ -104,6 +158,15 @@ public class MainMenuManager : MonoBehaviour
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             BatTatSetting();
+        }
+    }
+
+    // --- HÀM PHÁT ÂM THANH CLICK 1 LẦN ---
+    public void PhatAmThanhClick()
+    {
+        if (amThanhSource != null && amThanhClick != null)
+        {
+            amThanhSource.PlayOneShot(amThanhClick);
         }
     }
 
@@ -141,18 +204,53 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
+    // --- COROUTINE XỬ LÝ FADE OUT VÀ CHUYỂN SCENE ---
+    private IEnumerator Routine_ChuyenSceneCoFade(string tenScene)
+    {
+        // Nếu có gán Image Fade Out thì tiến hành làm mờ dần
+        if (anhFadeOut != null)
+        {
+            anhFadeOut.gameObject.SetActive(true);
+            float thoiGianDaTroi = 0f;
+            Color mauAnh = anhFadeOut.color;
+
+            while (thoiGianDaTroi < thoiGianFadeOut)
+            {
+                thoiGianDaTroi += Time.unscaledDeltaTime;
+                float tyLeAlpha = Mathf.Clamp01(thoiGianDaTroi / thoiGianFadeOut);
+
+                mauAnh.a = tyLeAlpha;
+                anhFadeOut.color = mauAnh;
+
+                yield return null; // Chờ sang frame tiếp theo
+            }
+
+            // Đảm bảo hoàn toàn tối đen trước khi chuyển map
+            mauAnh.a = 1f;
+            anhFadeOut.color = mauAnh;
+        }
+
+        // Chuyển sang Map mới
+        SceneManager.LoadScene(tenScene);
+    }
+
     // 1. HÀM START GAME (Bắt đầu game mới)
     public void StartGameMoi()
     {
-        // Khôi phục timeScale trước khi chuyển Scene
+        PhatAmThanhClick();
         Time.timeScale = 1f;
-        SceneManager.LoadScene(tenSceneGameMoi);
+
+        // Bắt đầu Coroutine Fade Out trước khi load Scene
+        StartCoroutine(Routine_ChuyenSceneCoFade(tenSceneGameMoi));
     }
 
     // 2. HÀM TIẾP TỤC MÀN CHƠI (Continue Game)
     public void TiepTucManChoi()
     {
+        PhatAmThanhClick();
         Time.timeScale = 1f;
+
+        string mapCanLoad = tenSceneGameMoi;
 
         // Kiểm tra xem đã có file save.txt hay chưa
         if (File.Exists(duongDanFileSave))
@@ -164,24 +262,26 @@ public class MainMenuManager : MonoBehaviour
             if (data != null && !string.IsNullOrEmpty(data.tenMapHienTai))
             {
                 Debug.Log("Đang chuyển tới Map đã save: " + data.tenMapHienTai);
-                SceneManager.LoadScene(data.tenMapHienTai);
+                mapCanLoad = data.tenMapHienTai;
             }
             else
             {
                 Debug.LogWarning("File save chưa có dữ liệu Map, chuyển sang màn chơi mới!");
-                SceneManager.LoadScene(tenSceneGameMoi);
             }
         }
         else
         {
             Debug.LogWarning("Chưa có file save.txt, bắt đầu màn chơi mới!");
-            SceneManager.LoadScene(tenSceneGameMoi);
         }
+
+        // Bắt đầu Coroutine Fade Out trước khi load Scene
+        StartCoroutine(Routine_ChuyenSceneCoFade(mapCanLoad));
     }
 
     // 3. HÀM BẬT/TẮT UI SETTING (TOGGLE THÔNG MINH)
     public void BatTatSetting()
     {
+        PhatAmThanhClick();
         KiemTraVaGanLienKetSetting();
 
         if (gameObjectSetting != null)
@@ -201,6 +301,7 @@ public class MainMenuManager : MonoBehaviour
     // HÀM MỞ UI SETTING (Gán cho Button Setting ở Main Menu)
     public void MoSetting()
     {
+        PhatAmThanhClick();
         KiemTraVaGanLienKetSetting();
 
         // Nếu GameObject script đang Inactive, bật trực tiếp không cần Coroutine
@@ -268,6 +369,7 @@ public class MainMenuManager : MonoBehaviour
     // HÀM BỔ SUNG: GÁN VÀO BUTTON ĐÓNG/ẨN SETTING UI
     public void AnSettingButton()
     {
+        PhatAmThanhClick();
         DongSetting();
     }
 
@@ -295,6 +397,7 @@ public class MainMenuManager : MonoBehaviour
     // 4. HÀM THOÁT GAME
     public void ThoatGame()
     {
+        PhatAmThanhClick();
         Debug.Log("Đã thoát game!");
         Application.Quit(); // Chỉ hoạt động khi đã Build ra file .exe
     }

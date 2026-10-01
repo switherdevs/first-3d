@@ -14,8 +14,25 @@ public class BasicUIToggle : MonoBehaviour
     [Tooltip("Kéo Button dùng để TẮT UI vào đây")]
     public Button nutTat;
 
+    [Header("--- Cấu hình Âm Thanh Click ---")]
+    [Tooltip("AudioClip phát ra khi bấm nút")]
+    public AudioClip amThanhClick;
+
+    [Tooltip("AudioSource dùng để phát tiếng click (Nếu để trống script sẽ tự lấy/tạo)")]
+    public AudioSource amThanhSource;
+
     private void Start()
     {
+        // Tự động kiểm tra và khởi tạo AudioSource nếu bị thiếu
+        if (amThanhSource == null)
+        {
+            amThanhSource = GetComponent<AudioSource>();
+            if (amThanhSource == null)
+            {
+                amThanhSource = gameObject.AddComponent<AudioSource>();
+            }
+        }
+
         // Gán sự kiện lắng nghe khi bấm nút Bật
         if (nutBat != null)
         {
@@ -29,9 +46,20 @@ public class BasicUIToggle : MonoBehaviour
         }
     }
 
+    // Hàm phát tiếng Click 1 lần
+    private void PhatAmThanhClick()
+    {
+        if (amThanhSource != null && amThanhClick != null)
+        {
+            amThanhSource.PlayOneShot(amThanhClick);
+        }
+    }
+
     // Hàm Bật UI
     public void MoUI()
     {
+        PhatAmThanhClick();
+
         if (bangUI != null)
         {
             bangUI.SetActive(true);
@@ -41,6 +69,8 @@ public class BasicUIToggle : MonoBehaviour
     // Hàm Tắt UI
     public void TatUI()
     {
+        PhatAmThanhClick();
+
         if (bangUI != null)
         {
             bangUI.SetActive(false);
