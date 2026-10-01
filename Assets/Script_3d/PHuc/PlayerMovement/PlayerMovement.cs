@@ -29,6 +29,15 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("File âm thanh tiếng bước chân dùng chung")]
     public AudioClip amThanhBuocChan;
 
+    [Header("--- Cấu hình Nhịp bước chân (Thời gian giữa 2 bước) ---")]
+    [Tooltip("Khoảng thời gian delay giữa các bước đi bộ (Số càng lớn đi càng chậm)")]
+    [Range(0.1f, 2.0f)]
+    public float tocDoAmThanhDiBo = 0.55f;
+
+    [Tooltip("Khoảng thời gian delay giữa các bước chạy (Số càng lớn chạy càng chậm)")]
+    [Range(0.1f, 2.0f)]
+    public float tocDoAmThanhChay = 0.35f;
+
     [Header("--- Tốc độ di chuyển ---")]
     [Tooltip("Tốc độ di chuyển bình thường")]
     public float tocDoDiBo = 4f;
@@ -115,6 +124,14 @@ public class PlayerMovement : MonoBehaviour
         if (vaChamNhanVat == null) vaChamNhanVat = GetComponent<CapsuleCollider>();
         if (nguonAmThanh == null) nguonAmThanh = GetComponent<AudioSource>();
 
+        // Tắt clip mặc định để tránh trùng âm khi gọi PlayOneShot
+        if (nguonAmThanh != null)
+        {
+            nguonAmThanh.clip = null;
+            nguonAmThanh.playOnAwake = false;
+            nguonAmThanh.loop = false;
+        }
+
         if (cameraChinh == null && Camera.main != null) cameraChinh = Camera.main.transform;
 
         if (boDieuKhienNhanVat != null) boDieuKhienNhanVat.freezeRotation = true;
@@ -163,10 +180,25 @@ public class PlayerMovement : MonoBehaviour
         giaTriDiChuyenDauVao = context.ReadValue<Vector2>();
     }
 
+    // BỔ SUNG KHẮC PHỤC TRỄ ÂM: Reset timer ngay khi vừa bấm hoặc thả nút Chạy (Shift)
     public void OnSprint(InputAction.CallbackContext context)
     {
-        if (context.started || context.performed) dangNhanChay = true;
-        else if (context.canceled) dangNhanChay = false;
+        if (context.started)
+        {
+            dangNhanChay = true;
+            // Ép timer về 0 lập tức để chuyển sang nhịp âm thanh chạy ngay frame này
+            demThoiGianBuocChan = 0f;
+        }
+        else if (context.performed)
+        {
+            dangNhanChay = true;
+        }
+        else if (context.canceled)
+        {
+            dangNhanChay = false;
+            // Ép timer về 0 khi thả Shift để trở về nhịp đi bộ ngay lập tức
+            demThoiGianBuocChan = 0f;
+        }
     }
 
     public void OnCrouch(InputAction.CallbackContext context)
@@ -223,7 +255,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // TỐI ƯU ÂM THANH BƯỚC CHÂN CHẠY VÀ ĐI BỘ DÙNG CHUNG 1 CLIP
     private void XuLyAmThanhBuocChan()
     {
         // Chỉ phát âm thanh khi nhân vật đang di chuyển thực sự trên mặt đất
@@ -237,29 +268,29 @@ public class PlayerMovement : MonoBehaviour
                 float doCaoPitch;
                 float amLuongVolume;
 
-                // TH1: Đang chạy nhanh
-                if (tocDoHienTai == tocDoChay)
+                // TH1: Đang chạy (Còn thể lực và không ngồi)
+                if (dangNhanChay && theLucHienTai > 0 && !dangNhanNgoi)
                 {
-                    thoiGianKhoangCach = 0.28f; // Nhịp bước chân dồn dập (ngắn hơn)
-                    doCaoPitch = 1.25f;         // Tăng pitch giúp tiếng bước nhanh và giật hơn
-                    amLuongVolume = 1.0f;       // Âm thanh to, đầm chân
+                    thoiGianKhoangCach = tocDoAmThanhChay;
+                    doCaoPitch = 1.15f;
+                    amLuongVolume = 1.0f;
                 }
                 // TH2: Đang ngồi (Rón rén)
                 else if (dangNhanNgoi)
                 {
-                    thoiGianKhoangCach = 0.65f; // Nhịp bước chân chậm rãi
-                    doCaoPitch = 0.85f;         // Tông giọng trầm hơn
-                    amLuongVolume = 0.35f;      // Nhỏ nhẹ
+                    thoiGianKhoangCach = tocDoAmThanhDiBo * 1.3f;
+                    doCaoPitch = 0.85f;
+                    amLuongVolume = 0.35f;
                 }
                 // TH3: Đi bộ bình thường
                 else
                 {
-                    thoiGianKhoangCach = 0.45f; // Nhịp tiêu chuẩn
-                    doCaoPitch = 1.0f;          // Âm gốc
+                    thoiGianKhoangCach = tocDoAmThanhDiBo;
+                    doCaoPitch = 1.0f;
                     amLuongVolume = 0.7f;
                 }
 
-                // Áp dụng các thông số đã tính toán vào AudioSource
+                // Phát âm thanh đơn lẻ chuẩn xác
                 if (nguonAmThanh != null && amThanhBuocChan != null)
                 {
                     nguonAmThanh.pitch = doCaoPitch;
@@ -272,7 +303,13 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            // Reset timer về 0 để khi vừa di chuyển là phát ngay tiếng bước chân đầu tiên
+            // Dừng âm thanh khi ngừng di chuyển hoặc đang trên không
+            if (nguonAmThanh != null && nguonAmThanh.isPlaying)
+            {
+                nguonAmThanh.Stop();
+            }
+
+            // Reset timer về 0 để khi di chuyển lại là phát ra âm thanh ngay lập tức
             demThoiGianBuocChan = 0f;
         }
     }
