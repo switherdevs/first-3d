@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 8315169420744586584}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -339,7 +339,7 @@ AudioSource:
   m_GameObject: {fileID: 405972151833300060}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 5006025549952478542, guid: 79815d27fc9c26f4089044bb1fa77588, type: 2}
+  OutputAudioMixerGroup: {fileID: -7382334929555023940, guid: 0ecce87050d012c45bd184301a9271f2, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: c022af079cafff044bde753ad2dee4a5, type: 3}
   m_PlayOnAwake: 0
@@ -675,7 +675,7 @@ AudioSource:
   m_GameObject: {fileID: 7453705759850355833}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 5006025549952478542, guid: 79815d27fc9c26f4089044bb1fa77588, type: 2}
+  OutputAudioMixerGroup: {fileID: -7382334929555023940, guid: 0ecce87050d012c45bd184301a9271f2, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 09e01f5b87ac3d44d933c8a20f839119, type: 3}
   m_PlayOnAwake: 0
