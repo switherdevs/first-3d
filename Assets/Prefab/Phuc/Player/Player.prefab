@@ -418,7 +418,7 @@ MonoBehaviour:
   tocDoDiBo: 10
   tocDoChay: 20
   tocDoNgoi: 1.5
-  tocDoXoayNhanVat: 12
+  tocDoXoayNhanVat: 7
   lucNhay: 7
   diemKiemTraChan: {fileID: 2712971640426656229}
   banKinhKiemTraDat: 0.2
