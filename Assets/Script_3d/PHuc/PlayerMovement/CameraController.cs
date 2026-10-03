@@ -45,11 +45,25 @@ public class CameraController : MonoBehaviour
     [Tooltip("Góc nhìn lên cao nhất (Độ)")]
     public float gocNhinCaoNhat = 60f;
 
+    [Header("--- BỔ SUNG: Cấu hình Đung Đưa Góc Xoay Camera (Rotation Bobbing) ---")]
+    [Tooltip("Bật/Tắt tính năng đung đưa góc xoay Camera")]
+    public bool kichHoatDungDua = true;
+
+    [Tooltip("Tốc độ đung đưa (Càng cao nhịp lắc càng nhanh)")]
+    public float tocDoDungDua = 4f;
+
+    [Tooltip("Biên độ đung đưa theo Trục X - Pitch (Gật lên/xuống theo độ °)")]
+    public float bienDoGocX = 0.8f;
+
+    [Tooltip("Biên độ đung đưa theo Trục Y - Yaw (Lắc trái/phải theo độ °)")]
+    public float bienDoGocY = 0.5f;
+
     // Biến lưu trữ góc xoay & khoảng cách thực tế
     private float gocXoayNgang = 0f;
     private float gocXoayDoc = 10f;
     private float khoangCachHienTai;
     private float vanTocThuPhongBoDem; // Biến phụ trợ cho SmoothDamp
+    private float thoiGianDungDua = 0f; // Biến đếm thời gian sóng Sin/Cos
 
     private void Start()
     {
@@ -79,20 +93,40 @@ public class CameraController : MonoBehaviour
         float chuotX = Input.GetAxis("Mouse X") * doNhayNgang;
         float chuotY = Input.GetAxis("Mouse Y") * doNhayDoc;
 
-        // 2. Cập nhật góc xoay
+        // 2. Cập nhật góc xoay gốc từ chuột
         gocXoayNgang += chuotX;
         gocXoayDoc -= chuotY; // Trừ Y để không bị ngược hướng nhìn lên/xuống
 
         // 3. Giới hạn góc nhìn lên/xuống tránh lật ngửa camera
         gocXoayDoc = Mathf.Clamp(gocXoayDoc, gocNhinThapNhat, gocNhinCaoNhat);
 
-        // 4. Tính toán góc xoay Quaternion
-        Quaternion huongXoay = Quaternion.Euler(gocXoayDoc, gocXoayNgang, 0f);
+        // Biến tạm lưu góc xoay dùng để tính toán Quaternion
+        float gocDocThucTe = gocXoayDoc;
+        float gocNgangThucTe = gocXoayNgang;
 
-        // 5. Xác định điểm mục tiêu nhìn trên thân Player (kèm lệch vai)
+        // 4. BỔ SUNG: XỬ LÝ ĐUNG ĐƯA ROTATION (GÓC XOAY)
+        if (kichHoatDungDua)
+        {
+            thoiGianDungDua += Time.deltaTime * tocDoDungDua;
+
+            // Đung đưa xoay gật Lên / Xuống (Trục X)
+            float doLechGocX = Mathf.Cos(thoiGianDungDua * 2f) * bienDoGocX;
+
+            // Đung đưa xoay lắc Trái / Phải (Trục Y)
+            float doLechGocY = Mathf.Sin(thoiGianDungDua) * bienDoGocY;
+
+            // Cộng độ lệch độ (° ) vào góc xoay thực tế
+            gocDocThucTe += doLechGocX;
+            gocNgangThucTe += doLechGocY;
+        }
+
+        // 5. Tính toán góc xoay Quaternion đã kèm đung đưa
+        Quaternion huongXoay = Quaternion.Euler(gocDocThucTe, gocNgangThucTe, 0f);
+
+        // 6. Xác định điểm mục tiêu nhìn trên thân Player (kèm lệch vai)
         Vector3 diemNhin = thanNhanVat.position + Vector3.up * chieuCaoDiemNhin + (huongXoay * Vector3.right * doLechGocVai);
 
-        // 6. XỬ LÝ NÉ TƯỜNG (CAMERA COLLISION)
+        // 7. XỬ LÝ NÉ TƯỜNG (CAMERA COLLISION)
         float khoangCachMucTieu = khoangCach;
         Vector3 huongLuiCam = -(huongXoay * Vector3.forward);
 
@@ -110,10 +144,10 @@ public class CameraController : MonoBehaviour
         // Xử lý thu/phóng khoảng cách mượt mà khi chạm tường bằng SmoothDamp
         khoangCachHienTai = Mathf.SmoothDamp(khoangCachHienTai, khoangCachMucTieu, ref vanTocThuPhongBoDem, thoiGianThuPhongNeTuong);
 
-        // 7. Tính vị trí Camera chính xác
+        // 8. Tính vị trí Camera chính xác
         Vector3 viTriTarget = diemNhin - (huongXoay * Vector3.forward * khoangCachHienTai);
 
-        // 8. Cập nhật vị trí và góc xoay
+        // 9. Cập nhật vị trí và góc xoay cuối cùng cho Camera
         transform.position = viTriTarget;
         transform.rotation = huongXoay;
     }

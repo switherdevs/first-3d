@@ -4,7 +4,6 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
-[RequireComponent(typeof(AudioSource))]
 public class PlayerMovement : MonoBehaviour
 {
     [Header("--- Thành phần tham chiếu ---")]
@@ -23,11 +22,25 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Camera chính dùng để tính toán hướng di chuyển theo góc nhìn")]
     public Transform cameraChinh;
 
-    [Tooltip("Thành phần AudioSource để phát âm thanh bước chân")]
-    public AudioSource nguonAmThanh;
+    [Header("--- BỔ SUNG: Hệ thống Âm thanh Đa Lớp (2 AudioSources) ---")]
+    [Tooltip("Nguồn âm thanh CHUYÊN DÙNG CHO BƯỚC CHÂN (Đi bộ, Chạy, Ngồi)")]
+    public AudioSource nguonAmThanhBuocChan;
+
+    [Tooltip("Nguồn âm thanh CHUYÊN DÙNG CHO HIỆU ỨNG (Nhảy, Tiếp đất)")]
+    public AudioSource nguonAmThanhHieuUng;
 
     [Tooltip("File âm thanh tiếng bước chân dùng chung")]
     public AudioClip amThanhBuocChan;
+
+    [Tooltip("File âm thanh khi nhân vật thực hiện hành động nhảy")]
+    public AudioClip amThanhNhay;
+
+    [Tooltip("File âm thanh khi nhân vật chạm/tiếp đất từ trên không")]
+    public AudioClip amThanhTiepDat;
+
+    [Range(0f, 1f)]
+    [Tooltip("Âm lượng hiệu ứng tiếng nhảy và tiếp đất")]
+    public float amLuongNhayTiepDat = 0.8f;
 
     [Header("--- Cấu hình Nhịp bước chân (Thời gian giữa 2 bước) ---")]
     [Tooltip("Khoảng thời gian delay giữa các bước đi bộ (Số càng lớn đi càng chậm)")]
@@ -111,6 +124,9 @@ public class PlayerMovement : MonoBehaviour
     private bool kiemTraDanGiapDat = false;
     private bool dangBiVuongTran = false;
 
+    // Cờ theo dõi trạng thái trên không để phát tiếng tiếp đất 1 lần
+    private bool dangOTrenKhong = false;
+
     // Biến đếm thời gian cho nhịp phát âm thanh bước chân
     private float demThoiGianBuocChan = 0f;
 
@@ -122,15 +138,23 @@ public class PlayerMovement : MonoBehaviour
     {
         if (boDieuKhienNhanVat == null) boDieuKhienNhanVat = GetComponent<Rigidbody>();
         if (vaChamNhanVat == null) vaChamNhanVat = GetComponent<CapsuleCollider>();
-        if (nguonAmThanh == null) nguonAmThanh = GetComponent<AudioSource>();
 
-        // Tắt clip mặc định để tránh trùng âm khi gọi PlayOneShot
-        if (nguonAmThanh != null)
+        AudioSource[] danhSachAudioSource = GetComponents<AudioSource>();
+
+        if (nguonAmThanhBuocChan == null)
         {
-            nguonAmThanh.clip = null;
-            nguonAmThanh.playOnAwake = false;
-            nguonAmThanh.loop = false;
+            if (danhSachAudioSource.Length > 0) nguonAmThanhBuocChan = danhSachAudioSource[0];
+            else nguonAmThanhBuocChan = gameObject.AddComponent<AudioSource>();
         }
+
+        if (nguonAmThanhHieuUng == null)
+        {
+            if (danhSachAudioSource.Length > 1) nguonAmThanhHieuUng = danhSachAudioSource[1];
+            else nguonAmThanhHieuUng = gameObject.AddComponent<AudioSource>();
+        }
+
+        ThiEtsLapAudioSource(nguonAmThanhBuocChan);
+        ThiEtsLapAudioSource(nguonAmThanhHieuUng);
 
         if (cameraChinh == null && Camera.main != null) cameraChinh = Camera.main.transform;
 
@@ -146,9 +170,19 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void ThiEtsLapAudioSource(AudioSource source)
+    {
+        if (source != null)
+        {
+            source.clip = null;
+            source.playOnAwake = false;
+            source.loop = false;
+        }
+    }
+
     private void Update()
     {
-        // 1. Kiểm tra vị trí chạm đất
+        // 1. Kiểm tra vị trí chạm đất chính xác mỗi Frame
         if (diemKiemTraChan != null)
         {
             kiemTraDanGiapDat = Physics.CheckSphere(diemKiemTraChan.position, banKinhKiemTraDat, lopMatDat);
@@ -158,10 +192,13 @@ public class PlayerMovement : MonoBehaviour
             kiemTraDanGiapDat = Physics.Raycast(transform.position, Vector3.down, 1.1f, lopMatDat);
         }
 
-        // 2. Kiểm tra trần nhà
+        // 2. Xử lý âm thanh tiếp đất ngay lập tức ở Kênh Hiệu Ứng
+        XuLyAmThanhTiepDatLapTuc();
+
+        // 3. Kiểm tra trần nhà
         KiemTraTranNhaPhiaTren();
 
-        // 3. Xử lý tư thế ngồi & âm thanh
+        // 4. Xử lý tư thế ngồi & âm thanh bước chân
         XuLyTuTheNgoi();
         XuLyTheLucVaTocDo();
         XuLyAmThanhBuocChan();
@@ -180,13 +217,11 @@ public class PlayerMovement : MonoBehaviour
         giaTriDiChuyenDauVao = context.ReadValue<Vector2>();
     }
 
-    // BỔ SUNG KHẮC PHỤC TRỄ ÂM: Reset timer ngay khi vừa bấm hoặc thả nút Chạy (Shift)
     public void OnSprint(InputAction.CallbackContext context)
     {
         if (context.started)
         {
             dangNhanChay = true;
-            // Ép timer về 0 lập tức để chuyển sang nhịp âm thanh chạy ngay frame này
             demThoiGianBuocChan = 0f;
         }
         else if (context.performed)
@@ -196,7 +231,6 @@ public class PlayerMovement : MonoBehaviour
         else if (context.canceled)
         {
             dangNhanChay = false;
-            // Ép timer về 0 khi thả Shift để trở về nhịp đi bộ ngay lập tức
             demThoiGianBuocChan = 0f;
         }
     }
@@ -207,9 +241,22 @@ public class PlayerMovement : MonoBehaviour
         else if (context.canceled) dangGiuPhimNgoi = false;
     }
 
+    // ĐÃ SỬA: Loại bỏ dangOTrenKhong = true ở đây để tránh bị nhận nhầm là vừa tiếp đất
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (context.performed) dangDaThietLapNhay = true;
+        if (context.started || context.performed)
+        {
+            if (kiemTraDanGiapDat && !dangNhanNgoi && !dangBiVuongTran)
+            {
+                dangDaThietLapNhay = true;
+
+                if (nguonAmThanhHieuUng != null && amThanhNhay != null)
+                {
+                    nguonAmThanhHieuUng.pitch = 1.0f;
+                    nguonAmThanhHieuUng.PlayOneShot(amThanhNhay, amLuongNhayTiepDat);
+                }
+            }
+        }
     }
     #endregion
 
@@ -257,7 +304,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void XuLyAmThanhBuocChan()
     {
-        // Chỉ phát âm thanh khi nhân vật đang di chuyển thực sự trên mặt đất
         if (DangDiChuyen && kiemTraDanGiapDat)
         {
             demThoiGianBuocChan -= Time.deltaTime;
@@ -268,21 +314,18 @@ public class PlayerMovement : MonoBehaviour
                 float doCaoPitch;
                 float amLuongVolume;
 
-                // TH1: Đang chạy (Còn thể lực và không ngồi)
                 if (dangNhanChay && theLucHienTai > 0 && !dangNhanNgoi)
                 {
                     thoiGianKhoangCach = tocDoAmThanhChay;
                     doCaoPitch = 1.15f;
                     amLuongVolume = 1.0f;
                 }
-                // TH2: Đang ngồi (Rón rén)
                 else if (dangNhanNgoi)
                 {
                     thoiGianKhoangCach = tocDoAmThanhDiBo * 1.3f;
                     doCaoPitch = 0.85f;
                     amLuongVolume = 0.35f;
                 }
-                // TH3: Đi bộ bình thường
                 else
                 {
                     thoiGianKhoangCach = tocDoAmThanhDiBo;
@@ -290,27 +333,46 @@ public class PlayerMovement : MonoBehaviour
                     amLuongVolume = 0.7f;
                 }
 
-                // Phát âm thanh đơn lẻ chuẩn xác
-                if (nguonAmThanh != null && amThanhBuocChan != null)
+                if (nguonAmThanhBuocChan != null && amThanhBuocChan != null)
                 {
-                    nguonAmThanh.pitch = doCaoPitch;
-                    nguonAmThanh.PlayOneShot(amThanhBuocChan, amLuongVolume);
+                    nguonAmThanhBuocChan.pitch = doCaoPitch;
+                    nguonAmThanhBuocChan.PlayOneShot(amThanhBuocChan, amLuongVolume);
                 }
 
-                // Reset timer cho nhịp bước chân tiếp theo
                 demThoiGianBuocChan = thoiGianKhoangCach;
             }
         }
         else
         {
-            // Dừng âm thanh khi ngừng di chuyển hoặc đang trên không
-            if (nguonAmThanh != null && nguonAmThanh.isPlaying)
+            if (nguonAmThanhBuocChan != null && nguonAmThanhBuocChan.isPlaying)
             {
-                nguonAmThanh.Stop();
+                nguonAmThanhBuocChan.Stop();
             }
 
-            // Reset timer về 0 để khi di chuyển lại là phát ra âm thanh ngay lập tức
             demThoiGianBuocChan = 0f;
+        }
+    }
+
+    // ĐÃ SỬA: Chỉ kích hoạt dangOTrenKhong = true khi kiemTraDanGiapDat CHÍNH THỨC BẰNG FALSE
+    private void XuLyAmThanhTiepDatLapTuc()
+    {
+        if (kiemTraDanGiapDat)
+        {
+            if (dangOTrenKhong)
+            {
+                if (nguonAmThanhHieuUng != null && amThanhTiepDat != null)
+                {
+                    nguonAmThanhHieuUng.pitch = 1.0f;
+                    nguonAmThanhHieuUng.PlayOneShot(amThanhTiepDat, amLuongNhayTiepDat);
+                }
+
+                dangOTrenKhong = false;
+            }
+        }
+        else
+        {
+            // Nhân vật thực sự đã rời khỏi mặt đất (đang trên không)
+            dangOTrenKhong = true;
         }
     }
 
@@ -390,11 +452,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (dangDaThietLapNhay)
         {
-            if (kiemTraDanGiapDat && !dangNhanNgoi && !dangBiVuongTran)
-            {
-                boDieuKhienNhanVat.linearVelocity = new Vector3(boDieuKhienNhanVat.linearVelocity.x, 0f, boDieuKhienNhanVat.linearVelocity.z);
-                boDieuKhienNhanVat.AddForce(Vector3.up * lucNhay, ForceMode.Impulse);
-            }
+            boDieuKhienNhanVat.linearVelocity = new Vector3(boDieuKhienNhanVat.linearVelocity.x, 0f, boDieuKhienNhanVat.linearVelocity.z);
+            boDieuKhienNhanVat.AddForce(Vector3.up * lucNhay, ForceMode.Impulse);
             dangDaThietLapNhay = false;
         }
     }
