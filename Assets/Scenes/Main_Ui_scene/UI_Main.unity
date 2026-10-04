@@ -249,7 +249,7 @@ RectTransform:
   m_GameObject: {fileID: 88846022}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.00000045014167}
-  m_LocalScale: {x: 4, y: 1.4400002, z: 1.4400002}
+  m_LocalScale: {x: 3, y: 1.0800002, z: 1.0800002}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 757830425}
@@ -329,14 +329,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.7735849, g: 0.24448201, b: 0.24448201, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -345966371, guid: 20041b21d8a6bc34c90f9237ec05b9aa, type: 3}
+  m_Sprite: {fileID: 665804465, guid: 0e3e174ddea3c9f49a2fdf736e6ce1b8, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1595,7 +1595,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 890302342}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.000016496184}
   m_LocalScale: {x: 0.35999995, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1603,7 +1603,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 10.550362}
+  m_AnchoredPosition: {x: -8.479465, y: 2.699017}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &890302344
@@ -2027,7 +2027,7 @@ RectTransform:
   m_GameObject: {fileID: 1154619223}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.000018726345}
-  m_LocalScale: {x: 4, y: 1.4400002, z: 1.4400002}
+  m_LocalScale: {x: 3, y: 1.0800002, z: 1.0800002}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 434063705}
@@ -2107,14 +2107,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.7924528, g: 0.5477983, b: 0.35510856, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1459657146, guid: 20041b21d8a6bc34c90f9237ec05b9aa, type: 3}
+  m_Sprite: {fileID: 665804465, guid: 0e3e174ddea3c9f49a2fdf736e6ce1b8, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3017,7 +3017,7 @@ RectTransform:
   m_GameObject: {fileID: 1836407420}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.000015102553}
-  m_LocalScale: {x: 4, y: 1.4400002, z: 1.4400002}
+  m_LocalScale: {x: 3, y: 1.0800002, z: 1.0800002}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 890302343}
@@ -3085,14 +3085,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.6886792, g: 0.6156035, b: 0.3216002, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1966779010, guid: 20041b21d8a6bc34c90f9237ec05b9aa, type: 3}
+  m_Sprite: {fileID: 665804465, guid: 0e3e174ddea3c9f49a2fdf736e6ce1b8, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3240,7 +3240,7 @@ RectTransform:
   m_GameObject: {fileID: 2002019976}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.000053042317}
-  m_LocalScale: {x: 4, y: 1.4400002, z: 1.4400002}
+  m_LocalScale: {x: 3, y: 1.0800002, z: 1.0800002}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 206579036}
@@ -3320,14 +3320,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.36320752, g: 1, b: 0.43497297, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -4887077099959795569, guid: 20041b21d8a6bc34c90f9237ec05b9aa, type: 3}
+  m_Sprite: {fileID: 665804465, guid: 0e3e174ddea3c9f49a2fdf736e6ce1b8, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

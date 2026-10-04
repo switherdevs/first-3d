@@ -1186,6 +1186,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5900918098836160475, guid: 5ee361ae66bfcb5448c213aa7e6b3b37, type: 3}
+      propertyPath: globalVolume
+      value: 
+      objectReference: {fileID: 1393396909}
     - target: {fileID: 8679778471413283295, guid: 5ee361ae66bfcb5448c213aa7e6b3b37, type: 3}
       propertyPath: cameraChinh
       value: 
@@ -1251,6 +1255,59 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 410087041}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &878705769
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 878705771}
+  - component: {fileID: 878705770}
+  m_Layer: 0
+  m_Name: ToiUu_game
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &878705770
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878705769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25ee597253f990141adb281e434730f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OptimizedVisibilityCuller
+  mainCamera: {fileID: 330585545}
+  objectRenderers:
+  - {fileID: 1680042529}
+  - {fileID: 957798863}
+  - {fileID: 1060187664}
+  - {fileID: 1079390463}
+  - {fileID: 1486457494}
+  - {fileID: 1952902206}
+  thoiGianCapNhat: 0.1
+--- !u!4 &878705771
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878705769}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &957798861
 GameObject:
@@ -19133,6 +19190,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+--- !u!23 &1680042529 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 11895138096121840, guid: 5ee361ae66bfcb5448c213aa7e6b3b37, type: 3}
+  m_PrefabInstance: {fileID: 545628976}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1713954779 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7391053105051858321, guid: b0c9166606d813342a7175b1e35fafb5, type: 3}
@@ -20888,3 +20950,4 @@ SceneRoots:
   - {fileID: 330585546}
   - {fileID: 95593652}
   - {fileID: 545628976}
+  - {fileID: 878705771}

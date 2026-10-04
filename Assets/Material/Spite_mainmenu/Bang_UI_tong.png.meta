@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f92c50bc355d199429f158195f71fd3d
+guid: 0e3e174ddea3c9f49a2fdf736e6ce1b8
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7538170460272710044
-    second: UI_Setting_0
+      213: -6744041632356545695
+    second: Bang_UI_tong_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -38,7 +38,7 @@ TextureImporter:
   textureSettings:
     serializedVersion: 2
     filterMode: 0
-    aniso: 0
+    aniso: 1
     mipBias: 0
     wrapU: 1
     wrapV: 1
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: UI_Setting_0
+      name: Bang_UI_tong_0
       rect:
         serializedVersion: 2
-        x: 75
-        y: 439
-        width: 1226
-        height: 258
+        x: 77
+        y: 83
+        width: 825
+        height: 596
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,20 +115,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c91d5ec3816fc9860800000000000000
-      internalID: 7538170460272710044
+      spriteID: 16b41f8edd95862a0800000000000000
+      internalID: -6744041632356545695
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Setting_1
+      name: Bang_UI_tong_1
       rect:
         serializedVersion: 2
-        x: 67
-        y: 242
-        width: 1242
-        height: 129
+        x: 956
+        y: 320
+        width: 344
+        height: 123
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,30 +137,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 48f70ed2a3385ad41bd031df32de2111
-      internalID: 113975160
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: UI_Setting_2
-      rect:
-        serializedVersion: 2
-        x: 481
-        y: 70
-        width: 414
-        height: 99
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: f44daf76d6eb12847805839323923f22
-      internalID: -753621777
+      spriteID: 21df247cfa9a0c746b34f53ea78893a1
+      internalID: 665804465
       vertices: []
       indices: 
       edges: []
@@ -169,7 +147,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5dec265d9a664ea45a4d4b56bfd81364
+    spriteID: 17caf91a300cd0741a7e60ffb226f0ef
     internalID: 0
     vertices: []
     indices: 
@@ -181,9 +159,8 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      UI_Setting_0: 7538170460272710044
-      UI_Setting_1: 113975160
-      UI_Setting_2: -753621777
+      Bang_UI_tong_0: -6744041632356545695
+      Bang_UI_tong_1: 665804465
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
