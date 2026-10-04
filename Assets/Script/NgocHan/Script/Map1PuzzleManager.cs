@@ -9,16 +9,32 @@ public class Map1PuzzleManager : MonoBehaviour
     public GameObject cluePanel;
     public TMP_Text clueText;
     public TMP_Text objectiveText;
+    public TMP_Text missionText;
 
     [Header("Code Panel")]
     public GameObject codePanel;
+    public CodeInputUI codeInputUI;
 
     [Header("Puzzle Numbers")]
     public GameObject number4Text;
     public GameObject number1Text;
     public GameObject number7Text;
 
-    // Trạng thái puzzle
+    [Header("Clue Targets")]
+    public Transform paperTarget;
+    public Transform ticketTarget;
+    public Transform number4Target;
+    public Transform number1Target;
+    public Transform number7Target;
+    public Transform boxTarget;
+    public Transform exitTarget;
+
+    [Header("Player Interaction")]
+    public PlayerMap1Interaction playerInteraction;
+
+    [Header("Code Settings")]
+    public int maxWrongAttempts = 3;
+
     private bool foundPaper = false;
     private bool foundTicket = false;
 
@@ -28,28 +44,21 @@ public class Map1PuzzleManager : MonoBehaviour
 
     private bool boxOpened = false;
 
+    private int wrongCodeAttempts = 0;
+
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        Instance = this;
     }
 
     private void Start()
     {
-        // Ẩn UI lúc bắt đầu
         if (cluePanel != null)
             cluePanel.SetActive(false);
 
         if (codePanel != null)
             codePanel.SetActive(false);
 
-        // Ẩn các số lúc đầu
         if (number4Text != null)
             number4Text.SetActive(false);
 
@@ -59,16 +68,47 @@ public class Map1PuzzleManager : MonoBehaviour
         if (number7Text != null)
             number7Text.SetActive(false);
 
+        SetMission(
+            "Tìm mảnh giấy",
+            paperTarget,
+            "Trên bàn gỗ gần lối vào khu chợ"
+        );
+    }
+
+    // ==================================================
+    // MISSION
+    // ==================================================
+
+    private void SetMission(
+        string mission,
+        Transform target,
+        string hint
+    )
+    {
+        if (missionText != null)
+        {
+            missionText.text =
+                "NHIỆM VỤ:\n" + mission;
+        }
+
         if (objectiveText != null)
         {
             objectiveText.text =
-                "Mục tiêu: Tìm mảnh giấy trong khu chợ";
+                "Mục tiêu: " + mission;
+        }
+
+        if (playerInteraction != null)
+        {
+            playerInteraction.SetTargetClue(
+                target,
+                hint
+            );
         }
     }
 
-    // =========================
+    // ==================================================
     // PAPER
-    // =========================
+    // ==================================================
 
     public void FindPaper()
     {
@@ -85,25 +125,26 @@ public class Map1PuzzleManager : MonoBehaviour
 
         ShowClue(
             "MẢNH GIẤY ƯỚT\n\n" +
-            "\"Nơi người thân trở về sau mỗi chuyến đi...\"\n\n" +
-            "Có vẻ mảnh giấy đang dẫn Huy tới một nơi quen thuộc."
+            "\"Nơi người thân trở về sau mỗi chuyến đi...\""
         );
 
-        objectiveText.text =
-            "Mục tiêu: Tìm phiếu cũ trong khu chợ";
+        SetMission(
+            "Tìm phiếu cũ",
+            ticketTarget,
+            "Ở một quầy hàng cũ trong khu chợ"
+        );
     }
 
-    // =========================
+    // ==================================================
     // TICKET
-    // =========================
+    // ==================================================
 
     public void FindTicket()
     {
         if (!foundPaper)
         {
             ShowClue(
-                "Bạn chưa hiểu ý nghĩa của vật này.\n\n" +
-                "Hãy tìm một manh mối khác trước."
+                "Bạn cần tìm mảnh giấy trước."
             );
 
             return;
@@ -112,7 +153,7 @@ public class Map1PuzzleManager : MonoBehaviour
         if (foundTicket)
         {
             ShowClue(
-                "Bạn đã kiểm tra phiếu cũ."
+                "Bạn đã kiểm tra phiếu cũ rồi."
             );
 
             return;
@@ -123,26 +164,22 @@ public class Map1PuzzleManager : MonoBehaviour
         ShowClue(
             "PHIẾU CŨ\n\n" +
             "Tên: Huy\n\n" +
-            "Trên phiếu có ghi địa chỉ ngôi nhà cũ của gia đình.\n\n" +
-            "Phía dưới còn có dòng chữ:\n" +
             "\"Ba dấu hiệu sẽ mở đường.\""
         );
 
-        objectiveText.text =
-            "Mục tiêu: Tìm 3 con số trong khu chợ";
+        UpdateNumberMission();
     }
 
-    // =========================
+    // ==================================================
     // NUMBER 4
-    // =========================
+    // ==================================================
 
     public void FindNumber4()
     {
         if (!foundTicket)
         {
             ShowClue(
-                "Chiếc cân trông khá cũ...\n\n" +
-                "Nhưng hiện tại Huy chưa biết phải tìm gì ở đây."
+                "Bạn chưa biết cần tìm gì ở chiếc cân."
             );
 
             return;
@@ -151,7 +188,7 @@ public class Map1PuzzleManager : MonoBehaviour
         if (foundNumber4)
         {
             ShowClue(
-                "Bạn đã tìm thấy số 4 ở chiếc cân."
+                "Bạn đã tìm thấy số 4 rồi."
             );
 
             return;
@@ -164,25 +201,22 @@ public class Map1PuzzleManager : MonoBehaviour
 
         ShowClue(
             "CHIẾC CÂN CŨ\n\n" +
-            "Huy kiểm tra phía dưới chiếc cân.\n\n" +
-            "Một con số được khắc ở đáy:\n\n" +
-            "4"
+            "Dưới đáy cân có khắc số:\n\n4"
         );
 
-        UpdateNumberObjective();
+        UpdateNumberMission();
     }
 
-    // =========================
+    // ==================================================
     // NUMBER 1
-    // =========================
+    // ==================================================
 
     public void FindNumber1()
     {
         if (!foundTicket)
         {
             ShowClue(
-                "Chiếc đèn dầu có vẻ bình thường.\n\n" +
-                "Huy chưa biết mình cần tìm gì."
+                "Bạn chưa biết cần tìm gì ở chiếc đèn."
             );
 
             return;
@@ -191,7 +225,7 @@ public class Map1PuzzleManager : MonoBehaviour
         if (foundNumber1)
         {
             ShowClue(
-                "Bạn đã tìm thấy số 1 trên đèn dầu."
+                "Bạn đã tìm thấy số 1 rồi."
             );
 
             return;
@@ -204,25 +238,22 @@ public class Map1PuzzleManager : MonoBehaviour
 
         ShowClue(
             "ĐÈN DẦU CŨ\n\n" +
-            "Phía sau thân đèn có một ký hiệu nhỏ.\n\n" +
-            "Đó là số:\n\n" +
-            "1"
+            "Phía sau đèn có khắc số:\n\n1"
         );
 
-        UpdateNumberObjective();
+        UpdateNumberMission();
     }
 
-    // =========================
+    // ==================================================
     // NUMBER 7
-    // =========================
+    // ==================================================
 
     public void FindNumber7()
     {
         if (!foundTicket)
         {
             ShowClue(
-                "Một vệt nước kỳ lạ trên sàn...\n\n" +
-                "Có vẻ Huy vẫn thiếu một manh mối để hiểu nó."
+                "Bạn chưa biết cần tìm gì ở vệt nước."
             );
 
             return;
@@ -231,7 +262,7 @@ public class Map1PuzzleManager : MonoBehaviour
         if (foundNumber7)
         {
             ShowClue(
-                "Bạn đã tìm thấy số 7 ở vệt nước."
+                "Bạn đã tìm thấy số 7 rồi."
             );
 
             return;
@@ -244,19 +275,17 @@ public class Map1PuzzleManager : MonoBehaviour
 
         ShowClue(
             "VỆT NƯỚC\n\n" +
-            "Huy quan sát kỹ vệt nước trên sàn.\n\n" +
-            "Một hình dạng giống con số hiện ra:\n\n" +
-            "7"
+            "Một ký hiệu hiện ra:\n\n7"
         );
 
-        UpdateNumberObjective();
+        UpdateNumberMission();
     }
 
-    // =========================
-    // UPDATE OBJECTIVE
-    // =========================
+    // ==================================================
+    // UPDATE 3 CLUES
+    // ==================================================
 
-    private void UpdateNumberObjective()
+    private void UpdateNumberMission()
     {
         int count = 0;
 
@@ -269,43 +298,85 @@ public class Map1PuzzleManager : MonoBehaviour
         if (foundNumber7)
             count++;
 
-        if (count < 3)
+        // DU 3 SO
+        if (count >= 3)
         {
-            objectiveText.text =
-                "Mục tiêu: Tìm các con số (" +
-                count +
-                "/3)";
-        }
-        else
-        {
-            objectiveText.text =
-                "Mục tiêu: Tìm chiếc hộp khóa";
-        }
-    }
-
-    // =========================
-    // BOX
-    // =========================
-
-    public void OpenCodePanel()
-    {
-        if (!foundTicket)
-        {
-            ShowClue(
-                "Chiếc hộp đã bị khóa.\n\n" +
-                "Bạn chưa biết cách mở nó."
+            SetMission(
+                "Tìm chiếc hộp khóa",
+                boxTarget,
+                "Chiếc hộp nằm ở khu vực cuối chợ"
             );
 
             return;
         }
 
+        if (missionText != null)
+        {
+            missionText.text =
+                "NHIỆM VỤ:\n" +
+                "Tìm 3 manh mối (" +
+                count +
+                "/3)";
+        }
+
+        if (objectiveText != null)
+        {
+            objectiveText.text =
+                "Mục tiêu: Tìm 3 manh mối (" +
+                count +
+                "/3)";
+        }
+
+        // Target tiep theo
+        if (!foundNumber4)
+        {
+            SetNumberTarget(
+                number4Target,
+                "Chiếc cân cũ nằm tại một quầy hàng"
+            );
+        }
+        else if (!foundNumber1)
+        {
+            SetNumberTarget(
+                number1Target,
+                "Đèn dầu cũ nằm gần khu vực giữa chợ"
+            );
+        }
+        else if (!foundNumber7)
+        {
+            SetNumberTarget(
+                number7Target,
+                "Vệt nước nằm dưới đất cạnh một quầy cũ"
+            );
+        }
+    }
+
+    private void SetNumberTarget(
+        Transform target,
+        string hint
+    )
+    {
+        if (playerInteraction != null)
+        {
+            playerInteraction.SetTargetClue(
+                target,
+                hint
+            );
+        }
+    }
+
+    // ==================================================
+    // BOX
+    // ==================================================
+
+    public void OpenCodePanel()
+    {
         if (!foundNumber4 ||
             !foundNumber1 ||
             !foundNumber7)
         {
             ShowClue(
-                "Ổ khóa cần mã gồm 3 chữ số.\n\n" +
-                "Bạn vẫn chưa tìm đủ các con số."
+                "Bạn chưa tìm đủ 3 manh mối."
             );
 
             return;
@@ -314,60 +385,200 @@ public class Map1PuzzleManager : MonoBehaviour
         if (boxOpened)
         {
             ShowClue(
-                "Chiếc hộp đã được mở.\n\n" +
-                "Bên trong là địa chỉ Nhà Huy."
+                "Chiếc hộp đã được mở."
             );
 
             return;
         }
 
         if (codePanel != null)
-        {
             codePanel.SetActive(true);
 
-            Cursor.lockState =
-                CursorLockMode.None;
+        Cursor.lockState =
+            CursorLockMode.None;
 
-            Cursor.visible = true;
+        Cursor.visible = true;
+
+        if (codeInputUI != null)
+        {
+            codeInputUI.ClearCode();
         }
     }
 
-    // =========================
+    // ==================================================
     // CHECK CODE
-    // =========================
+    // ==================================================
 
     public void CheckCode(string code)
     {
+        // DUNG 417
         if (code == "417")
         {
             boxOpened = true;
+            wrongCodeAttempts = 0;
 
+            // XOA 3 O INPUT
+            if (codeInputUI != null)
+            {
+                codeInputUI.ClearCode();
+            }
+
+            // DONG CODE PANEL
             if (codePanel != null)
+            {
                 codePanel.SetActive(false);
+            }
 
             ShowClue(
                 "MỞ KHÓA THÀNH CÔNG!\n\n" +
-                "Bên trong chiếc hộp có một lá thư cũ.\n\n" +
-                "\"Nếu con quay lại...\n" +
-                "hãy về nhà.\"\n\n" +
-                "Huy đã tìm ra địa chỉ ngôi nhà cũ."
+                "Bên trong có một tờ giấy ghi:\n\n" +
+                "ĐỊA CHỈ NHÀ HUY"
             );
 
-            objectiveText.text =
-                "Mục tiêu: Đi đến lối ra khỏi khu chợ";
+            SetMission(
+                "Đi đến lối ra",
+                exitTarget,
+                "Lối ra nằm ở cuối khu chợ"
+            );
+
+            return;
         }
-        else
+
+        // =========================
+        // SAI CODE
+        // =========================
+
+        wrongCodeAttempts++;
+
+        // Xoa input de nhap lai
+        if (codeInputUI != null)
         {
+            codeInputUI.ClearCode();
+        }
+
+        // Chua sai du 3 lan
+        if (wrongCodeAttempts < maxWrongAttempts)
+        {
+            int remaining =
+                maxWrongAttempts -
+                wrongCodeAttempts;
+
             ShowClue(
-                "MÃ KHÔNG ĐÚNG!\n\n" +
-                "Hãy nhớ lại thứ tự các dấu hiệu."
+                "MÃ SAI!\n\n" +
+                "Bạn còn " +
+                remaining +
+                " lần thử."
+            );
+
+            return;
+        }
+
+        // =========================
+        // SAI DU 3 LAN
+        // =========================
+
+        wrongCodeAttempts = 0;
+
+        if (codePanel != null)
+        {
+            codePanel.SetActive(false);
+        }
+
+        ResetNumberClues();
+
+        ShowClue(
+            "BẠN ĐÃ NHẬP SAI 3 LẦN!\n\n" +
+            "Ba manh mối đã bị mất.\n\n" +
+            "Hãy tìm lại từ đầu."
+        );
+    }
+
+    // ==================================================
+    // RESET 3 NUMBER CLUES
+    // ==================================================
+
+    private void ResetNumberClues()
+    {
+        foundNumber4 = false;
+        foundNumber1 = false;
+        foundNumber7 = false;
+
+        if (number4Text != null)
+            number4Text.SetActive(false);
+
+        if (number1Text != null)
+            number1Text.SetActive(false);
+
+        if (number7Text != null)
+            number7Text.SetActive(false);
+
+        if (missionText != null)
+        {
+            missionText.text =
+                "NHIỆM VỤ:\n" +
+                "Tìm 3 manh mối (0/3)";
+        }
+
+        if (objectiveText != null)
+        {
+            objectiveText.text =
+                "Mục tiêu: Tìm 3 manh mối (0/3)";
+        }
+
+        if (playerInteraction != null)
+        {
+            playerInteraction.SetTargetClue(
+                number4Target,
+                "Chiếc cân cũ nằm tại một quầy hàng"
             );
         }
     }
 
-    // =========================
-    // CLUE UI
-    // =========================
+    // ==================================================
+    // EXIT
+    // ==================================================
+
+    public void GoToExit()
+    {
+        if (!boxOpened)
+        {
+            ShowClue(
+                "Bạn chưa mở chiếc hộp."
+            );
+
+            return;
+        }
+
+        if (missionText != null)
+        {
+            missionText.text =
+                "NHIỆM VỤ:\nMAP 1 COMPLETE";
+        }
+
+        if (objectiveText != null)
+        {
+            objectiveText.text =
+                "MAP 1 COMPLETE";
+        }
+
+        if (playerInteraction != null)
+        {
+            playerInteraction.SetTargetClue(
+                null,
+                ""
+            );
+        }
+
+        ShowClue(
+            "MAP 1 HOÀN THÀNH\n\n" +
+            "Điểm đến tiếp theo:\n\n" +
+            "NHÀ HUY"
+        );
+    }
+
+    // ==================================================
+    // CLUE PANEL
+    // ==================================================
 
     public void ShowClue(string message)
     {
@@ -393,35 +604,5 @@ public class Map1PuzzleManager : MonoBehaviour
             CursorLockMode.Locked;
 
         Cursor.visible = false;
-    }
-
-    // =========================
-    // EXIT
-    // =========================
-
-    public void GoToMap2()
-    {
-        if (!boxOpened)
-        {
-            ShowClue(
-                "Huy vẫn chưa tìm đủ manh mối.\n\n" +
-                "Không nên rời khu chợ lúc này."
-            );
-
-            return;
-        }
-
-        Debug.Log(
-            "PUZZLE MAP 1 HOÀN THÀNH - SẴN SÀNG SANG MAP 2"
-        );
-
-        ShowClue(
-            "MAP 1 HOÀN THÀNH\n\n" +
-            "Địa điểm tiếp theo:\n\n" +
-            "NHÀ HUY"
-        );
-
-        // Sau này khi có Map 2:
-        // SceneManager.LoadScene("Map2_NhaHuy");
     }
 }

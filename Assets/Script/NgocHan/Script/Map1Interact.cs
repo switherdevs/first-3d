@@ -13,14 +13,21 @@ public class Map1Interact : MonoBehaviour
         Exit
     }
 
-    [Header("Loại vật thể Puzzle")]
+    [Header("Puzzle Type")]
     public PuzzleType puzzleType;
 
+    [Header("Noi dung khi nhan R")]
+    public string displayName = "Manh moi";
+
+    [TextArea(3, 8)]
+    public string inspectText = "Khong co noi dung.";
+
+    // E = TUONG TAC
     public void Interact()
     {
         if (Map1PuzzleManager.Instance == null)
         {
-            Debug.LogError("Không tìm thấy Map1PuzzleManager!");
+            Debug.LogError("Khong tim thay Map1PuzzleManager!");
             return;
         }
 
@@ -51,8 +58,21 @@ public class Map1Interact : MonoBehaviour
                 break;
 
             case PuzzleType.Exit:
-                Map1PuzzleManager.Instance.GoToMap2();
+                Map1PuzzleManager.Instance.GoToExit();
                 break;
         }
+    }
+
+    // R = XEM NOI DUNG
+    public void Inspect()
+    {
+        if (Map1PuzzleManager.Instance == null)
+            return;
+
+        Map1PuzzleManager.Instance.ShowClue(
+            displayName +
+            "\n\n" +
+            inspectText
+        );
     }
 }
