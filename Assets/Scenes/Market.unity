@@ -145,7 +145,7 @@ Transform:
   m_GameObject: {fileID: 4391650}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 139.51, y: 26, z: 257.5}
+  m_LocalPosition: {x: 216.76, y: 26, z: 238.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -163,9 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d426c935ceb1335438be08d0e72325a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpawnPointHint
-  hintText: "\u201CCh\u1EE3 t\xE0n sau l\u01B0ng, n\u01B0\u1EDBc t\u1ED1i b\xEAn
-    m\xECnh,\nT\xECm n\u01A1i \u0111\u1EA5t d\u1EE9t, \u0111\u01B0\u1EDDng v\u1EC1
-    s\u1EBD hi\u1EC7n.\u201D"
+  hintText: "Ph\xEDA sau khu nh\xE0 b\u1ECF "
 --- !u!1001 &6160110
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -428,7 +426,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Manh m\u1ED1i: Paper "
+  m_text: "Manh m\u1ED1i:"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -631,9 +629,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c206cdd9989eebd45a7d5d6476a845c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
-  target: {fileID: 0}
-  offset: {x: 0, y: 8, z: -8}
-  followSpeed: 5
 --- !u!114 &61349507
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1062,7 +1057,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 5
   displayName: Manh moi
-  inspectText: Khong co noi dung.
+  inspectText: "N\u01A1i cu\u1ED1i ch\u1EE3, n\u01B0\u1EDBc ch\u1EB3ng c\xF2n trong,\nMen
+    theo kho c\u0169, t\xECm n\u01A1i khu\u1EA5t b\xF3ng."
 --- !u!1 &187793772
 GameObject:
   m_ObjectHideFlags: 0
@@ -3696,8 +3692,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "MANH M\u1ED0I\n\nN\u01A1i ng\u01B0\u1EDDi th\xE2n tr\u1EDF v\u1EC1\nsau
-    m\u1ED7i chuy\u1EBFn \u0111i..."
+  m_text: "MANH M\u1ED0I"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4804,7 +4799,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Tr\xEAn b\xE0n g\u1ED7 g\u1EA7n l\u1ED1i v\xE0o khu ch\u1EE3"
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5360,11 +5355,11 @@ MonoBehaviour:
   number4Text: {fileID: 2033349426}
   number1Text: {fileID: 872525583}
   number7Text: {fileID: 742991272}
-  paperTarget: {fileID: 0}
-  ticketTarget: {fileID: 0}
-  number4Target: {fileID: 0}
-  number1Target: {fileID: 0}
-  number7Target: {fileID: 0}
+  paperTarget: {fileID: 430615646154437800, guid: b923e39b65935c24ba811650033e12bb, type: 3}
+  ticketTarget: {fileID: 2132761362636119159, guid: a02137d738c4bfc4eb3e8b7ff1528296, type: 3}
+  number4Target: {fileID: 3840038322870660954, guid: 78ebe8f58ddc6fe438da74b0755af058, type: 3}
+  number1Target: {fileID: 767691891262996774, guid: 929be7a29bddae0489bdac925ea33765, type: 3}
+  number7Target: {fileID: 4500842455846123105, guid: ce8ad3801f94a4f48bbd1ec7f44755db, type: 3}
   boxTarget: {fileID: 183724595}
   exitTarget: {fileID: 871993505}
   playerInteraction: {fileID: 1369917131}
@@ -5522,7 +5517,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &829913394
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5878,7 +5873,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 6
   displayName: Manh moi
-  inspectText: Khong co noi dung.
+  inspectText: "Ch\u1EE3 t\xE0n sau l\u01B0ng, n\u01B0\u1EDBc t\u1ED1i b\xEAn m\xECnh,\nT\xECm
+    n\u01A1i \u0111\u1EA5t d\u1EE9t, \u0111\u01B0\u1EDDng v\u1EC1 s\u1EBD hi\u1EC7n."
 --- !u!1 &872525583
 GameObject:
   m_ObjectHideFlags: 0
@@ -7765,7 +7761,7 @@ Transform:
   m_GameObject: {fileID: 1164251764}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 208.21, y: 25.534, z: 202.56}
+  m_LocalPosition: {x: 128.8, y: 21.8, z: 181.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
