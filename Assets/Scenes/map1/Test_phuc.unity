@@ -1631,6 +1631,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeadWaterZone
   tagNhanVat: Player
+  doLechYToiDa: 1
   doSauKeo: 10
   tocDoKeo: 3
   amThanhMaDa: {fileID: 0}

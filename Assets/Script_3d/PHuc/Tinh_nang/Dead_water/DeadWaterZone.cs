@@ -7,6 +7,9 @@ public class DeadWaterZone : MonoBehaviour
     [Tooltip("Tag của Player để kiểm tra va chạm")]
     public string tagNhanVat = "Player";
 
+    [Tooltip("Độ lệch Y tối đa cho phép kích hoạt (tránh bị kích hoạt từ tầng dưới)")]
+    public float doLechYToiDa = 1.0f;
+
     [Header("--- Cấu hình Ma Da Kéo ---")]
     [Tooltip("Độ sâu sẽ bị kéo xuống (mét, tính theo giá trị âm Y)")]
     public float doSauKeo = 8f;
@@ -21,11 +24,18 @@ public class DeadWaterZone : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Kiểm tra đúng Tag Player và chưa bị kích hoạt kéo trước đó
+        // Kiểm tra đúng Tag Player và chưa bị kéo
         if (!dangKeoNhanVat && other.CompareTag(tagNhanVat))
         {
-            dangKeoNhanVat = true;
-            StartCoroutine(CoKeoNhanVatXuong(other.gameObject));
+            // Bổ sung kiểm tra: Tọa độ Y của Player phải nằm ở gần bề mặt vùng nước
+            // Nếu Player đứng quá thấp dưới sàn (tầng dưới), bỏ qua không kích hoạt
+            float doChechLechY = transform.position.y - other.transform.position.y;
+
+            if (doChechLechY <= doLechYToiDa)
+            {
+                dangKeoNhanVat = true;
+                StartCoroutine(CoKeoNhanVatXuong(other.gameObject));
+            }
         }
     }
 
