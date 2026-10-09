@@ -1,74 +1,86 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class RandomPuzzleSpawner : MonoBehaviour
 {
-    [Header("Puzzle Objects")]
-    public Transform[] puzzleObjects;
+    [Header("4 VẬT PHẨM ĐƯỢC RANDOM")]
+    [SerializeField] private GameObject oilLamp;
+    [SerializeField] private GameObject mirrorShard;
+    [SerializeField] private GameObject oldScale;
+    [SerializeField] private GameObject woodenBox;
 
-    [Header("Spawn Points")]
-    public Transform[] spawnPoints;
+    [Header("CÁC VỊ TRÍ RANDOM")]
+    [SerializeField] private Transform[] spawnPoints;
 
-    [Header("Random")]
-    public bool randomOnStart = true;
+    [Header("Tùy chọn")]
+    [SerializeField] private bool randomRotationY = false;
 
     private void Start()
     {
-        if (randomOnStart)
-        {
-            RandomizePuzzle();
-        }
+        RandomizeItems();
     }
 
-    public void RandomizePuzzle()
+    public void RandomizeItems()
     {
-        if (puzzleObjects == null || spawnPoints == null)
-            return;
+        GameObject[] randomItems =
+        {
+            oilLamp,
+            mirrorShard,
+            oldScale,
+            woodenBox
+        };
 
-        if (spawnPoints.Length < puzzleObjects.Length)
+        // Kiểm tra đủ vị trí hay không
+        if (spawnPoints == null || spawnPoints.Length < randomItems.Length)
         {
             Debug.LogError(
-                "Khong du SpawnPoint! Can it nhat " +
-                puzzleObjects.Length +
-                " diem."
+                "Không đủ Spawn Point! Cần ít nhất "
+                + randomItems.Length
+                + " Spawn Point."
             );
+
             return;
         }
 
-        // Tao danh sach index SpawnPoint
-        List<int> availablePoints = new List<int>();
+        // Tạo danh sách Spawn Point có thể dùng
+        List<Transform> availablePoints =
+            new List<Transform>(spawnPoints);
 
-        for (int i = 0; i < spawnPoints.Length; i++)
+        foreach (GameObject item in randomItems)
         {
-            availablePoints.Add(i);
-        }
-
-        // Random tung object
-        for (int i = 0; i < puzzleObjects.Length; i++)
-        {
-            if (puzzleObjects[i] == null)
+            if (item == null)
+            {
+                Debug.LogWarning("Có vật phẩm chưa được gắn vào RandomPuzzleSpawner!");
                 continue;
+            }
 
-            int randomListIndex =
+            // Chọn vị trí ngẫu nhiên
+            int randomIndex =
                 Random.Range(0, availablePoints.Count);
 
-            int pointIndex =
-                availablePoints[randomListIndex];
+            Transform selectedPoint =
+                availablePoints[randomIndex];
 
-            Transform point =
-                spawnPoints[pointIndex];
+            // Đưa vật phẩm tới vị trí
+            item.transform.position =
+                selectedPoint.position;
 
-            puzzleObjects[i].position =
-                point.position;
+            // Random hướng quay Y nếu bật
+            if (randomRotationY)
+            {
+                Vector3 rotation =
+                    item.transform.eulerAngles;
 
-            puzzleObjects[i].rotation =
-                point.rotation;
+                rotation.y =
+                    Random.Range(0f, 360f);
 
-            // Xoa diem da dung
-            // de 2 vat khong spawn trung nhau
-            availablePoints.RemoveAt(randomListIndex);
+                item.transform.eulerAngles =
+                    rotation;
+            }
+
+            // Xóa vị trí vừa dùng
+            // để không có 2 vật phẩm cùng một chỗ
+            availablePoints.RemoveAt(randomIndex);
         }
-
-        Debug.Log("Da random vi tri manh moi!");
     }
 }

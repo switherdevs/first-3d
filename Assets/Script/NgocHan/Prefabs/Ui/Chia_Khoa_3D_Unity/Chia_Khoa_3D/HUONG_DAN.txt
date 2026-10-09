@@ -1,0 +1,18 @@
+CHÌA KHÓA CỬA – BẢN DỰNG THỬ 3D
+
+Đây là mô hình dựng lại theo dáng chìa khóa, không phải quét chính xác ảnh.
+Có lỗ xuyên, răng chìa và rãnh hai mặt; vật liệu kim loại xỉn dựng mới.
+Kích thước: dài khoảng 5,55 cm; dày 2 mm. Đơn vị mô hình là mét.
+
+ĐƯA VÀO UNITY
+1. Giải nén gói tải về.
+2. Tạo thư mục Assets/ChiaKhoa, kéo Chia_Khoa.obj, Chia_Khoa.mtl và Key_BaseColor.png vào cùng thư mục đó.
+3. Kéo Chia_Khoa.obj từ cửa sổ Project vào Scene. Mô hình nhỏ đúng kích thước thật; chọn vật thể và nhấn F để nhìn gần.
+4. Nếu vật liệu không tự nhận hoặc bị hồng: tạo Material mới, chọn shader phù hợp dự án (URP/Lit với URP, Standard với Built-in). Kéo Key_BaseColor.png vào Base Map/Albedo; Metallic khoảng 0.8, Smoothness khoảng 0.5; gán vật liệu lên mô hình.
+5. Muốn thử nhìn lớn: tăng Scale cả ba trục lên 5 hoặc 10; khi dùng thực tế trả về 1.
+6. Muốn có va chạm: thêm Box Collider. Muốn rơi: thêm Rigidbody và kiểm tra collider.
+
+Chia_Khoa.glb là bản xem ở phần mềm hỗ trợ glTF, có vật liệu nhúng; Unity có thể cần gói nhập glTF. Dùng OBJ để nhập đơn giản.
+Xem_Truoc.png là ảnh dựng từ chính mô hình.
+build_key.py là mã nguồn dựng lại (Python; cần numpy, trimesh, shapely, mapbox-earcut, manifold3d, pillow, matplotlib).
+Chưa chạy thử trong Unity. Chưa có chức năng nhặt vật phẩm hoặc mở cửa.
