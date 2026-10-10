@@ -5,8 +5,8 @@ using UnityEngine.Rendering.Universal;
 
 public class DangerZoneEffect : MonoBehaviour
 {
-    [Header("--- CẤU HÌNH GLOBAL VOLUME ---")]
-    [Tooltip("Kéo GameObject Global Volume trong Scene vào đây")]
+    [Header("--- CẤU HÌNH GLOBAL VOLUME 1 (CHÍNH) ---")]
+    [Tooltip("Kéo GameObject Global Volume thứ nhất trong Scene vào đây")]
     public Volume globalVolume;
 
     [Tooltip("Mức độ tối sầm tối đa khi tới sát tâm vùng nguy hiểm (Từ 0 đến 1)")]
@@ -15,9 +15,19 @@ public class DangerZoneEffect : MonoBehaviour
     [Tooltip("Tốc độ chuyển đổi độ tối để tránh giật cục")]
     public float tocDoChuyenDoiUI = 3f;
 
-    [Header("--- CẤU HÌNH QUÉT VÙNG NGUY HIỂM (OVERLAP SPHERE) ---")]
-    [Tooltip("Bán kính quét xung quanh Player để phát hiện DangerZone từ xa")]
-    public float banKinhQuet = 15f;
+    [Header("--- CẤU HÌNH GLOBAL VOLUME 2 (THỨ HAI - CHẠY SONG SONG) ---")]
+    [Tooltip("Kéo GameObject Global Volume thứ hai trong Scene vào đây")]
+    public Volume globalVolumeThuHai;
+
+    [Tooltip("Mức độ trọng lượng (Weight) tối đa của Volume thứ hai khi tới sát tâm")]
+    [Range(0f, 1f)] public float weightToiDaThuHai = 1f;
+
+    [Header("--- CẤU HÌNH KHOẢNG CÁCH VÙNG NGUY HIỂM ---")]
+    [Tooltip("Bán kính tối đa bắt đầu xuất hiện hiệu ứng (Đẩy ra xa hoặc thu lại gần ở đây)")]
+    public float khoangCachBatDauHieuUng = 15f;
+
+    [Tooltip("Khoảng cách tính từ tâm Danger Zone mà tại đó hiệu ứng đạt độ đậm đặc tối đa (100%)")]
+    public float khoangCachDatDinhToiDa = 2f;
 
     [Tooltip("Layer của các GameObject Danger Zone")]
     public LayerMask layerDangerZone;
@@ -48,13 +58,14 @@ public class DangerZoneEffect : MonoBehaviour
 
     // Biến nội bộ
     private Vignette hieuUngVignette;
+    private ChromaticAberration hieuUngChromaticAberration;
     private float demThoiGianAmThanh = 0f;
     private bool dangPhatAmThanhRandom = false;
-    private AudioSource amThanhRandomSource; // AudioSource cố định dành riêng cho âm thanh random
+    private AudioSource amThanhRandomSource;
 
     private void Start()
     {
-        // 1. LẤY HIỆU ỨNG VÀ ÉP MỞ TRẠNG THÁI OVERRIDE
+        // 1. LẤY HIỆU ỨNG VIGNETTE CHO VOLUME 1
         if (globalVolume != null && globalVolume.profile != null)
         {
             if (globalVolume.profile.TryGet(out hieuUngVignette))
@@ -63,11 +74,24 @@ public class DangerZoneEffect : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("[DangerZoneEffect] Chưa thêm hiệu ứng Vignette vào Volume Profile!");
+                Debug.LogWarning("[DangerZoneEffect] Chưa thêm hiệu ứng Vignette vào Volume Profile 1!");
             }
         }
 
-        // 2. KHỞI CHẠY AUDIO SOURCE NỀN DANGER ZONE
+        // 1.1 LẤY HIỆU ỨNG CHROMATIC ABERRATION CHO VOLUME 2
+        if (globalVolumeThuHai != null && globalVolumeThuHai.profile != null)
+        {
+            if (globalVolumeThuHai.profile.TryGet(out hieuUngChromaticAberration))
+            {
+                hieuUngChromaticAberration.intensity.overrideState = true;
+            }
+            else
+            {
+                Debug.LogWarning("[DangerZoneEffect] Chưa thêm hiệu ứng Chromatic Aberration vào Volume Profile 2!");
+            }
+        }
+
+        // 2. KHỞI CHẠY AUDIO SOURCE NỀN
         if (amThanhKinhDi == null)
         {
             amThanhKinhDi = GetComponent<AudioSource>();
@@ -83,7 +107,7 @@ public class DangerZoneEffect : MonoBehaviour
             }
         }
 
-        // 3. TẠO TỰ ĐỘNG AUDIOSOURCE CỐ ĐỊNH PHÁT ÂM THANH RANDOM (KHÔNG CẦN KÉO TAY)
+        // 3. TẠO AUDIOSOURCE CỐ ĐỊNH PHÁT ÂM THANH RANDOM
         amThanhRandomSource = gameObject.AddComponent<AudioSource>();
         amThanhRandomSource.loop = false;
         amThanhRandomSource.playOnAwake = false;
@@ -96,12 +120,13 @@ public class DangerZoneEffect : MonoBehaviour
         XuLyAmThanhKinhDiNgauNhien();
     }
 
-    // 🎯 THUẬT TOÁN QUÉT VÙNG NGUY HIỂM VÀ TÍNH ĐỘ TỐI / ÂM THANH NỀN REALTIME
+    // 🎯 THUẬT TOÁN QUÉT VÙNG NGUY HIỂM VÀ TÍNH TOÁN KHOẢNG CÁCH TÙY CHỈNH
     private void QuetVungNguyHiemRealtime()
     {
+        // Quét trong bán kính xa nhất được cấu hình (`khoangCachBatDauHieuUng`)
         Collider[] danhSachVaCham = Physics.OverlapSphere(
             transform.position,
-            banKinhQuet,
+            khoangCachBatDauHieuUng,
             layerDangerZone,
             QueryTriggerInteraction.Collide
         );
@@ -123,9 +148,15 @@ public class DangerZoneEffect : MonoBehaviour
                 }
             }
 
-            mucDoNguyHiemToiDa = 1f - Mathf.Clamp01(khoangCachNganNhat / banKinhQuet);
+            // Áp dụng khoảng cách đỉnh tối đa để bóp hoặc giãn độ nhạy hiệu ứng
+            float khoangCachThucTe = Mathf.Clamp(khoangCachNganNhat, khoangCachDatDinhToiDa, khoangCachBatDauHieuUng);
+
+            // Tính toán tỷ lệ tuyến tính từ khoảng cách bắt đầu đến khoảng cách đạt đỉnh tối đa
+            mucDoNguyHiemToiDa = 1f - ((khoangCachThucTe - khoangCachDatDinhToiDa) / (khoangCachBatDauHieuUng - khoangCachDatDinhToiDa));
+            mucDoNguyHiemToiDa = Mathf.Clamp01(mucDoNguyHiemToiDa);
         }
 
+        // --- XỬ LÝ GLOBAL VOLUME 1 (Vignette) ---
         float doToiMuctieu = mucDoNguyHiemToiDa * doToiToiDa;
 
         if (globalVolume != null)
@@ -138,7 +169,20 @@ public class DangerZoneEffect : MonoBehaviour
             hieuUngVignette.intensity.value = Mathf.Lerp(hieuUngVignette.intensity.value, doToiMuctieu, tocDoChuyenDoiUI * Time.deltaTime);
         }
 
-        // Cập nhật volume cho âm thanh nền Danger Zone
+        // --- XỬ LÝ GLOBAL VOLUME 2 (Song song) ---
+        float mucTieuThuHai = mucDoNguyHiemToiDa * weightToiDaThuHai;
+
+        if (globalVolumeThuHai != null)
+        {
+            globalVolumeThuHai.weight = Mathf.Lerp(globalVolumeThuHai.weight, mucTieuThuHai, tocDoChuyenDoiUI * Time.deltaTime);
+        }
+
+        if (hieuUngChromaticAberration != null)
+        {
+            hieuUngChromaticAberration.intensity.value = Mathf.Lerp(hieuUngChromaticAberration.intensity.value, mucTieuThuHai, tocDoChuyenDoiUI * Time.deltaTime);
+        }
+
+        // --- XỬ LÝ ÂM THANH NỀN ---
         if (amThanhKinhDi != null)
         {
             float amLuongMucTieu = mucDoNguyHiemToiDa * amLuongToiDa;
@@ -146,7 +190,7 @@ public class DangerZoneEffect : MonoBehaviour
         }
     }
 
-    // 🎯 THUẬT TOÁN ĐẾM THỜI GIAN LẮP ÂM THANH RANDOM
+    // 🎯 ĐẾM THỜI GIAN ÂM THANH RANDOM
     private void XuLyAmThanhKinhDiNgauNhien()
     {
         if (dsAmThanhKinhDi == null || dsAmThanhKinhDi.Length == 0 || dangPhatAmThanhRandom) return;
@@ -166,17 +210,15 @@ public class DangerZoneEffect : MonoBehaviour
         }
     }
 
-    // 🎯 COROUTINE ĐIỀU CHỈNH FADE IN / FADE OUT TRÊN AUDIOSOURCE CỐ ĐỊNH
+    // 🎯 FADE IN / FADE OUT ÂM THANH RANDOM
     private IEnumerator FadeAmThanhCoDinh(AudioClip clip)
     {
         dangPhatAmThanhRandom = true;
 
-        // 1. Gán clip và chuẩn bị phát từ volume = 0
         amThanhRandomSource.clip = clip;
         amThanhRandomSource.volume = 0f;
         amThanhRandomSource.Play();
 
-        // 2. FADE IN (Tăng volume từ 0 lên 1)
         float demThoiGian = 0f;
         while (demThoiGian < thoiGianFadeIn)
         {
@@ -186,14 +228,12 @@ public class DangerZoneEffect : MonoBehaviour
         }
         amThanhRandomSource.volume = 1f;
 
-        // 3. CHỜ PHÁT ĐOẠN GIỮA (Phát tới điểm bắt đầu Fade Out)
         float thoiDiemFadeOut = clip.length - thoiGianFadeOut;
         while (amThanhRandomSource.isPlaying && amThanhRandomSource.time < thoiDiemFadeOut)
         {
             yield return null;
         }
 
-        // 4. FADE OUT (Giảm volume từ 1 về 0)
         demThoiGian = 0f;
         while (demThoiGian < thoiGianFadeOut)
         {
@@ -202,7 +242,6 @@ public class DangerZoneEffect : MonoBehaviour
             yield return null;
         }
 
-        // 5. NGẮT ÂM THANH HOÀN TOÀN KHI KẾT THÚC
         amThanhRandomSource.volume = 0f;
         amThanhRandomSource.Stop();
 
@@ -211,7 +250,11 @@ public class DangerZoneEffect : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+        // Vẽ 2 vòng tròn mô phỏng vùng bắt đầu và vùng đạt đỉnh tối đa trong Scene
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, khoangCachBatDauHieuUng);
+
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, banKinhQuet);
+        Gizmos.DrawWireSphere(transform.position, khoangCachDatDinhToiDa);
     }
 }

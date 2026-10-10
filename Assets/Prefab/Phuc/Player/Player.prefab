@@ -449,9 +449,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DangerZoneEffect
   globalVolume: {fileID: 0}
-  doToiToiDa: 1
+  doToiToiDa: 0.75
   tocDoChuyenDoiUI: 20
-  banKinhQuet: 40
+  globalVolumeThuHai: {fileID: 0}
+  weightToiDaThuHai: 0.5
+  khoangCachBatDauHieuUng: 35
+  khoangCachDatDinhToiDa: 10
   layerDangerZone:
     serializedVersion: 2
     m_Bits: 128

@@ -2380,6 +2380,7 @@ GameObject:
   - component: {fileID: 4550377346762831569}
   - component: {fileID: 6823209362627373634}
   - component: {fileID: 3410585559639899252}
+  - component: {fileID: 5629027564932936131}
   m_Layer: 5
   m_Name: UI_setting
   m_TagString: Untagged
@@ -2606,6 +2607,22 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &5629027564932936131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6091417767567151793}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e53f2b281302dd4b8644fbd8c8bced6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioInitializer
+  mainAudioMixer: {fileID: 24100000, guid: 0ecce87050d012c45bd184301a9271f2, type: 2}
+  parameterMaster: MasterVolume
+  parameterMusic: MusicVolume
+  parameterSFX: SFXVolume
 --- !u!1 &6469326009454109139
 GameObject:
   m_ObjectHideFlags: 0
