@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4ccaa8eff00213c46b5babc7ac0d9967
+guid: 44e6c1c7c89ec5d4eb1c3c11fdc79bb7
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7903585220409403262
-    second: "l\xE1 th\u01B0 c\u0169_0"
+      213: -5770253098851427257
+    second: "b\u1EE9c th\u01B0 t\xECm manh m\u1ED1i_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,12 +100,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "l\xE1 th\u01B0 c\u0169_0"
+      name: "b\u1EE9c th\u01B0 t\xECm manh m\u1ED1i_0"
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 313
+        width: 470
         height: 313
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2885875fd13d05290800000000000000
-      internalID: -7903585220409403262
+      spriteID: 74c1dd2f061fbefa0800000000000000
+      internalID: -5770253098851427257
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "l\xE1 th\u01B0 c\u0169_0": -7903585220409403262
+      "b\u1EE9c th\u01B0 t\xECm manh m\u1ED1i_0": -5770253098851427257
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
