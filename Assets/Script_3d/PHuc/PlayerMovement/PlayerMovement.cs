@@ -22,6 +22,10 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Camera chính dùng để tính toán hướng di chuyển theo góc nhìn")]
     public Transform cameraChinh;
 
+    [Header("--- Cấu hình Animator (Animation) ---")]
+    [Tooltip("Component Animator quản lý hoạt ảnh nhân vật")]
+    public Animator animatorNhanVat;
+
     [Header("--- BỔ SUNG: Hệ thống Âm thanh Đa Lớp (2 AudioSources) ---")]
     [Tooltip("Nguồn âm thanh CHUYÊN DÙNG CHO BƯỚC CHÂN (Đi bộ, Chạy, Ngồi)")]
     public AudioSource nguonAmThanhBuocChan;
@@ -138,6 +142,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (boDieuKhienNhanVat == null) boDieuKhienNhanVat = GetComponent<Rigidbody>();
         if (vaChamNhanVat == null) vaChamNhanVat = GetComponent<CapsuleCollider>();
+        if (animatorNhanVat == null) animatorNhanVat = GetComponentInChildren<Animator>();
 
         AudioSource[] danhSachAudioSource = GetComponents<AudioSource>();
 
@@ -203,6 +208,9 @@ public class PlayerMovement : MonoBehaviour
         XuLyTheLucVaTocDo();
         XuLyAmThanhBuocChan();
         CapNhatGiaoDienUI();
+
+        // 5. Cập nhật các trạng thái hoạt ảnh (Animation)
+        CapNhatAnimator();
     }
 
     private void FixedUpdate()
@@ -241,7 +249,6 @@ public class PlayerMovement : MonoBehaviour
         else if (context.canceled) dangGiuPhimNgoi = false;
     }
 
-    // ĐÃ SỬA: Loại bỏ dangOTrenKhong = true ở đây để tránh bị nhận nhầm là vừa tiếp đất
     public void OnJump(InputAction.CallbackContext context)
     {
         if (context.started || context.performed)
@@ -249,6 +256,12 @@ public class PlayerMovement : MonoBehaviour
             if (kiemTraDanGiapDat && !dangNhanNgoi && !dangBiVuongTran)
             {
                 dangDaThietLapNhay = true;
+
+                // Kích hoạt Trigger Jump cho Animator
+                if (animatorNhanVat != null)
+                {
+                    animatorNhanVat.SetTrigger("JumpTrigger");
+                }
 
                 if (nguonAmThanhHieuUng != null && amThanhNhay != null)
                 {
@@ -258,7 +271,36 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
+
+    // BỔ SUNG: Sự kiện nhận phím Attack (Ví dụ chuột trái hoặc phím F)
+    public void OnAttack(InputAction.CallbackContext context)
+    {
+        if (context.started || context.performed)
+        {
+            // Kích hoạt Trigger Attack cho Animator
+            if (animatorNhanVat != null)
+            {
+                animatorNhanVat.SetTrigger("AttackTrigger");
+            }
+        }
+    }
     #endregion
+
+    /// <summary>
+    /// Hàm cập nhật trạng thái Animation dạng Bool (Đứng yên, Chạy thường, Chạy nhanh)
+    /// </summary>
+    private void CapNhatAnimator()
+    {
+        if (animatorNhanVat == null) return;
+
+        bool đangDiChuyen = DangDiChuyen && kiemTraDanGiapDat;
+        bool dangChayNhanh = đangDiChuyen && dangNhanChay && theLucHienTai > 0 && !dangNhanNgoi;
+
+        // Truyền giá trị vào Animator Parameters dạng Bool
+        animatorNhanVat.SetBool("IsIdle", !đangDiChuyen && kiemTraDanGiapDat);
+        animatorNhanVat.SetBool("IsWalking", đangDiChuyen && !dangChayNhanh);
+        animatorNhanVat.SetBool("IsRunning", dangChayNhanh);
+    }
 
     private Vector3 LayViTriKiemTraTran()
     {
@@ -353,7 +395,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // ĐÃ SỬA: Chỉ kích hoạt dangOTrenKhong = true khi kiemTraDanGiapDat CHÍNH THỨC BẰNG FALSE
     private void XuLyAmThanhTiepDatLapTuc()
     {
         if (kiemTraDanGiapDat)
@@ -371,7 +412,6 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            // Nhân vật thực sự đã rời khỏi mặt đất (đang trên không)
             dangOTrenKhong = true;
         }
     }
