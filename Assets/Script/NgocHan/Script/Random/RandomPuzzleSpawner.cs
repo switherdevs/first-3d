@@ -3,22 +3,46 @@ using UnityEngine;
 
 public class RandomPuzzleSpawner : MonoBehaviour
 {
-    [Header("4 VẬT PHẨM ĐƯỢC RANDOM")]
-    [SerializeField] private GameObject oilLamp;
-    [SerializeField] private GameObject mirrorShard;
-    [SerializeField] private GameObject oldScale;
-    [SerializeField] private GameObject woodenBox;
+    [Header("4 VAT PHAM DUOC RANDOM")]
 
-    [Header("CÁC VỊ TRÍ RANDOM")]
-    [SerializeField] private Transform[] spawnPoints;
+    [SerializeField]
+    private GameObject oilLamp;
 
-    [Header("Tùy chọn")]
-    [SerializeField] private bool randomRotationY = false;
+    [SerializeField]
+    private GameObject mirrorShard;
+
+    [SerializeField]
+    private GameObject oldScale;
+
+    [SerializeField]
+    private GameObject woodenBox;
+
+
+    [Header("CAC VI TRI RANDOM")]
+
+    [SerializeField]
+    private Transform[] spawnPoints;
+
+
+    [Header("TUY CHON")]
+
+    [SerializeField]
+    private bool randomRotationY = false;
+
+
+    // =========================================================
+    // START
+    // =========================================================
 
     private void Start()
     {
         RandomizeItems();
     }
+
+
+    // =========================================================
+    // RANDOM
+    // =========================================================
 
     public void RandomizeItems()
     {
@@ -30,57 +54,154 @@ public class RandomPuzzleSpawner : MonoBehaviour
             woodenBox
         };
 
-        // Kiểm tra đủ vị trí hay không
-        if (spawnPoints == null || spawnPoints.Length < randomItems.Length)
+
+        if (spawnPoints == null ||
+            spawnPoints.Length < randomItems.Length)
         {
             Debug.LogError(
-                "Không đủ Spawn Point! Cần ít nhất "
-                + randomItems.Length
-                + " Spawn Point."
+                "Khong du Spawn Point!"
             );
 
             return;
         }
 
-        // Tạo danh sách Spawn Point có thể dùng
+
         List<Transform> availablePoints =
-            new List<Transform>(spawnPoints);
+            new List<Transform>();
+
+
+        foreach (Transform point in spawnPoints)
+        {
+            if (point != null)
+            {
+                availablePoints.Add(point);
+            }
+        }
+
+
+        if (availablePoints.Count <
+            randomItems.Length)
+        {
+            Debug.LogError(
+                "Co Spawn Point dang bi Null!"
+            );
+
+            return;
+        }
+
 
         foreach (GameObject item in randomItems)
         {
             if (item == null)
             {
-                Debug.LogWarning("Có vật phẩm chưa được gắn vào RandomPuzzleSpawner!");
+                Debug.LogWarning(
+                    "Co item chua duoc gan!"
+                );
+
                 continue;
             }
 
-            // Chọn vị trí ngẫu nhiên
-            int randomIndex =
-                Random.Range(0, availablePoints.Count);
 
-            Transform selectedPoint =
+            // ---------------------------------------------
+            // TẮT E
+            // ---------------------------------------------
+
+            HideItemPrompt(item);
+
+
+            // ---------------------------------------------
+            // RANDOM POINT
+            // ---------------------------------------------
+
+            int randomIndex =
+                Random.Range(
+                    0,
+                    availablePoints.Count
+                );
+
+
+            Transform point =
                 availablePoints[randomIndex];
 
-            // Đưa vật phẩm tới vị trí
-            item.transform.position =
-                selectedPoint.position;
 
-            // Random hướng quay Y nếu bật
+            // ---------------------------------------------
+            // POSITION
+            // ---------------------------------------------
+
+            item.transform.position =
+                point.position;
+
+
+            // ---------------------------------------------
+            // ROTATION
+            // ---------------------------------------------
+
             if (randomRotationY)
             {
                 Vector3 rotation =
                     item.transform.eulerAngles;
 
+
                 rotation.y =
-                    Random.Range(0f, 360f);
+                    Random.Range(
+                        0f,
+                        360f
+                    );
+
 
                 item.transform.eulerAngles =
                     rotation;
             }
 
-            // Xóa vị trí vừa dùng
-            // để không có 2 vật phẩm cùng một chỗ
-            availablePoints.RemoveAt(randomIndex);
+
+            // ---------------------------------------------
+            // TẮT E LẦN NỮA
+            // ---------------------------------------------
+
+            HideItemPrompt(item);
+
+
+            // ---------------------------------------------
+            // XÓA POINT ĐÃ DÙNG
+            // ---------------------------------------------
+
+            availablePoints.RemoveAt(
+                randomIndex
+            );
+
+
+            Debug.Log(
+                item.name
+                + " duoc dat tai "
+                + point.name
+            );
+        }
+    }
+
+
+    // =========================================================
+    // HIDE PROMPT
+    // =========================================================
+
+    private void HideItemPrompt(
+        GameObject item
+    )
+    {
+        if (item == null)
+            return;
+
+
+        PuzzleWorldPrompt[] prompts =
+            item.GetComponentsInChildren
+            <PuzzleWorldPrompt>(true);
+
+
+        foreach (PuzzleWorldPrompt prompt in prompts)
+        {
+            if (prompt != null)
+            {
+                prompt.HidePrompt();
+            }
         }
     }
 }

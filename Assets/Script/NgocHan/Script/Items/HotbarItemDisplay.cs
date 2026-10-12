@@ -3,176 +3,238 @@ using UnityEngine.UI;
 
 public class HotbarItemDisplay : MonoBehaviour
 {
-    [Header("References")]
-    public HotbarManager hotbarManager;
+    [Header("REFERENCES")]
+    [SerializeField]
+    private HotbarManager hotbarManager;
 
-    [Header("Runtime")]
+
+    [Header("RUNTIME")]
     [SerializeField]
     private int nextFreeSlot = 0;
 
-    // =====================================================
-    // ADD ITEM
-    // =====================================================
 
-    public void AddItem(SearchItem item)
+    // =========================================================
+    // ADD ITEM
+    // =========================================================
+
+    public bool AddItem(
+        SearchItem item
+    )
     {
         if (item == null)
         {
-            Debug.LogWarning(
-                "[HotbarItemDisplay] SearchItem is null."
+            Debug.LogError(
+                "[Hotbar] SearchItem = NULL"
             );
 
-            return;
+            return false;
         }
+
 
         if (hotbarManager == null)
         {
             Debug.LogError(
-                "[HotbarItemDisplay] HotbarManager is not assigned."
+                "[Hotbar] Chưa gắn HotbarManager!"
             );
 
-            return;
+            return false;
         }
+
 
         if (hotbarManager.danhSachOTo == null ||
             hotbarManager.danhSachOTo.Length == 0)
         {
             Debug.LogError(
-                "[HotbarItemDisplay] Hotbar has no slots."
+                "[Hotbar] danhSachOTo đang rỗng!"
             );
 
-            return;
+            return false;
         }
 
-        // Hotbar full
+
+        // =====================================================
+        // FULL
+        // =====================================================
+
         if (nextFreeSlot >=
             hotbarManager.danhSachOTo.Length)
         {
             Debug.LogWarning(
-                "[HotbarItemDisplay] Hotbar is full."
+                "[Hotbar] Kho đồ đã đầy!"
             );
 
-            return;
+            return false;
         }
+
 
         RectTransform slot =
             hotbarManager.danhSachOTo[
                 nextFreeSlot
             ];
 
+
         if (slot == null)
         {
             Debug.LogError(
-                "[HotbarItemDisplay] Slot " +
+                "[Hotbar] Slot " +
                 nextFreeSlot +
-                " is null."
+                " = NULL"
             );
 
-            return;
+            return false;
         }
 
-        // =================================================
-        // FIND ICON CHILD
-        // =================================================
 
-        Image iconImage =
-            FindIconImage(slot);
-
-        if (iconImage == null)
-        {
-            Debug.LogError(
-                "[HotbarItemDisplay] Cannot find Icon Image inside " +
-                slot.name
-            );
-
-            return;
-        }
-
-        // =================================================
-        // GET ITEM ICON
-        // =================================================
+        // =====================================================
+        // ICON DATA
+        // =====================================================
 
         ItemInventoryIcon iconData =
             item.GetComponent<ItemInventoryIcon>();
 
+
+        if (iconData == null)
+        {
+            iconData =
+                item.GetComponentInChildren<ItemInventoryIcon>(
+                    true
+                );
+        }
+
+
         if (iconData == null)
         {
             Debug.LogError(
-                "[HotbarItemDisplay] " +
-                item.name +
-                " does not have ItemInventoryIcon."
+                "[Hotbar] " +
+                item.gameObject.name +
+                " chưa có ItemInventoryIcon."
             );
 
-            return;
+            return false;
         }
+
 
         if (iconData.itemIcon == null)
         {
-            Debug.LogWarning(
-                "[HotbarItemDisplay] " +
-                item.name +
-                " has no icon assigned."
+            Debug.LogError(
+                "[Hotbar] " +
+                item.gameObject.name +
+                " chưa gắn Item Icon."
             );
 
-            return;
+            return false;
         }
 
-        // =================================================
-        // SHOW ICON
-        // =================================================
 
-        iconImage.sprite =
+        // =====================================================
+        // SLOT IMAGE
+        // =====================================================
+
+        Image slotImage =
+            FindSlotImage(slot);
+
+
+        if (slotImage == null)
+        {
+            Debug.LogError(
+                "[Hotbar] Không tìm thấy Image trong " +
+                slot.name
+            );
+
+            return false;
+        }
+
+
+        // =====================================================
+        // SHOW ICON
+        // =====================================================
+
+        slotImage.sprite =
             iconData.itemIcon;
 
-        iconImage.enabled = true;
 
-        iconImage.preserveAspect = true;
+        slotImage.enabled = true;
 
-        iconImage.color =
+        slotImage.preserveAspect = true;
+
+        slotImage.color =
             Color.white;
 
+
         Debug.Log(
-            "[HotbarItemDisplay] Added " +
+            "[Hotbar] Đã thêm " +
             item.itemName +
-            " to " +
+            " vào " +
             slot.name
         );
 
+
         nextFreeSlot++;
+
+
+        return true;
     }
 
-    // =====================================================
-    // FIND ICON IMAGE
-    // =====================================================
 
-    private Image FindIconImage(
+    // =========================================================
+    // FIND SLOT IMAGE
+    // =========================================================
+
+    private Image FindSlotImage(
         RectTransform slot
     )
     {
-        foreach (Transform child in slot)
-        {
-            // Accept Icon / icon / ICON
-            if (child.name.Equals(
-                "Icon",
-                System.StringComparison.OrdinalIgnoreCase
-            ))
-            {
-                Image image =
-                    child.GetComponent<Image>();
+        if (slot == null)
+            return null;
 
-                if (image != null)
-                {
-                    return image;
-                }
-            }
+
+        // Nếu có child Icon
+        Transform iconChild =
+            slot.Find("Icon");
+
+
+        if (iconChild != null)
+        {
+            Image icon =
+                iconChild.GetComponent<Image>();
+
+
+            if (icon != null)
+                return icon;
         }
+
+
+        // UI hiện tại của bạn:
+        // kho_1 chính là Image
+        Image ownImage =
+            slot.GetComponent<Image>();
+
+
+        if (ownImage != null)
+            return ownImage;
+
+
+        // Fallback
+        Image[] images =
+            slot.GetComponentsInChildren<Image>(
+                true
+            );
+
+
+        foreach (Image image in images)
+        {
+            if (image != null)
+                return image;
+        }
+
 
         return null;
     }
 
-    // =====================================================
-    // RESET HOTBAR
-    // =====================================================
+
+    // =========================================================
+    // CLEAR
+    // =========================================================
 
     public void ClearHotbar()
     {
@@ -182,6 +244,7 @@ public class HotbarItemDisplay : MonoBehaviour
             return;
         }
 
+
         foreach (
             RectTransform slot
             in hotbarManager.danhSachOTo
@@ -190,15 +253,21 @@ public class HotbarItemDisplay : MonoBehaviour
             if (slot == null)
                 continue;
 
-            Image iconImage =
-                FindIconImage(slot);
 
-            if (iconImage == null)
+            Image image =
+                FindSlotImage(slot);
+
+
+            if (image == null)
                 continue;
 
-            iconImage.sprite = null;
-            iconImage.enabled = false;
+
+            image.sprite = null;
+
+            image.color =
+                Color.white;
         }
+
 
         nextFreeSlot = 0;
     }

@@ -3,145 +3,413 @@ using TMPro;
 
 public class PlayerMap1Interaction : MonoBehaviour
 {
-    [Header("Interaction")]
-    public float interactionDistance = 2f;
+    // =========================================================
+    // INTERACTION
+    // =========================================================
 
-    [Header("Target hien tai")]
-    public Transform targetClue;
+    [Header("INTERACTION")]
+    [SerializeField] private float interactionDistance = 2f;
 
-    [Header("E Icon")]
-    public GameObject interactionIcon;
 
-    [Header("R Icon")]
-    public GameObject inspectIcon;
+    // =========================================================
+    // TARGET
+    // =========================================================
 
-    [Header("Hint UI")]
-    public GameObject hintGroup;
-    public TMP_Text hintText;
-
-    [Header("Distance UI")]
-    public GameObject distanceGroup;
-    public TMP_Text distanceText;
-
+    private Transform targetClue;
     private string currentHint = "";
 
-    private Map1Interact currentInteract;
+
+    // =========================================================
+    // MANH MỐI UI
+    // =========================================================
+
+    [Header("MANH MỐI UI")]
+    [SerializeField] private GameObject itemNameGroup;
+    [SerializeField] private TMP_Text itemNameText;
+
+
+    // =========================================================
+    // DISTANCE UI
+    // =========================================================
+
+    [Header("DISTANCE UI")]
+    [SerializeField] private GameObject distanceGroup;
+    [SerializeField] private TMP_Text distanceText;
+
+
+    // =========================================================
+    // CURRENT INTERACTION
+    // =========================================================
+
+    private Map1Interact currentInteractable;
+    private PuzzleWorldPrompt currentPrompt;
+
+
+    // =========================================================
+    // START
+    // =========================================================
 
     private void Start()
     {
-        HideInteractionIcons();
-
-        if (hintGroup != null)
-            hintGroup.SetActive(true);
+        if (itemNameGroup != null)
+            itemNameGroup.SetActive(false);
 
         if (distanceGroup != null)
-            distanceGroup.SetActive(true);
+            distanceGroup.SetActive(false);
+
+        HideAllPrompts();
     }
+
+
+    // =========================================================
+    // UPDATE
+    // =========================================================
 
     private void Update()
     {
-        UpdateTarget();
+        UpdateTargetUI();
+        UpdateInteraction();
     }
 
-    private void UpdateTarget()
-    {
-        // Hint
-        if (hintText != null)
-            hintText.text = currentHint;
 
-        // Chua co target
+    // =========================================================
+    // TARGET UI
+    // =========================================================
+
+    private void UpdateTargetUI()
+    {
         if (targetClue == null)
         {
-            currentInteract = null;
+            if (itemNameGroup != null)
+                itemNameGroup.SetActive(false);
 
-            if (distanceText != null)
-                distanceText.text = "-- m";
+            if (distanceGroup != null)
+                distanceGroup.SetActive(false);
 
-            HideInteractionIcons();
             return;
         }
 
-        // Khoang cach
-        float distance = Vector3.Distance(
-            transform.position,
-            targetClue.position
-        );
+
+        // MANH MỐI
+        if (itemNameGroup != null)
+            itemNameGroup.SetActive(true);
+
+
+        if (itemNameText != null)
+        {
+            itemNameText.text =
+                "Manh mối: " + currentHint;
+        }
+
+
+        // KHOẢNG CÁCH
+        float distance =
+            Vector3.Distance(
+                transform.position,
+                targetClue.position
+            );
+
+
+        if (distanceGroup != null)
+            distanceGroup.SetActive(true);
+
 
         if (distanceText != null)
         {
             distanceText.text =
-                distance.ToString("F1") + " m";
+                "Khoảng cách: " +
+                distance.ToString("0.0") +
+                " m";
         }
+    }
 
-        // Tim Map1Interact
-        currentInteract =
-            targetClue.GetComponent<Map1Interact>();
 
-        if (currentInteract == null)
+    // =========================================================
+    // INTERACTION
+    // =========================================================
+
+    private void UpdateInteraction()
+    {
+        if (targetClue == null)
         {
-            currentInteract =
-                targetClue.GetComponentInChildren<Map1Interact>();
-        }
-
-        if (currentInteract == null)
-        {
-            currentInteract =
-                targetClue.GetComponentInParent<Map1Interact>();
-        }
-
-        if (currentInteract == null)
-        {
-            HideInteractionIcons();
+            ClearCurrentInteraction();
             return;
         }
 
-        // Xa hon 2m
+
+        float distance =
+            Vector3.Distance(
+                transform.position,
+                targetClue.position
+            );
+
+
+        // XA HƠN 2M
         if (distance > interactionDistance)
         {
-            HideInteractionIcons();
+            ClearCurrentInteraction();
             return;
         }
 
-        // Trong 2m
-        ShowInteractionIcons();
 
-        // E
+        // =====================================================
+        // TÌM INTERACT CỦA ĐÚNG TARGET
+        // =====================================================
+
+        Map1Interact interactable =
+            FindInteractable(targetClue);
+
+
+        PuzzleWorldPrompt prompt =
+            FindPrompt(targetClue);
+
+
+        if (interactable == null)
+        {
+            Debug.LogWarning(
+                "[PlayerMap1Interaction] Target " +
+                targetClue.name +
+                " không có Map1Interact."
+            );
+
+            ClearCurrentInteraction();
+            return;
+        }
+
+
+        // Nếu đổi target prompt
+        if (currentPrompt != prompt)
+        {
+            if (currentPrompt != null)
+                currentPrompt.HidePrompt();
+
+            currentPrompt = prompt;
+        }
+
+
+        currentInteractable = interactable;
+
+
+        // Hiện E
+        if (currentPrompt != null)
+        {
+            currentPrompt.ShowPrompt();
+        }
+
+
+        // =====================================================
+        // NHẤN E
+        // =====================================================
+
         if (Input.GetKeyDown(KeyCode.E))
         {
-            currentInteract.Interact();
-        }
+            Debug.Log(
+                "[PLAYER] E -> Target = " +
+                targetClue.name +
+                " | Interact = " +
+                currentInteractable.gameObject.name
+            );
 
-        // R
-        if (Input.GetKeyDown(KeyCode.R))
+
+            currentInteractable.Interact();
+        }
+    }
+
+
+    // =========================================================
+    // FIND INTERACTABLE
+    // =========================================================
+
+    private Map1Interact FindInteractable(
+        Transform target
+    )
+    {
+        if (target == null)
+            return null;
+
+
+        // 1. Ưu tiên chính target
+        Map1Interact interactable =
+            target.GetComponent<Map1Interact>();
+
+
+        if (interactable != null)
+            return interactable;
+
+
+        // 2. Tìm trong child của target
+        interactable =
+            target.GetComponentInChildren<Map1Interact>(
+                true
+            );
+
+
+        if (interactable != null)
+            return interactable;
+
+
+        // KHÔNG tìm parent.
+        // Tránh BoxClue / Key lấy nhầm Map1Interact của LockBox.
+        return null;
+    }
+
+
+    // =========================================================
+    // FIND PROMPT
+    // =========================================================
+
+    private PuzzleWorldPrompt FindPrompt(
+        Transform target
+    )
+    {
+        if (target == null)
+            return null;
+
+
+        // Component trên target
+        PuzzleWorldPrompt prompt =
+            target.GetComponent<PuzzleWorldPrompt>();
+
+
+        if (prompt != null)
+            return prompt;
+
+
+        // Component trong child
+        prompt =
+            target.GetComponentInChildren<PuzzleWorldPrompt>(
+                true
+            );
+
+
+        return prompt;
+    }
+
+
+    // =========================================================
+    // CLEAR CURRENT
+    // =========================================================
+
+    private void ClearCurrentInteraction()
+    {
+        if (currentPrompt != null)
         {
-            currentInteract.Inspect();
+            currentPrompt.HidePrompt();
+        }
+
+
+        currentPrompt = null;
+        currentInteractable = null;
+    }
+
+
+    // =========================================================
+    // HIDE ALL PROMPTS
+    // =========================================================
+
+    private void HideAllPrompts()
+    {
+        PuzzleWorldPrompt[] prompts =
+            FindObjectsByType<PuzzleWorldPrompt>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None
+            );
+
+
+        foreach (PuzzleWorldPrompt prompt in prompts)
+        {
+            if (prompt != null)
+            {
+                prompt.HidePrompt();
+            }
         }
     }
 
-    private void ShowInteractionIcons()
-    {
-        if (interactionIcon != null)
-            interactionIcon.SetActive(true);
 
-        if (inspectIcon != null)
-            inspectIcon.SetActive(true);
-    }
-
-    private void HideInteractionIcons()
-    {
-        if (interactionIcon != null)
-            interactionIcon.SetActive(false);
-
-        if (inspectIcon != null)
-            inspectIcon.SetActive(false);
-    }
+    // =========================================================
+    // SET TARGET
+    // =========================================================
 
     public void SetTargetClue(
         Transform newTarget,
-        string newHint
+        string hint
     )
     {
+        ClearCurrentInteraction();
+        HideAllPrompts();
+
+
         targetClue = newTarget;
-        currentHint = newHint;
+        currentHint = hint;
+
+
+        if (targetClue == null)
+        {
+            ClearTargetClue();
+            return;
+        }
+
+
+        Debug.Log(
+            "[PLAYER] Target mới = " +
+            targetClue.name
+        );
+
+
+        UpdateTargetUI();
+    }
+
+
+    // =========================================================
+    // CLEAR TARGET
+    // =========================================================
+
+    public void ClearTargetClue()
+    {
+        ClearCurrentInteraction();
+        HideAllPrompts();
+
+
+        targetClue = null;
+        currentHint = "";
+
+
+        if (itemNameText != null)
+            itemNameText.text = "";
+
+
+        if (itemNameGroup != null)
+            itemNameGroup.SetActive(false);
+
+
+        if (distanceText != null)
+            distanceText.text = "";
+
+
+        if (distanceGroup != null)
+            distanceGroup.SetActive(false);
+    }
+
+
+    // =========================================================
+    // GETTERS
+    // =========================================================
+
+    public Transform GetTargetClue()
+    {
+        return targetClue;
+    }
+
+
+    public float GetDistanceToTarget()
+    {
+        if (targetClue == null)
+            return -1f;
+
+
+        return Vector3.Distance(
+            transform.position,
+            targetClue.position
+        );
     }
 }

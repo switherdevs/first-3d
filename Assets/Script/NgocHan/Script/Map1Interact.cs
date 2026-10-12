@@ -4,167 +4,264 @@ public class Map1Interact : MonoBehaviour
 {
     public enum PuzzleType
     {
-        HuyPhoto,   // Ảnh Huy đeo dây chuyền
-        Letter,     // Bức thư manh mối
+        HuyPhoto,
+        Letter,
 
-        Number4,    // Cân cũ
-        Number1,    // Đèn dầu
-        Number7,    // Mảnh gương vỡ
+        Number4,
+        Number1,
+        Number7,
 
-        Box,        // Hộp gỗ
+        Box,
+        BoxClue,
+        Key,
+        Bracelet,
 
-        Key,        // Chìa khóa trong hộp
-        BoxClue,    // Manh mối trong hộp
-
-        Exit        // Lối thoát
+        Exit
     }
 
-    [Header("Puzzle Type")]
-    public PuzzleType puzzleType;
 
-    [Header("Nội dung khi nhấn R")]
-    public string displayName = "Manh moi";
+    [Header("PUZZLE TYPE")]
+    [SerializeField]
+    private PuzzleType puzzleType;
+
+
+    [Header("NỘI DUNG KHI NHẤN R")]
+    [SerializeField]
+    private string displayName;
+
 
     [TextArea(3, 8)]
-    public string inspectText = "Khong co noi dung.";
+    [SerializeField]
+    private string inspectText;
 
-    // ==================================================
-    // E = TƯƠNG TÁC
-    // ==================================================
+
+    // =========================================================
+    // INTERACT
+    // =========================================================
 
     public void Interact()
     {
         if (Map1PuzzleManager.Instance == null)
         {
             Debug.LogError(
-                "Khong tim thay Map1PuzzleManager!"
+                "[Map1Interact] Không có Map1PuzzleManager!"
             );
 
             return;
         }
 
+
+        bool success = false;
+
+
+        Debug.Log(
+            "[Map1Interact] E -> " +
+            gameObject.name +
+            " | " +
+            puzzleType
+        );
+
+
         switch (puzzleType)
         {
-            // ==========================================
-            // ẢNH HUY
-            // ==========================================
-
-            case PuzzleType.HuyPhoto:
-
-                Map1PuzzleManager.Instance
-                    .FindHuyPhoto();
-
-                break;
-
-            // ==========================================
-            // BỨC THƯ
-            // ==========================================
+            // =================================================
+            // PAPER
+            // =================================================
 
             case PuzzleType.Letter:
 
-                Map1PuzzleManager.Instance
-                    .FindLetter();
+                success =
+                    Map1PuzzleManager.Instance
+                        .CollectPaper();
 
                 break;
 
-            // ==========================================
-            // CÂN - SỐ 4
-            // ==========================================
+
+            // =================================================
+            // PHOTO
+            // =================================================
+
+            case PuzzleType.HuyPhoto:
+
+                success =
+                    Map1PuzzleManager.Instance
+                        .CollectPhoto();
+
+                break;
+
+
+            // =================================================
+            // 4
+            // =================================================
 
             case PuzzleType.Number4:
 
-                Map1PuzzleManager.Instance
-                    .FindNumber4();
+                success =
+                    Map1PuzzleManager.Instance
+                        .CollectNumber4();
 
                 break;
 
-            // ==========================================
-            // ĐÈN DẦU - SỐ 1
-            // ==========================================
+
+            // =================================================
+            // 1
+            // =================================================
 
             case PuzzleType.Number1:
 
-                Map1PuzzleManager.Instance
-                    .FindNumber1();
+                success =
+                    Map1PuzzleManager.Instance
+                        .CollectNumber1();
 
                 break;
 
-            // ==========================================
-            // GƯƠNG VỠ - SỐ 7
-            // ==========================================
+
+            // =================================================
+            // 7
+            // =================================================
 
             case PuzzleType.Number7:
 
-                Map1PuzzleManager.Instance
-                    .FindNumber7();
+                success =
+                    Map1PuzzleManager.Instance
+                        .CollectNumber7();
 
                 break;
 
-            // ==========================================
-            // HỘP GỖ
-            // ==========================================
+
+            // =================================================
+            // BOX
+            // =================================================
 
             case PuzzleType.Box:
 
                 Map1PuzzleManager.Instance
-                    .OpenCodePanel();
+                    .TryOpenBox();
 
-                break;
+                // Hộp không bỏ vào inventory
+                return;
 
-            // ==========================================
-            // CHÌA KHÓA TRONG HỘP
-            // ==========================================
 
-            case PuzzleType.Key:
-
-                Map1PuzzleManager.Instance
-                    .FindKey();
-
-                break;
-
-            // ==========================================
-            // MANH MỐI TRONG HỘP
-            // ==========================================
+            // =================================================
+            // BOX CLUE
+            // =================================================
 
             case PuzzleType.BoxClue:
 
-                Map1PuzzleManager.Instance
-                    .FindBoxClue();
+                success =
+                    Map1PuzzleManager.Instance
+                        .CollectBoxClue();
 
                 break;
 
-            // ==========================================
-            // LỐI THOÁT
-            // ==========================================
+
+            // =================================================
+            // KEY
+            // =================================================
+
+            case PuzzleType.Key:
+
+                success =
+                    Map1PuzzleManager.Instance
+                        .CollectKey();
+
+                break;
+
+
+            // =================================================
+            // BRACELET
+            // =================================================
+
+            case PuzzleType.Bracelet:
+
+                success =
+                    Map1PuzzleManager.Instance
+                        .CollectBracelet();
+
+                break;
+
+
+            // =================================================
+            // EXIT
+            // =================================================
 
             case PuzzleType.Exit:
 
-                Map1PuzzleManager.Instance
-                    .GoToExit();
+                Debug.Log(
+                    "[MAP1] EXIT"
+                );
 
-                break;
+                return;
         }
-    }
 
-    // ==================================================
-    // R = XEM NỘI DUNG
-    // ==================================================
 
-    public void Inspect()
-    {
-        if (Map1PuzzleManager.Instance == null)
+        // =====================================================
+        // KHÔNG ĐÚNG THỨ TỰ
+        // =====================================================
+
+        if (!success)
         {
-            Debug.LogError(
-                "Khong tim thay Map1PuzzleManager!"
+            Debug.Log(
+                "[Map1Interact] Chưa thể nhặt/tương tác: " +
+                gameObject.name
             );
 
             return;
         }
 
-        Map1PuzzleManager.Instance.ShowClue(
-            displayName +
-            "\n\n" +
-            inspectText
-        );
+
+        // =====================================================
+        // INVENTORY PICKUP
+        // =====================================================
+
+        InventoryPickup pickup =
+            GetComponent<InventoryPickup>();
+
+
+        if (pickup != null)
+        {
+            bool added =
+                pickup.Collect();
+
+
+            Debug.Log(
+                "[Map1Interact] InventoryPickup " +
+                gameObject.name +
+                " = " +
+                added
+            );
+        }
+        else
+        {
+            // OldScale, OilLamp, MirrorShard
+            // không phải item inventory
+            Debug.Log(
+                "[Map1Interact] " +
+                gameObject.name +
+                " không có InventoryPickup."
+            );
+        }
+    }
+
+
+    // =========================================================
+    // GETTERS
+    // =========================================================
+
+    public PuzzleType GetPuzzleType()
+    {
+        return puzzleType;
+    }
+
+
+    public string GetDisplayName()
+    {
+        return displayName;
+    }
+
+
+    public string GetInspectText()
+    {
+        return inspectText;
     }
 }

@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using TMPro;
 
@@ -6,898 +5,611 @@ public class Map1PuzzleManager : MonoBehaviour
 {
     public static Map1PuzzleManager Instance;
 
-    // ==================================================
-    // UI
-    // ==================================================
 
-    [Header("UI")]
-    public GameObject cluePanel;
-    public TMP_Text clueText;
-    public TMP_Text objectiveText;
-    public TMP_Text missionText;
+    // =========================================================
+    // STEP
+    // =========================================================
 
-    [Header("Code Panel")]
-    public GameObject codePanel;
-    public CodeInputUI codeInputUI;
+    public enum PuzzleStep
+    {
+        Paper,
+        Photo,
 
-    // ==================================================
-    // PUZZLE NUMBERS
-    // ==================================================
+        Number4,
+        Number1,
+        Number7,
 
-    [Header("Puzzle Numbers")]
-    public GameObject number4Text;
-    public GameObject number1Text;
-    public GameObject number7Text;
+        Box,
+        BoxClue,
+        Key,
+        Bracelet,
 
-    // ==================================================
-    // CLUE TARGETS
-    // ==================================================
+        Complete
+    }
 
-    [Header("Clue Targets")]
 
-    // Ảnh Huy đeo dây chuyền
-    public Transform huyPhotoTarget;
+    [Header("PUZZLE STATE")]
+    [SerializeField]
+    private PuzzleStep currentStep =
+        PuzzleStep.Paper;
 
-    // Bức thư manh mối
-    public Transform letterTarget;
 
-    // 3 vật phẩm chứa số
-    public Transform number4Target;
-    public Transform number1Target;
-    public Transform number7Target;
-
-    // Hộp gỗ
-    public Transform boxTarget;
-
-    // Chìa khóa trong hộp
-    public Transform keyTarget;
-
-    // Manh mối trong hộp
-    public Transform boxClueTarget;
-
-    // Lối ra
-    public Transform exitTarget;
-
-    // ==================================================
+    // =========================================================
     // PLAYER
-    // ==================================================
+    // =========================================================
 
-    [Header("Player Interaction")]
-    public PlayerMap1Interaction playerInteraction;
+    [Header("PLAYER")]
+    [SerializeField]
+    private PlayerMap1Interaction playerInteraction;
 
-    // ==================================================
-    // WOODEN BOX
-    // ==================================================
 
-    [Header("Wooden Box")]
+    // =========================================================
+    // UI
+    // =========================================================
 
-    // Pivot của nắp hộp
-    public Transform lidPivot;
+    [Header("MISSION UI")]
+    [SerializeField]
+    private TMP_Text objectiveText;
 
-    // Chìa khóa nằm trong hộp
-    public GameObject keyItem;
+    [SerializeField]
+    private TMP_Text missionText;
 
-    // Manh mối nằm trong hộp
-    public GameObject boxClueItem;
 
-    [Header("Box Opening")]
-    public float openAngle = -100f;
-    public float openDuration = 0.8f;
+    [Header("CLUE PANEL")]
+    [SerializeField]
+    private GameObject cluePanel;
 
-    // ==================================================
-    // CODE SETTINGS
-    // ==================================================
+    [SerializeField]
+    private TMP_Text clueText;
 
-    [Header("Code Settings")]
-    public string correctCode = "417";
-    public int maxWrongAttempts = 3;
 
-    // ==================================================
-    // STATE
-    // ==================================================
+    [Header("CODE PANEL")]
+    [SerializeField]
+    private GameObject codePanel;
 
-    private bool foundHuyPhoto = false;
-    private bool foundLetter = false;
+    [SerializeField]
+    private TMP_InputField input1;
 
-    private bool foundNumber4 = false;
-    private bool foundNumber1 = false;
-    private bool foundNumber7 = false;
+    [SerializeField]
+    private TMP_InputField input2;
 
-    private bool boxOpened = false;
-    private bool boxOpening = false;
+    [SerializeField]
+    private TMP_InputField input3;
 
-    private bool foundKey = false;
-    private bool foundBoxClue = false;
+    [SerializeField]
+    private GameObject enterButton;
 
-    private int wrongCodeAttempts = 0;
 
-    private Quaternion closedLidRotation;
-    private Quaternion openedLidRotation;
+    // =========================================================
+    // TARGET
+    // =========================================================
 
-    // ==================================================
-    // UNITY
-    // ==================================================
+    [Header("TARGETS")]
+
+    [SerializeField]
+    private Transform paperTarget;
+
+    [SerializeField]
+    private Transform photoTarget;
+
+    [SerializeField]
+    private Transform number4Target;
+
+    [SerializeField]
+    private Transform number1Target;
+
+    [SerializeField]
+    private Transform number7Target;
+
+    [SerializeField]
+    private Transform boxTarget;
+
+    [SerializeField]
+    private Transform boxClueTarget;
+
+    [SerializeField]
+    private Transform keyTarget;
+
+    [SerializeField]
+    private Transform braceletTarget;
+
+
+    private bool boxOpened;
+
+
+    // =========================================================
+    // AWAKE
+    // =========================================================
 
     private void Awake()
     {
         Instance = this;
     }
 
+
+    // =========================================================
+    // START
+    // =========================================================
+
     private void Start()
     {
-        // ------------------------------
-        // Tắt UI
-        // ------------------------------
-
         if (cluePanel != null)
             cluePanel.SetActive(false);
+
 
         if (codePanel != null)
             codePanel.SetActive(false);
 
-        // ------------------------------
-        // Ẩn số
-        // ------------------------------
 
-        if (number4Text != null)
-            number4Text.SetActive(false);
+        // Thư trong hộp OFF
+        if (boxClueTarget != null)
+            boxClueTarget.gameObject.SetActive(false);
 
-        if (number1Text != null)
-            number1Text.SetActive(false);
 
-        if (number7Text != null)
-            number7Text.SetActive(false);
+        // Key trong hộp OFF
+        if (keyTarget != null)
+            keyTarget.gameObject.SetActive(false);
 
-        // ------------------------------
-        // Ẩn vật phẩm trong hộp
-        // ------------------------------
 
-        if (keyItem != null)
-            keyItem.SetActive(false);
+        currentStep =
+            PuzzleStep.Paper;
 
-        if (boxClueItem != null)
-            boxClueItem.SetActive(false);
-
-        // ------------------------------
-        // Lưu góc đóng/mở của nắp
-        // ------------------------------
-
-        if (lidPivot != null)
-        {
-            closedLidRotation = lidPivot.localRotation;
-
-            openedLidRotation =
-                closedLidRotation *
-                Quaternion.Euler(openAngle, 0f, 0f);
-        }
-
-        // ------------------------------
-        // Nhiệm vụ đầu tiên
-        // ------------------------------
 
         SetMission(
-            "Tìm bức ảnh của Huy",
-            huyPhotoTarget,
-            "Một bức ảnh cũ có thể còn sót lại trong khu vực"
+            "Tìm mảnh giấy"
+        );
+
+
+        SetTarget(
+            paperTarget,
+            "Có một mảnh giấy cũ ở đâu đó trong khu vực."
         );
     }
 
-    // ==================================================
-    // MISSION
-    // ==================================================
 
-    private void SetMission(
-        string mission,
-        Transform target,
-        string hint
-    )
+    // =========================================================
+    // PAPER
+    // =========================================================
+
+    public bool CollectPaper()
     {
-        if (missionText != null)
-        {
-            missionText.text =
-                "NHIỆM VỤ:\n" + mission;
-        }
+        if (currentStep != PuzzleStep.Paper)
+            return false;
 
-        if (objectiveText != null)
-        {
-            objectiveText.text =
-                "Mục tiêu: " + mission;
-        }
 
-        if (playerInteraction != null)
-        {
-            playerInteraction.SetTargetClue(
-                target,
-                hint
-            );
-        }
+        ShowClue(
+            "MẢNH GIẤY CŨ\n\n" +
+            "Trên mảnh giấy có dòng chữ:\n\n" +
+            "\"Hãy tìm bức ảnh của Huy...\""
+        );
+
+
+        currentStep =
+            PuzzleStep.Photo;
+
+
+        SetMission(
+            "Tìm bức ảnh của Huy"
+        );
+
+
+        SetTarget(
+            photoTarget,
+            "Hãy tìm bức ảnh cũ của Huy."
+        );
+
+
+        return true;
     }
 
-    // ==================================================
-    // ẢNH HUY ĐEO DÂY CHUYỀN
-    // ==================================================
 
-    public void FindHuyPhoto()
+    // =========================================================
+    // PHOTO
+    // =========================================================
+
+    public bool CollectPhoto()
     {
-        if (foundHuyPhoto)
-        {
-            ShowClue(
-                "Bạn đã kiểm tra bức ảnh này rồi."
-            );
+        if (currentStep != PuzzleStep.Photo)
+            return false;
 
-            return;
-        }
-
-        foundHuyPhoto = true;
 
         ShowClue(
             "BỨC ẢNH CŨ\n\n" +
-            "Trong ảnh là Huy.\n\n" +
-            "Trên cổ Huy có đeo một sợi dây chuyền lạ."
+            "Mặt sau bức ảnh có dấu hiệu dẫn tới chiếc cân cũ."
         );
+
+
+        currentStep =
+            PuzzleStep.Number4;
+
 
         SetMission(
-            "Tìm bức thư manh mối",
-            letterTarget,
-            "Có thể còn một bức thư cũ ở đâu đó trong khu vực"
+            "Kiểm tra chiếc cân cũ"
         );
+
+
+        SetTarget(
+            number4Target,
+            "Chiếc cân cũ có một dấu khắc bất thường."
+        );
+
+
+        return true;
     }
 
-    // ==================================================
-    // BỨC THƯ MANH MỐI
-    // ==================================================
 
-    public void FindLetter()
+    // =========================================================
+    // 4
+    // =========================================================
+
+    public bool CollectNumber4()
     {
-        if (!foundHuyPhoto)
-        {
-            ShowClue(
-                "Bạn chưa biết bức thư này có liên quan đến điều gì."
-            );
+        if (currentStep != PuzzleStep.Number4)
+            return false;
 
-            return;
-        }
-
-        if (foundLetter)
-        {
-            ShowClue(
-                "Bạn đã đọc bức thư này rồi."
-            );
-
-            return;
-        }
-
-        foundLetter = true;
 
         ShowClue(
-            "BỨC THƯ MANH MỐI\n\n" +
-            "\"Ba dấu hiệu còn sót lại sẽ mở thứ đang bị khóa.\"\n\n" +
-            "Có vẻ bạn cần tìm 3 con số."
+            "MANH MỐI\n\n" +
+            "Dưới chiếc cân có khắc số:\n\n4"
         );
 
-        UpdateNumberMission();
+
+        currentStep =
+            PuzzleStep.Number1;
+
+
+        SetMission(
+            "Kiểm tra chiếc đèn dầu"
+        );
+
+
+        SetTarget(
+            number1Target,
+            "Chiếc đèn dầu có thể giấu một con số."
+        );
+
+
+        return true;
     }
 
-    // ==================================================
-    // NUMBER 4 - CÂN CŨ
-    // ==================================================
 
-    public void FindNumber4()
+    // =========================================================
+    // 1
+    // =========================================================
+
+    public bool CollectNumber1()
     {
-        if (!foundLetter)
-        {
-            ShowClue(
-                "Bạn chưa biết cần tìm gì ở chiếc cân."
-            );
+        if (currentStep != PuzzleStep.Number1)
+            return false;
 
-            return;
-        }
-
-        if (foundNumber4)
-        {
-            ShowClue(
-                "Bạn đã tìm thấy số 4 rồi."
-            );
-
-            return;
-        }
-
-        foundNumber4 = true;
-
-        if (number4Text != null)
-            number4Text.SetActive(true);
 
         ShowClue(
-            "CHIẾC CÂN CŨ\n\n" +
-            "Dưới đáy cân có khắc một con số:\n\n" +
-            "4"
+            "MANH MỐI\n\n" +
+            "Phía sau chiếc đèn dầu có số:\n\n1"
         );
 
-        UpdateNumberMission();
+
+        currentStep =
+            PuzzleStep.Number7;
+
+
+        SetMission(
+            "Kiểm tra mảnh gương"
+        );
+
+
+        SetTarget(
+            number7Target,
+            "Mảnh gương có dấu khắc kỳ lạ."
+        );
+
+
+        return true;
     }
 
-    // ==================================================
-    // NUMBER 1 - ĐÈN DẦU
-    // ==================================================
 
-    public void FindNumber1()
+    // =========================================================
+    // 7
+    // =========================================================
+
+    public bool CollectNumber7()
     {
-        if (!foundLetter)
-        {
-            ShowClue(
-                "Bạn chưa biết cần tìm gì ở chiếc đèn dầu."
-            );
+        if (currentStep != PuzzleStep.Number7)
+            return false;
 
-            return;
-        }
-
-        if (foundNumber1)
-        {
-            ShowClue(
-                "Bạn đã tìm thấy số 1 rồi."
-            );
-
-            return;
-        }
-
-        foundNumber1 = true;
-
-        if (number1Text != null)
-            number1Text.SetActive(true);
 
         ShowClue(
-            "ĐÈN DẦU CŨ\n\n" +
-            "Phía sau thân đèn có khắc một con số:\n\n" +
-            "1"
+            "MANH MỐI\n\n" +
+            "Trên mảnh gương có số:\n\n7\n\n" +
+            "Mã tìm được: 4 - 1 - 7"
         );
 
-        UpdateNumberMission();
-    }
 
-    // ==================================================
-    // NUMBER 7 - MẢNH GƯƠNG VỠ
-    // ==================================================
+        currentStep =
+            PuzzleStep.Box;
 
-    public void FindNumber7()
-    {
-        if (!foundLetter)
-        {
-            ShowClue(
-                "Bạn chưa biết mảnh gương này có ý nghĩa gì."
-            );
 
-            return;
-        }
-
-        if (foundNumber7)
-        {
-            ShowClue(
-                "Bạn đã tìm thấy số 7 rồi."
-            );
-
-            return;
-        }
-
-        foundNumber7 = true;
-
-        if (number7Text != null)
-            number7Text.SetActive(true);
-
-        ShowClue(
-            "MẢNH GƯƠNG VỠ\n\n" +
-            "Trên mặt sau của mảnh gương có một dấu khắc:\n\n" +
-            "7"
+        SetMission(
+            "Quay lại chiếc hộp"
         );
 
-        UpdateNumberMission();
+
+        SetTarget(
+            boxTarget,
+            "Mã 417 có thể mở chiếc hộp."
+        );
+
+
+        return true;
     }
 
-    // ==================================================
-    // UPDATE NUMBER MISSION
-    // ==================================================
 
-    private void UpdateNumberMission()
+    // =========================================================
+    // BOX
+    // =========================================================
+
+    public void TryOpenBox()
     {
-        int count = 0;
-
-        if (foundNumber4)
-            count++;
-
-        if (foundNumber1)
-            count++;
-
-        if (foundNumber7)
-            count++;
-
-        // Đủ 3 số
-        if (count >= 3)
-        {
-            SetMission(
-                "Tìm chiếc hộp gỗ bị khóa",
-                boxTarget,
-                "Ba con số có thể dùng để mở một chiếc hộp"
-            );
-
+        if (currentStep != PuzzleStep.Box)
             return;
-        }
 
-        if (missionText != null)
-        {
-            missionText.text =
-                "NHIỆM VỤ:\n" +
-                "Tìm 3 con số (" +
-                count +
-                "/3)";
-        }
 
-        if (objectiveText != null)
-        {
-            objectiveText.text =
-                "Mục tiêu: Tìm 3 con số (" +
-                count +
-                "/3)";
-        }
-
-        // Chọn vật phẩm chưa tìm làm target
-        if (!foundNumber4)
-        {
-            SetNumberTarget(
-                number4Target,
-                "Hãy kiểm tra chiếc cân cũ"
-            );
-        }
-        else if (!foundNumber1)
-        {
-            SetNumberTarget(
-                number1Target,
-                "Hãy tìm chiếc đèn dầu cũ"
-            );
-        }
-        else if (!foundNumber7)
-        {
-            SetNumberTarget(
-                number7Target,
-                "Hãy kiểm tra một mảnh gương vỡ"
-            );
-        }
+        OpenCodePanel();
     }
 
-    private void SetNumberTarget(
-        Transform target,
-        string hint
-    )
+
+    private void OpenCodePanel()
     {
-        if (playerInteraction != null)
-        {
-            playerInteraction.SetTargetClue(
-                target,
-                hint
-            );
-        }
-    }
+        if (cluePanel != null)
+            cluePanel.SetActive(false);
 
-    // ==================================================
-    // HỘP GỖ
-    // ==================================================
-
-    public void OpenCodePanel()
-    {
-        if (!foundNumber4 ||
-            !foundNumber1 ||
-            !foundNumber7)
-        {
-            ShowClue(
-                "Bạn chưa tìm đủ 3 con số."
-            );
-
-            return;
-        }
-
-        if (boxOpened)
-        {
-            ShowClue(
-                "Chiếc hộp đã được mở."
-            );
-
-            return;
-        }
-
-        if (boxOpening)
-            return;
 
         if (codePanel != null)
             codePanel.SetActive(true);
 
+
+        input1.text = "";
+        input2.text = "";
+        input3.text = "";
+
+
         Cursor.lockState =
             CursorLockMode.None;
 
         Cursor.visible = true;
 
-        if (codeInputUI != null)
-        {
-            codeInputUI.ClearCode();
-        }
+
+        input1.Select();
+        input1.ActivateInputField();
     }
 
-    // ==================================================
-    // CHECK CODE
-    // ==================================================
 
-    public void CheckCode(string code)
+    // =========================================================
+    // CODE
+    // =========================================================
+
+    public void CheckCode()
     {
-        if (boxOpened || boxOpening)
+        if (currentStep != PuzzleStep.Box)
             return;
 
-        // ==============================
-        // ĐÚNG MẬT KHẨU
-        // ==============================
 
-        if (code == correctCode)
+        string code =
+            input1.text.Trim() +
+            input2.text.Trim() +
+            input3.text.Trim();
+
+
+        if (code == "417")
         {
-            wrongCodeAttempts = 0;
+            boxOpened = true;
 
-            if (codeInputUI != null)
-            {
-                codeInputUI.ClearCode();
-            }
 
             if (codePanel != null)
-            {
                 codePanel.SetActive(false);
+
+
+            Cursor.lockState =
+                CursorLockMode.Locked;
+
+            Cursor.visible = false;
+
+
+            // Hiện thư
+            if (boxClueTarget != null)
+            {
+                boxClueTarget.gameObject
+                    .SetActive(true);
             }
 
-            StartCoroutine(OpenWoodenBox());
 
-            return;
-        }
+            // Hiện key
+            if (keyTarget != null)
+            {
+                keyTarget.gameObject
+                    .SetActive(true);
+            }
 
-        // ==============================
-        // SAI MẬT KHẨU
-        // ==============================
 
-        wrongCodeAttempts++;
+            currentStep =
+                PuzzleStep.BoxClue;
 
-        if (codeInputUI != null)
-        {
-            codeInputUI.ClearCode();
-        }
 
-        if (wrongCodeAttempts < maxWrongAttempts)
-        {
-            int remaining =
-                maxWrongAttempts -
-                wrongCodeAttempts;
-
-            ShowClue(
-                "MÃ SAI!\n\n" +
-                "Bạn còn " +
-                remaining +
-                " lần thử."
+            SetMission(
+                "Đọc bức thư trong hộp"
             );
 
-            return;
+
+            SetTarget(
+                boxClueTarget,
+                "Có một bức thư nằm bên trong chiếc hộp."
+            );
+
+
+            Debug.Log(
+                "[MAP1] Target BoxClue = " +
+                (
+                    boxClueTarget != null
+                    ? boxClueTarget.name
+                    : "NULL"
+                )
+            );
         }
-
-        // ==============================
-        // SAI ĐỦ 3 LẦN
-        // ==============================
-
-        wrongCodeAttempts = 0;
-
-        if (codePanel != null)
+        else
         {
-            codePanel.SetActive(false);
+            input1.text = "";
+            input2.text = "";
+            input3.text = "";
+
+            input1.Select();
+            input1.ActivateInputField();
         }
-
-        ResetNumberClues();
-
-        ShowClue(
-            "BẠN ĐÃ NHẬP SAI 3 LẦN!\n\n" +
-            "Bạn phải kiểm tra lại ba vật phẩm để tìm mật mã."
-        );
     }
 
-    // ==================================================
-    // MỞ NẮP HỘP
-    // ==================================================
 
-    private IEnumerator OpenWoodenBox()
+    // =========================================================
+    // BOX CLUE
+    // =========================================================
+
+    public bool CollectBoxClue()
     {
-        boxOpening = true;
+        Debug.Log(
+            "[MAP1] CollectBoxClue() được gọi"
+        );
 
-        // Nếu có LidPivot thì mở nắp từ từ
-        if (lidPivot != null)
+
+        if (currentStep != PuzzleStep.BoxClue)
         {
-            Quaternion startRotation =
-                lidPivot.localRotation;
+            Debug.Log(
+                "[MAP1] Sai Step: " +
+                currentStep
+            );
 
-            float timer = 0f;
-
-            while (timer < openDuration)
-            {
-                timer += Time.deltaTime;
-
-                float t =
-                    Mathf.Clamp01(
-                        timer / openDuration
-                    );
-
-                lidPivot.localRotation =
-                    Quaternion.Slerp(
-                        startRotation,
-                        openedLidRotation,
-                        t
-                    );
-
-                yield return null;
-            }
-
-            lidPivot.localRotation =
-                openedLidRotation;
+            return false;
         }
 
-        boxOpened = true;
-        boxOpening = false;
 
-        // Hiện chìa khóa
-        if (keyItem != null)
-        {
-            keyItem.SetActive(true);
-        }
-
-        // Hiện manh mối trong hộp
-        if (boxClueItem != null)
-        {
-            boxClueItem.SetActive(true);
-        }
+        // =====================================================
+        // HIỆN NỘI DUNG BỨC THƯ
+        // =====================================================
 
         ShowClue(
-            "MỞ KHÓA THÀNH CÔNG!\n\n" +
-            "Bên trong hộp có một chiếc chìa khóa " +
-            "và một manh mối."
+            "BỨC THƯ CŨ\n\n" +
+            "Nếu con tìm thấy bức thư này...\n\n" +
+            "Hãy lấy chiếc chìa khóa trong hộp.\n\n" +
+            "Đừng để nó rơi vào tay người khác."
         );
+
+
+        currentStep =
+            PuzzleStep.Key;
+
 
         SetMission(
-            "Kiểm tra vật phẩm trong hộp",
+            "Lấy chiếc chìa khóa trong hộp"
+        );
+
+
+        SetTarget(
             keyTarget,
-            "Hãy kiểm tra bên trong chiếc hộp vừa mở"
+            "Trong hộp còn một chiếc chìa khóa."
         );
+
+
+        return true;
     }
 
-    // ==================================================
-    // CHÌA KHÓA TRONG HỘP
-    // ==================================================
 
-    public void FindKey()
+    // =========================================================
+    // KEY
+    // =========================================================
+
+    public bool CollectKey()
     {
-        if (!boxOpened)
-        {
-            ShowClue(
-                "Chiếc hộp vẫn đang khóa."
-            );
+        if (currentStep != PuzzleStep.Key)
+            return false;
 
-            return;
-        }
-
-        if (foundKey)
-        {
-            ShowClue(
-                "Bạn đã lấy chiếc chìa khóa."
-            );
-
-            return;
-        }
-
-        foundKey = true;
 
         ShowClue(
-            "CHIẾC CHÌA KHÓA CŨ\n\n" +
-            "Một chiếc chìa khóa được giấu bên trong hộp."
+            "CHIẾC CHÌA KHÓA\n\n" +
+            "Trên chìa khóa có một ký hiệu kỳ lạ.\n\n" +
+            "Ký hiệu này giống với ký hiệu trên một chiếc vòng tay."
         );
 
-        if (keyItem != null)
-        {
-            keyItem.SetActive(false);
-        }
 
-        UpdateBoxItemsMission();
+        currentStep =
+            PuzzleStep.Bracelet;
+
+
+        SetMission(
+            "Tìm chiếc vòng tay"
+        );
+
+
+        SetTarget(
+            braceletTarget,
+            "Hãy tìm chiếc vòng tay có ký hiệu tương tự."
+        );
+
+
+        return true;
     }
 
-    // ==================================================
-    // MANH MỐI TRONG HỘP
-    // ==================================================
 
-    public void FindBoxClue()
+    // =========================================================
+    // BRACELET
+    // =========================================================
+
+    public bool CollectBracelet()
     {
-        if (!boxOpened)
-        {
-            ShowClue(
-                "Chiếc hộp vẫn đang khóa."
-            );
+        if (currentStep != PuzzleStep.Bracelet)
+            return false;
 
-            return;
-        }
-
-        if (foundBoxClue)
-        {
-            ShowClue(
-                "Bạn đã kiểm tra manh mối này rồi."
-            );
-
-            return;
-        }
-
-        foundBoxClue = true;
 
         ShowClue(
-            "MANH MỐI TRONG HỘP\n\n" +
-            "Một dòng chữ cũ còn đọc được:\n\n" +
-            "\"Hãy trở về nhà Huy.\""
+            "CHIẾC VÒNG TAY\n\n" +
+            "Ký hiệu trên chiếc vòng trùng với ký hiệu trên chìa khóa.\n\n" +
+            "Đây là manh mối cuối cùng ở khu vực này."
         );
 
-        if (boxClueItem != null)
-        {
-            boxClueItem.SetActive(false);
-        }
 
-        UpdateBoxItemsMission();
-    }
+        currentStep =
+            PuzzleStep.Complete;
 
-    // ==================================================
-    // KIỂM TRA ĐÃ LẤY ĐỒ TRONG HỘP CHƯA
-    // ==================================================
 
-    private void UpdateBoxItemsMission()
-    {
-        // Đã lấy cả hai
-        if (foundKey && foundBoxClue)
-        {
-            SetMission(
-                "Đi đến lối ra",
-                exitTarget,
-                "Mang theo chìa khóa và đi đến lối ra khỏi khu vực"
-            );
+        SetMission(
+            "Hoàn thành điều tra khu vực"
+        );
 
-            return;
-        }
-
-        // Có chìa khóa nhưng chưa lấy manh mối
-        if (foundKey && !foundBoxClue)
-        {
-            SetMission(
-                "Kiểm tra manh mối trong hộp",
-                boxClueTarget,
-                "Trong hộp vẫn còn một vật"
-            );
-
-            return;
-        }
-
-        // Có manh mối nhưng chưa lấy chìa khóa
-        if (!foundKey && foundBoxClue)
-        {
-            SetMission(
-                "Lấy chiếc chìa khóa",
-                keyTarget,
-                "Trong hộp vẫn còn chiếc chìa khóa"
-            );
-        }
-    }
-
-    // ==================================================
-    // RESET 3 NUMBER CLUES
-    // ==================================================
-
-    private void ResetNumberClues()
-    {
-        foundNumber4 = false;
-        foundNumber1 = false;
-        foundNumber7 = false;
-
-        if (number4Text != null)
-            number4Text.SetActive(false);
-
-        if (number1Text != null)
-            number1Text.SetActive(false);
-
-        if (number7Text != null)
-            number7Text.SetActive(false);
-
-        if (missionText != null)
-        {
-            missionText.text =
-                "NHIỆM VỤ:\n" +
-                "Tìm 3 con số (0/3)";
-        }
-
-        if (objectiveText != null)
-        {
-            objectiveText.text =
-                "Mục tiêu: Tìm 3 con số (0/3)";
-        }
 
         if (playerInteraction != null)
         {
-            playerInteraction.SetTargetClue(
-                number4Target,
-                "Hãy kiểm tra chiếc cân cũ"
-            );
+            playerInteraction
+                .ClearTargetClue();
         }
+
+
+        return true;
     }
 
-    // ==================================================
-    // EXIT
-    // ==================================================
 
-    public void GoToExit()
-    {
-        if (!boxOpened)
-        {
-            ShowClue(
-                "Bạn chưa mở chiếc hộp."
-            );
-
-            return;
-        }
-
-        if (!foundKey)
-        {
-            ShowClue(
-                "Bạn chưa lấy chiếc chìa khóa trong hộp."
-            );
-
-            return;
-        }
-
-        if (!foundBoxClue)
-        {
-            ShowClue(
-                "Trong hộp vẫn còn một manh mối."
-            );
-
-            return;
-        }
-
-        if (missionText != null)
-        {
-            missionText.text =
-                "NHIỆM VỤ:\nMAP 1 COMPLETE";
-        }
-
-        if (objectiveText != null)
-        {
-            objectiveText.text =
-                "MAP 1 COMPLETE";
-        }
-
-        if (playerInteraction != null)
-        {
-            playerInteraction.SetTargetClue(
-                null,
-                ""
-            );
-        }
-
-        ShowClue(
-            "MAP 1 HOÀN THÀNH\n\n" +
-            "Bạn đã lấy được chìa khóa và manh mối.\n\n" +
-            "Điểm đến tiếp theo:\n\n" +
-            "NHÀ HUY"
-        );
-    }
-
-    // ==================================================
-    // CLUE PANEL
-    // ==================================================
+    // =========================================================
+    // SHOW CLUE
+    // =========================================================
 
     public void ShowClue(string message)
     {
-        if (cluePanel == null ||
-            clueText == null)
-            return;
+        if (codePanel != null)
+            codePanel.SetActive(false);
 
-        cluePanel.SetActive(true);
-        clueText.text = message;
+
+        if (cluePanel != null)
+            cluePanel.SetActive(true);
+
+
+        if (clueText != null)
+            clueText.text = message;
+
 
         Cursor.lockState =
             CursorLockMode.None;
@@ -905,14 +617,108 @@ public class Map1PuzzleManager : MonoBehaviour
         Cursor.visible = true;
     }
 
-    public void CloseClue()
+
+    // =========================================================
+    // CLOSE CLUE
+    // =========================================================
+
+    public void CloseCluePanel()
     {
         if (cluePanel != null)
             cluePanel.SetActive(false);
+
 
         Cursor.lockState =
             CursorLockMode.Locked;
 
         Cursor.visible = false;
+    }
+
+
+    public void CloseCodePanel()
+    {
+        if (codePanel != null)
+            codePanel.SetActive(false);
+
+
+        Cursor.lockState =
+            CursorLockMode.Locked;
+
+        Cursor.visible = false;
+    }
+
+
+    // =========================================================
+    // TARGET
+    // =========================================================
+
+    private void SetTarget(
+        Transform target,
+        string hint
+    )
+    {
+        if (playerInteraction == null)
+        {
+            Debug.LogError(
+                "[MAP1] PlayerInteraction = NULL"
+            );
+
+            return;
+        }
+
+
+        if (target == null)
+        {
+            Debug.LogError(
+                "[MAP1] Target = NULL"
+            );
+
+            playerInteraction
+                .ClearTargetClue();
+
+            return;
+        }
+
+
+        Debug.Log(
+            "[MAP1] Target = " +
+            target.name
+        );
+
+
+        playerInteraction
+            .SetTargetClue(
+                target,
+                hint
+            );
+    }
+
+
+    private void SetMission(string text)
+    {
+        if (objectiveText != null)
+        {
+            objectiveText.text =
+                "Mục tiêu: " + text;
+        }
+
+
+        if (missionText != null)
+        {
+            missionText.text =
+                "NHIỆM VỤ:\n" + text;
+        }
+    }
+
+
+    public PuzzleStep GetCurrentStep()
+    {
+        return currentStep;
+    }
+
+
+    public bool IsBoxOpened()
+    {
+        return boxOpened;
     }
 }
