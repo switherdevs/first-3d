@@ -430,7 +430,7 @@ MonoBehaviour:
   animatorNhanVat: {fileID: 0}
   tagVungNuoc: Water
   heSoGiamTocDoNuoc: 0.5
-  amThanhBuocChanDuoiNuoc: {fileID: 8300000, guid: 6cb9b4c53b9cc4a43bbe52af6a4aabfb, type: 3}
+  amThanhBuocChanDuoiNuoc: {fileID: 8300000, guid: f7f8e80480dfaa54d8b8bbe46c203b05, type: 3}
   nguonAmThanhBuocChan: {fileID: 3782988732214023643}
   nguonAmThanhHieuUng: {fileID: 8393279192059739196}
   amThanhBuocChan: {fileID: 8300000, guid: 177d46b001cbd6c4b8cdb0758779620f, type: 3}
@@ -602,6 +602,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SaltThrower
   muoiPrefab: {fileID: 4364770415958049677, guid: 64dc408a8ab00be44a9036ef1a7263a5, type: 3}
   viTriNemMuoi: {fileID: 4304647458811863936}
+  cameraChinh: {fileID: 0}
   tocDoBay: 20
   doCaoDuongBay: 4
 --- !u!1 &956966910075323337
