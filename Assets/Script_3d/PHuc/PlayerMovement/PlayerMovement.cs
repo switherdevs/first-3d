@@ -26,6 +26,17 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Component Animator quản lý hoạt ảnh nhân vật")]
     public Animator animatorNhanVat;
 
+    [Header("--- BỔ SUNG: Cấu hình Vùng Nước (Water Zone) ---")]
+    [Tooltip("Tag của vùng nước để nhận diện")]
+    public string tagVungNuoc = "Water";
+
+    [Tooltip("Hệ số giảm tốc độ khi nhân vật bước xuống nước (Ví dụ: 0.5 là giảm còn một nửa tốc độ)")]
+    [Range(0.1f, 1f)]
+    public float heSoGiamTocDoNuoc = 0.5f;
+
+    [Tooltip("Âm thanh bước chân lội nước đặc trưng")]
+    public AudioClip amThanhBuocChanDuoiNuoc;
+
     [Header("--- BỔ SUNG: Hệ thống Âm thanh Đa Lớp (2 AudioSources) ---")]
     [Tooltip("Nguồn âm thanh CHUYÊN DÙNG CHO BƯỚC CHÂN (Đi bộ, Chạy, Ngồi)")]
     public AudioSource nguonAmThanhBuocChan;
@@ -33,7 +44,7 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Nguồn âm thanh CHUYÊN DÙNG CHO HIỆU ỨNG (Nhảy, Tiếp đất)")]
     public AudioSource nguonAmThanhHieuUng;
 
-    [Tooltip("File âm thanh tiếng bước chân dùng chung")]
+    [Tooltip("File âm thanh tiếng bước chân dùng chung trên cạn")]
     public AudioClip amThanhBuocChan;
 
     [Tooltip("File âm thanh khi nhân vật thực hiện hành động nhảy")]
@@ -127,6 +138,7 @@ public class PlayerMovement : MonoBehaviour
     private bool dangDaThietLapNhay = false;
     private bool kiemTraDanGiapDat = false;
     private bool dangBiVuongTran = false;
+    private bool dangOTrongNuoc = false; // Biến cờ kiểm tra đang ở trong nước
 
     // Cờ theo dõi trạng thái trên không để phát tiếng tiếp đất 1 lần
     private bool dangOTrenKhong = false;
@@ -219,6 +231,24 @@ public class PlayerMovement : MonoBehaviour
         XuLyNhay();
     }
 
+    #region Trigger Events (Phát hiện vùng nước)
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag(tagVungNuoc))
+        {
+            dangOTrongNuoc = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag(tagVungNuoc))
+        {
+            dangOTrongNuoc = false;
+        }
+    }
+    #endregion
+
     #region Input Events
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -257,7 +287,6 @@ public class PlayerMovement : MonoBehaviour
             {
                 dangDaThietLapNhay = true;
 
-                // Kích hoạt Trigger Jump cho Animator
                 if (animatorNhanVat != null)
                 {
                     animatorNhanVat.SetTrigger("JumpTrigger");
@@ -272,12 +301,10 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // BỔ SUNG: Sự kiện nhận phím Attack (Ví dụ chuột trái hoặc phím F)
     public void OnAttack(InputAction.CallbackContext context)
     {
         if (context.started || context.performed)
         {
-            // Kích hoạt Trigger Attack cho Animator
             if (animatorNhanVat != null)
             {
                 animatorNhanVat.SetTrigger("AttackTrigger");
@@ -286,9 +313,6 @@ public class PlayerMovement : MonoBehaviour
     }
     #endregion
 
-    /// <summary>
-    /// Hàm cập nhật trạng thái Animation dạng Bool (Đứng yên, Chạy thường, Chạy nhanh)
-    /// </summary>
     private void CapNhatAnimator()
     {
         if (animatorNhanVat == null) return;
@@ -296,7 +320,6 @@ public class PlayerMovement : MonoBehaviour
         bool đangDiChuyen = DangDiChuyen && kiemTraDanGiapDat;
         bool dangChayNhanh = đangDiChuyen && dangNhanChay && theLucHienTai > 0 && !dangNhanNgoi;
 
-        // Truyền giá trị vào Animator Parameters dạng Bool
         animatorNhanVat.SetBool("IsIdle", !đangDiChuyen && kiemTraDanGiapDat);
         animatorNhanVat.SetBool("IsWalking", đangDiChuyen && !dangChayNhanh);
         animatorNhanVat.SetBool("IsRunning", dangChayNhanh);
@@ -355,11 +378,22 @@ public class PlayerMovement : MonoBehaviour
                 float thoiGianKhoangCach;
                 float doCaoPitch;
                 float amLuongVolume;
+                AudioClip clipBuocChanSuDung;
+
+                // Nếu đang ở trong nước, ưu tiên dùng âm thanh lội nước
+                if (dangOTrongNuoc && amThanhBuocChanDuoiNuoc != null)
+                {
+                    clipBuocChanSuDung = amThanhBuocChanDuoiNuoc;
+                }
+                else
+                {
+                    clipBuocChanSuDung = amThanhBuocChan;
+                }
 
                 if (dangNhanChay && theLucHienTai > 0 && !dangNhanNgoi)
                 {
                     thoiGianKhoangCach = tocDoAmThanhChay;
-                    doCaoPitch = 1.15f;
+                    doCaoPitch = dangOTrongNuoc ? 0.95f : 1.15f;
                     amLuongVolume = 1.0f;
                 }
                 else if (dangNhanNgoi)
@@ -371,16 +405,17 @@ public class PlayerMovement : MonoBehaviour
                 else
                 {
                     thoiGianKhoangCach = tocDoAmThanhDiBo;
-                    doCaoPitch = 1.0f;
+                    doCaoPitch = dangOTrongNuoc ? 0.85f : 1.0f;
                     amLuongVolume = 0.7f;
                 }
 
-                if (nguonAmThanhBuocChan != null && amThanhBuocChan != null)
+                if (nguonAmThanhBuocChan != null && clipBuocChanSuDung != null)
                 {
                     nguonAmThanhBuocChan.pitch = doCaoPitch;
-                    nguonAmThanhBuocChan.PlayOneShot(amThanhBuocChan, amLuongVolume);
+                    nguonAmThanhBuocChan.PlayOneShot(clipBuocChanSuDung, amLuongVolume);
                 }
 
+            demThoiGianKhoangCach:
                 demThoiGianBuocChan = thoiGianKhoangCach;
             }
         }
@@ -403,7 +438,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 if (nguonAmThanhHieuUng != null && amThanhTiepDat != null)
                 {
-                    nguonAmThanhHieuUng.pitch = 1.0f;
+                    nguonAmThanhHieuUng.pitch = dangOTrongNuoc ? 0.7f : 1.0f;
                     nguonAmThanhHieuUng.PlayOneShot(amThanhTiepDat, amLuongNhayTiepDat);
                 }
 
@@ -434,6 +469,12 @@ public class PlayerMovement : MonoBehaviour
 
             if (dangNhanNgoi) tocDoHienTai = tocDoNgoi;
             else tocDoHienTai = tocDoDiBo;
+        }
+
+        // BỔ SUNG: Nếu đang ở trong nước, nhân vật sẽ bị giảm tốc độ theo hệ số cấu hình
+        if (dangOTrongNuoc)
+        {
+            tocDoHienTai *= heSoGiamTocDoNuoc;
         }
     }
 
