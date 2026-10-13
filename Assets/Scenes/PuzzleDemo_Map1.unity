@@ -145,7 +145,7 @@ Transform:
   m_GameObject: {fileID: 13996277}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -22.26, y: 0, z: -5.6}
+  m_LocalPosition: {x: -22.26, y: 0.5, z: -5.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -337,7 +337,7 @@ Transform:
   m_GameObject: {fileID: 126747236}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.26, y: 0, z: -4.11}
+  m_LocalPosition: {x: -6.26, y: 0.5, z: -4.11}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -474,7 +474,7 @@ Transform:
   m_GameObject: {fileID: 167702430}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.31, y: 0, z: -10.15}
+  m_LocalPosition: {x: 8.31, y: 0.5, z: -10.15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -554,8 +554,8 @@ MonoBehaviour:
   number1Target: {fileID: 1355496749}
   number7Target: {fileID: 1984993534}
   boxTarget: {fileID: 2023904694}
-  boxClueTarget: {fileID: 918559453}
-  keyTarget: {fileID: 918559453}
+  boxClueTarget: {fileID: 892653279}
+  keyTarget: {fileID: 1599517987}
   braceletTarget: {fileID: 459457644}
 --- !u!1001 &224258142
 PrefabInstance:
@@ -1089,7 +1089,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -52, y: 16}
+  m_AnchoredPosition: {x: -78, y: 16}
   m_SizeDelta: {x: 65, y: 65}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &301709026
@@ -1758,9 +1758,9 @@ GameObject:
   - component: {fileID: 459457646}
   - component: {fileID: 459457645}
   - component: {fileID: 459457647}
-  - component: {fileID: 459457650}
   - component: {fileID: 459457649}
   - component: {fileID: 459457648}
+  - component: {fileID: 459457650}
   m_Layer: 3
   m_Name: Bracelet
   m_TagString: Untagged
@@ -1831,7 +1831,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf115ec8aa9f319448a6a177887f6ec1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
-  puzzleType: 7
+  puzzleType: 8
   displayName: Manh moi
   inspectText: Khong co noi dung.
 --- !u!114 &459457648
@@ -1874,9 +1874,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 459457643}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91a96fcf7c644814683ad77bb14c2551, type: 3}
+  m_Script: {fileID: 11500000, guid: d9660386b6f17a7419045602aa230e3f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Map1InventoryItem
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryPickup
   hotbarItemDisplay: {fileID: 576899971}
   searchItem: {fileID: 459457648}
   hideAfterPickup: 1
@@ -2690,7 +2690,7 @@ PrefabInstance:
       addedObject: {fileID: 1599517992}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 99af852495a605b4daecd8a7320c9873, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1599517991}
+      addedObject: {fileID: 1599517994}
   m_SourcePrefab: {fileID: 100100000, guid: 99af852495a605b4daecd8a7320c9873, type: 3}
 --- !u!1001 &621223443
 PrefabInstance:
@@ -3682,7 +3682,7 @@ GameObject:
   - component: {fileID: 794203418}
   - component: {fileID: 794203421}
   - component: {fileID: 794203420}
-  - component: {fileID: 794203419}
+  - component: {fileID: 794203422}
   m_Layer: 3
   m_Name: Papper
   m_TagString: Untagged
@@ -3735,21 +3735,6 @@ MonoBehaviour:
   puzzleType: 1
   displayName: Manh moi
   inspectText: Khong co noi dung.
---- !u!114 &794203419
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 794203414}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91a96fcf7c644814683ad77bb14c2551, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Map1InventoryItem
-  hotbarItemDisplay: {fileID: 576899971}
-  searchItem: {fileID: 794203420}
-  hideAfterPickup: 1
 --- !u!114 &794203420
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3780,6 +3765,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemInventoryIcon
   itemIcon: {fileID: -5770253098851427257, guid: 44e6c1c7c89ec5d4eb1c3c11fdc79bb7, type: 3}
+--- !u!114 &794203422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 794203414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9660386b6f17a7419045602aa230e3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryPickup
+  hotbarItemDisplay: {fileID: 576899971}
+  searchItem: {fileID: 794203420}
+  hideAfterPickup: 1
 --- !u!1 &833252576
 GameObject:
   m_ObjectHideFlags: 0
@@ -4107,7 +4107,7 @@ GameObject:
   - component: {fileID: 892653280}
   - component: {fileID: 892653285}
   - component: {fileID: 892653284}
-  - component: {fileID: 892653283}
+  - component: {fileID: 892653286}
   m_Layer: 3
   m_Name: 'BoxClue '
   m_TagString: Untagged
@@ -4181,21 +4181,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0, y: 0, z: 0}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &892653283
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 892653278}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91a96fcf7c644814683ad77bb14c2551, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Map1InventoryItem
-  hotbarItemDisplay: {fileID: 576899971}
-  searchItem: {fileID: 892653284}
-  hideAfterPickup: 1
 --- !u!114 &892653284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4227,6 +4212,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemInventoryIcon
   itemIcon: {fileID: 5962775714910578091, guid: fdfd27da280a66b4c920fa8b5c9d193f, type: 3}
+--- !u!114 &892653286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 892653278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9660386b6f17a7419045602aa230e3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryPickup
+  hotbarItemDisplay: {fileID: 576899971}
+  searchItem: {fileID: 892653284}
+  hideAfterPickup: 1
 --- !u!1001 &913014722
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4702,7 +4702,7 @@ Transform:
   m_GameObject: {fileID: 1003954618}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10.2, y: 0, z: 0}
+  m_LocalPosition: {x: 10.2, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5110,7 +5110,7 @@ GameObject:
   - component: {fileID: 1135813333}
   - component: {fileID: 1135813336}
   - component: {fileID: 1135813335}
-  - component: {fileID: 1135813334}
+  - component: {fileID: 1135813337}
   m_Layer: 3
   m_Name: ' Huy''s photo'
   m_TagString: Untagged
@@ -5163,21 +5163,6 @@ MonoBehaviour:
   puzzleType: 0
   displayName: Manh moi
   inspectText: Khong co noi dung.
---- !u!114 &1135813334
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1135813329}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91a96fcf7c644814683ad77bb14c2551, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Map1InventoryItem
-  hotbarItemDisplay: {fileID: 576899971}
-  searchItem: {fileID: 1135813336}
-  hideAfterPickup: 1
 --- !u!114 &1135813335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5208,6 +5193,21 @@ MonoBehaviour:
   itemHint: "M\u1ED9t b\u1EE9c \u1EA3nh c\u0169 c\u1EE7a Huy."
   itemIcon: {fileID: 7268115570872222418, guid: d5a66c3057314f646aa21e05e1764860, type: 3}
   isCollected: 0
+--- !u!114 &1135813337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135813329}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9660386b6f17a7419045602aa230e3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryPickup
+  hotbarItemDisplay: {fileID: 576899971}
+  searchItem: {fileID: 1135813336}
+  hideAfterPickup: 1
 --- !u!1 &1168880782
 GameObject:
   m_ObjectHideFlags: 0
@@ -5234,7 +5234,7 @@ Transform:
   m_GameObject: {fileID: 1168880782}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -16.39, y: 0, z: 0}
+  m_LocalPosition: {x: -16.39, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5464,7 +5464,7 @@ Transform:
   m_GameObject: {fileID: 1279101318}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 12.5}
+  m_LocalPosition: {x: 0, y: 0.5, z: 12.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6220,21 +6220,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0, y: 0, z: 0}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1599517991
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1599517986}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91a96fcf7c644814683ad77bb14c2551, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Map1InventoryItem
-  hotbarItemDisplay: {fileID: 576899971}
-  searchItem: {fileID: 1599517993}
-  hideAfterPickup: 1
 --- !u!114 &1599517992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6266,6 +6251,21 @@ MonoBehaviour:
     h\u1ED9p."
   itemIcon: {fileID: -5390397783657877766, guid: 2021b61f17c5ca44ba6f88dfa3da44de, type: 3}
   isCollected: 0
+--- !u!114 &1599517994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1599517986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9660386b6f17a7419045602aa230e3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryPickup
+  hotbarItemDisplay: {fileID: 576899971}
+  searchItem: {fileID: 1599517993}
+  hideAfterPickup: 1
 --- !u!1 &1601835781
 GameObject:
   m_ObjectHideFlags: 0
@@ -6717,7 +6717,7 @@ Transform:
   m_GameObject: {fileID: 1767228265}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -7.47}
+  m_LocalPosition: {x: 0, y: 0.5, z: -7.47}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7029,7 +7029,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 49096983f5f51824dbc2207d80bfa00f, type: 2}
     - target: {fileID: 919132149155446097, guid: 2e0aa12a211b853419a66d0907a4a7f8, type: 3}
       propertyPath: m_Name
-      value: Meshy_AI_Forgotten_Vow_Bracele_1012095444_texture
+      value: "V\xF2ng tay"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
