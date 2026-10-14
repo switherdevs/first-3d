@@ -70,6 +70,12 @@ public class Map1PuzzleManager : MonoBehaviour
     private GameObject riddlePanel;
 
     [SerializeField]
+    private TMP_Text riddleTitle;
+
+    [SerializeField]
+    private TMP_Text riddleText;
+
+    [SerializeField]
     private TMP_Text riddleSlot1;
 
     [SerializeField]
@@ -82,7 +88,36 @@ public class Map1PuzzleManager : MonoBehaviour
     private TMP_Text riddleResultText;
 
     // =========================================================
-    // INTERACT OBJECTS
+    // RIDDLE BUTTONS
+    // =========================================================
+
+    [Header("RIDDLE BUTTONS")]
+    [SerializeField]
+    private GameObject canButton;
+
+    [SerializeField]
+    private GameObject denButton;
+
+    [SerializeField]
+    private GameObject guongButton;
+
+    [SerializeField]
+    private GameObject radioButton;
+
+    [SerializeField]
+    private GameObject keyAnswerButton;
+
+    [SerializeField]
+    private GameObject braceletButton;
+
+    [SerializeField]
+    private GameObject resetButton;
+
+    [SerializeField]
+    private GameObject confirmButton;
+
+    // =========================================================
+    // RIDDLE INTERACT OBJECTS
     // =========================================================
 
     [Header("RIDDLE INTERACT OBJECTS")]
@@ -118,6 +153,12 @@ public class Map1PuzzleManager : MonoBehaviour
     private int answer1 = -1;
     private int answer2 = -1;
     private int answer3 = -1;
+
+    private bool riddleSolved = false;
+    private bool hintPanelOpen = false;
+
+    // Lưu nội dung câu đố gốc trong Inspector
+    private string originalRiddleText = "";
 
     /*
         0 = Cân
@@ -207,6 +248,10 @@ public class Map1PuzzleManager : MonoBehaviour
 
     private void Start()
     {
+        // Lưu lại nội dung câu đố mà Owner đã căn sẵn
+        if (riddleText != null)
+            originalRiddleText = riddleText.text;
+
         if (cluePanel != null)
             cluePanel.SetActive(false);
 
@@ -216,7 +261,7 @@ public class Map1PuzzleManager : MonoBehaviour
         if (codePanel != null)
             codePanel.SetActive(false);
 
-        // Chưa được tương tác 3 vật
+        // Chưa giải câu đố
         if (canInteract != null)
             canInteract.SetActive(false);
 
@@ -236,17 +281,14 @@ public class Map1PuzzleManager : MonoBehaviour
         if (number7Model != null)
             number7Model.SetActive(false);
 
-        // Đồ trong hộp chưa xuất hiện
+        // Đồ trong hộp chưa hiện
         if (boxClueTarget != null)
             boxClueTarget.gameObject.SetActive(false);
 
         if (keyTarget != null)
             keyTarget.gameObject.SetActive(false);
 
-        // =============================================
-        // BẮT ĐẦU: TÌM ẢNH HUY
-        // =============================================
-
+        // Bắt đầu bằng ảnh Huy
         currentStep = PuzzleStep.Photo;
 
         SetMission("Tìm bức ảnh của Huy");
@@ -255,6 +297,36 @@ public class Map1PuzzleManager : MonoBehaviour
             photoTarget,
             "Có một bức ảnh cũ của Huy ở đâu đó."
         );
+    }
+
+    // =========================================================
+    // UPDATE - TAB MANH MỐI
+    // =========================================================
+
+    private void Update()
+    {
+        if (!riddleSolved)
+            return;
+
+        if (!Input.GetKeyDown(KeyCode.Tab))
+            return;
+
+        // Không mở khi đang đọc clue
+        if (cluePanel != null && cluePanel.activeSelf)
+            return;
+
+        // Không mở khi đang nhập mật mã
+        if (codePanel != null && codePanel.activeSelf)
+            return;
+
+        if (hintPanelOpen)
+        {
+            CloseHintPanel();
+        }
+        else
+        {
+            ShowHintPanel();
+        }
     }
 
     // =========================================================
@@ -295,11 +367,8 @@ public class Map1PuzzleManager : MonoBehaviour
 
         ShowClue(
             "BỨC THƯ CỦA BA MẸ\n\n" +
-            "Chìa khóa mở lối nơi chẳng còn tiếng người,\n" +
-            "Dưới nền đất lạnh vẫn có thứ đang cười.\n" +
-            "Đêm nghe ai gọi tên con từ phía sau,\n" +
-            "Dẫu là giọng mẹ... cũng đừng quay đầu.\n\n" +
-            "Ba mẹ."
+            "Chìa khóa mở lối tới nơi chưa ngủ yên.\n" +
+            "Nếu nghe ai gọi phía sau... đừng quay đầu.\n\n"
         );
 
         currentStep = PuzzleStep.Riddle;
@@ -318,6 +387,8 @@ public class Map1PuzzleManager : MonoBehaviour
 
     private void ShowRiddle()
     {
+        hintPanelOpen = false;
+
         if (cluePanel != null)
             cluePanel.SetActive(false);
 
@@ -327,12 +398,59 @@ public class Map1PuzzleManager : MonoBehaviour
         if (riddlePanel != null)
             riddlePanel.SetActive(true);
 
+        if (riddleTitle != null)
+            riddleTitle.text = "GIẢI CÂU ĐỐ";
+
+        /*
+         * QUAN TRỌNG:
+         * Không ghi đè nội dung RiddleText nữa.
+         *
+         * Owner căn chữ trong Inspector thế nào
+         * thì lúc Play giữ nguyên như vậy.
+         */
+
+        if (riddleText != null)
+            riddleText.text = originalRiddleText;
+
+        SetRiddleButtonsVisible(true);
+
         ResetRiddle();
 
         SetMission("Giải câu đố");
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+    }
+
+    // =========================================================
+    // RIDDLE BUTTON VISIBILITY
+    // =========================================================
+
+    private void SetRiddleButtonsVisible(bool visible)
+    {
+        if (canButton != null)
+            canButton.SetActive(visible);
+
+        if (denButton != null)
+            denButton.SetActive(visible);
+
+        if (guongButton != null)
+            guongButton.SetActive(visible);
+
+        if (radioButton != null)
+            radioButton.SetActive(visible);
+
+        if (keyAnswerButton != null)
+            keyAnswerButton.SetActive(visible);
+
+        if (braceletButton != null)
+            braceletButton.SetActive(visible);
+
+        if (resetButton != null)
+            resetButton.SetActive(visible);
+
+        if (confirmButton != null)
+            confirmButton.SetActive(visible);
     }
 
     // =========================================================
@@ -388,7 +506,7 @@ public class Map1PuzzleManager : MonoBehaviour
     }
 
     // =========================================================
-    // ADD RIDDLE ANSWER
+    // SELECT RIDDLE ANSWER
     // =========================================================
 
     private void SelectRiddleAnswer(
@@ -464,15 +582,13 @@ public class Map1PuzzleManager : MonoBehaviour
         if (riddleIndex < 3)
         {
             if (riddleResultText != null)
-            {
                 riddleResultText.text =
                     "Hãy chọn đủ 3 vật.";
-            }
 
             return;
         }
 
-        // CÂN -> ĐÈN -> GƯƠNG
+        // CÂN -> ĐÈN DẦU -> GƯƠNG
         if (answer1 == 0 &&
             answer2 == 1 &&
             answer3 == 2)
@@ -507,10 +623,8 @@ public class Map1PuzzleManager : MonoBehaviour
             riddleSlot3.text = "?";
 
         if (riddleResultText != null)
-        {
             riddleResultText.text =
                 "Thứ tự chưa đúng...";
-        }
     }
 
     // =========================================================
@@ -519,10 +633,13 @@ public class Map1PuzzleManager : MonoBehaviour
 
     private void RiddleCorrect()
     {
+        riddleSolved = true;
+        hintPanelOpen = false;
+
         if (riddlePanel != null)
             riddlePanel.SetActive(false);
 
-        // Chỉ bật cân trước
+        // Chỉ bật Cân trước
         if (canInteract != null)
             canInteract.SetActive(true);
 
@@ -546,6 +663,69 @@ public class Map1PuzzleManager : MonoBehaviour
     }
 
     // =========================================================
+    // TAB - SHOW MANH MỐI
+    // =========================================================
+
+    private void ShowHintPanel()
+    {
+        hintPanelOpen = true;
+
+        if (riddlePanel != null)
+            riddlePanel.SetActive(true);
+
+        if (riddleTitle != null)
+            riddleTitle.text = "MANH MỐI";
+
+        /*
+         * TAB mở lại RiddlePanel
+         * nhưng lúc này nội dung đổi thành Manh Mối.
+         */
+
+        if (riddleText != null)
+        {
+            riddleText.text =
+                "Ba vật được nhắc tới theo thứ tự:\n\n" +
+                "Kẻ đo nặng nhẹ linh hồn.\n\n" +
+                "Kẻ soi đường cho những thứ không còn sống.\n\n" +
+                "Kẻ trả lại khuôn mặt của người nhìn.";
+        }
+
+        if (riddleSlot1 != null)
+            riddleSlot1.text = "CÂN";
+
+        if (riddleSlot2 != null)
+            riddleSlot2.text = "ĐÈN DẦU";
+
+        if (riddleSlot3 != null)
+            riddleSlot3.text = "GƯƠNG";
+
+        if (riddleResultText != null)
+            riddleResultText.text =
+                "Nhấn TAB để đóng";
+
+        // Không cho giải lại
+        SetRiddleButtonsVisible(false);
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    // =========================================================
+    // TAB - CLOSE MANH MỐI
+    // =========================================================
+
+    private void CloseHintPanel()
+    {
+        hintPanelOpen = false;
+
+        if (riddlePanel != null)
+            riddlePanel.SetActive(false);
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    // =========================================================
     // CÂN -> 4
     // =========================================================
 
@@ -565,7 +745,7 @@ public class Map1PuzzleManager : MonoBehaviour
 
         ShowClue(
             "CHIẾC CÂN CŨ\n\n" +
-            "Dưới đáy cân là những vết cào khô quắt như móng người.\n\n" +
+            "Dưới đáy cân là những vết cào khô quắt như móng người.\n" +
             "Giữa những vết ấy hiện ra con số:\n\n4"
         );
 
@@ -575,7 +755,8 @@ public class Map1PuzzleManager : MonoBehaviour
 
         SetTarget(
             number1Target,
-            "Kẻ thứ hai soi đường cho những thứ không còn sống, nhưng chẳng phải mặt trời."
+            "Kẻ thứ hai soi đường cho những thứ không còn sống, \n\n\" +" +
+            "nhưng chẳng phải mặt trời. \n\n\\"
         );
 
         return true;
@@ -611,7 +792,8 @@ public class Map1PuzzleManager : MonoBehaviour
 
         SetTarget(
             number7Target,
-            "Kẻ cuối trả lại khuôn mặt của con, nhưng không phải lúc nào cũng là mặt con."
+            "Kẻ cuối trả lại khuôn mặt của con, \n" +
+            "nhưng không phải lúc nào cũng là mặt con."
         );
 
         return true;
@@ -634,7 +816,8 @@ public class Map1PuzzleManager : MonoBehaviour
 
         ShowClue(
             "MẢNH GƯƠNG VỠ\n\n" +
-            "Mặt sau mảnh gương lạnh ngắt, như vừa có ai áp mặt vào từ phía bên kia.\n\n" +
+            "Mặt sau mảnh gương lạnh ngắt, \n\n" +
+            "như vừa có ai áp mặt vào từ phía bên kia.\n\n" +
             "Giữa những vết nứt hiện ra con số:\n\n7\n\n" +
             "Ba con số ghép lại thành:\n" +
             "4 - 1 - 7"
@@ -659,14 +842,7 @@ public class Map1PuzzleManager : MonoBehaviour
     public void TryOpenBox()
     {
         if (currentStep != PuzzleStep.Box)
-        {
-            Debug.Log(
-                "[MAP1] Không mở hộp vì Step = " +
-                currentStep
-            );
-
             return;
-        }
 
         OpenCodePanel();
     }
@@ -683,6 +859,8 @@ public class Map1PuzzleManager : MonoBehaviour
         if (riddlePanel != null)
             riddlePanel.SetActive(false);
 
+        hintPanelOpen = false;
+
         if (codePanel != null)
             codePanel.SetActive(true);
 
@@ -694,15 +872,10 @@ public class Map1PuzzleManager : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-
-        Debug.Log(
-            "[MAP1] CodePanel mở. Step = " +
-            currentStep
-        );
     }
 
     // =========================================================
-    // UPDATE CODE
+    // UPDATE CODE DISPLAY
     // =========================================================
 
     private void UpdateCodeDisplay()
@@ -790,42 +963,97 @@ public class Map1PuzzleManager : MonoBehaviour
     }
 
     // =========================================================
-    // ENTER / CHECK CODE
+    // CHECK CODE
     // =========================================================
 
     public void CheckCode()
     {
-        if (!int.TryParse(digit1Text.text.Trim(), out int d1) ||
-            !int.TryParse(digit2Text.text.Trim(), out int d2) ||
-            !int.TryParse(digit3Text.text.Trim(), out int d3))
+        if (digit1Text == null ||
+            digit2Text == null ||
+            digit3Text == null)
         {
-            Debug.LogError("[MAP1] Không đọc được số trên UI!");
+            Debug.LogError(
+                "[MAP1] Digit Text chưa được gắn!"
+            );
+
             return;
         }
 
-        Debug.Log("[MAP1] MÃ ĐANG NHẬP: " + d1 + d2 + d3);
-
-        if (d1 == 4 && d2 == 1 && d3 == 7)
+        // Đọc trực tiếp số đang HIỂN THỊ
+        if (!int.TryParse(
+                digit1Text.text.Trim(),
+                out int d1
+            ) ||
+            !int.TryParse(
+                digit2Text.text.Trim(),
+                out int d2
+            ) ||
+            !int.TryParse(
+                digit3Text.text.Trim(),
+                out int d3
+            ))
         {
-            Debug.Log("[MAP1] MẬT MÃ ĐÚNG: 417");
+            Debug.LogError(
+                "[MAP1] Không đọc được mật mã!"
+            );
+
+            return;
+        }
+
+        Debug.Log(
+            "[MAP1] Mật mã đang nhập: " +
+            d1 + d2 + d3
+        );
+
+        if (currentStep != PuzzleStep.Box)
+        {
+            Debug.LogError(
+                "[MAP1] Sai Step: " +
+                currentStep
+            );
+
+            return;
+        }
+
+        // 417
+        if (d1 == 4 &&
+            d2 == 1 &&
+            d3 == 7)
+        {
+            Debug.Log(
+                "[MAP1] MẬT MÃ ĐÚNG: 417"
+            );
 
             boxOpened = true;
 
             if (codePanel != null)
                 codePanel.SetActive(false);
 
-            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.lockState =
+                CursorLockMode.Locked;
+
             Cursor.visible = false;
 
+            // Hiện thư
             if (boxClueTarget != null)
-                boxClueTarget.gameObject.SetActive(true);
+            {
+                boxClueTarget.gameObject
+                    .SetActive(true);
+            }
 
+            // Hiện chìa khóa
             if (keyTarget != null)
-                keyTarget.gameObject.SetActive(true);
+            {
+                keyTarget.gameObject
+                    .SetActive(true);
+            }
 
-            currentStep = PuzzleStep.BoxClue;
+            currentStep =
+                PuzzleStep.BoxClue;
 
-            SetMission("Đọc bức thư trong hộp");
+            SetMission(
+                "Đọc bức thư trong hộp"
+            );
 
             SetTarget(
                 boxClueTarget,
@@ -915,14 +1143,10 @@ public class Map1PuzzleManager : MonoBehaviour
 
         currentStep = PuzzleStep.Complete;
 
-        SetMission(
-            "Rời khỏi khu vực"
-        );
+        SetMission("Rời khỏi khu vực");
 
         if (playerInteraction != null)
-        {
             playerInteraction.ClearTargetClue();
-        }
 
         return true;
     }
@@ -933,6 +1157,8 @@ public class Map1PuzzleManager : MonoBehaviour
 
     public void ShowClue(string message)
     {
+        hintPanelOpen = false;
+
         if (codePanel != null)
             codePanel.SetActive(false);
 
@@ -958,9 +1184,9 @@ public class Map1PuzzleManager : MonoBehaviour
         if (cluePanel != null)
             cluePanel.SetActive(false);
 
-        // Sau khi đọc xong thư của ba mẹ
-        // mở bảng câu đố
-        if (currentStep == PuzzleStep.Riddle)
+        // Đọc xong thư -> mở puzzle
+        if (currentStep == PuzzleStep.Riddle &&
+            !riddleSolved)
         {
             ShowRiddle();
             return;
@@ -971,7 +1197,7 @@ public class Map1PuzzleManager : MonoBehaviour
     }
 
     // =========================================================
-    // CLOSE CODE PANEL
+    // CLOSE CODE
     // =========================================================
 
     public void CloseCodePanel()
@@ -984,7 +1210,7 @@ public class Map1PuzzleManager : MonoBehaviour
     }
 
     // =========================================================
-    // SET TARGET
+    // TARGET
     // =========================================================
 
     private void SetTarget(
@@ -1012,11 +1238,6 @@ public class Map1PuzzleManager : MonoBehaviour
             return;
         }
 
-        Debug.Log(
-            "[MAP1] Target = " +
-            target.name
-        );
-
         playerInteraction.SetTargetClue(
             target,
             hint
@@ -1024,7 +1245,7 @@ public class Map1PuzzleManager : MonoBehaviour
     }
 
     // =========================================================
-    // SET MISSION
+    // MISSION
     // =========================================================
 
     private void SetMission(string text)
@@ -1038,8 +1259,7 @@ public class Map1PuzzleManager : MonoBehaviour
         if (missionText != null)
         {
             missionText.text =
-                "NHIỆM VỤ:\n" +
-                text;
+                "NHIỆM VỤ:\n" + text;
         }
     }
 

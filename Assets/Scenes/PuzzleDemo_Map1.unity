@@ -1057,10 +1057,20 @@ MonoBehaviour:
   cluePanel: {fileID: 1457469143}
   clueText: {fileID: 1541823295}
   riddlePanel: {fileID: 1725599005}
+  riddleTitle: {fileID: 1165997284}
+  riddleText: {fileID: 1107540712}
   riddleSlot1: {fileID: 87767892}
   riddleSlot2: {fileID: 1342021498}
   riddleSlot3: {fileID: 911619516}
   riddleResultText: {fileID: 980936548}
+  canButton: {fileID: 50892526}
+  denButton: {fileID: 1956753018}
+  guongButton: {fileID: 1016940574}
+  radioButton: {fileID: 1204604868}
+  keyAnswerButton: {fileID: 383070492}
+  braceletButton: {fileID: 512124775}
+  resetButton: {fileID: 605052798}
+  confirmButton: {fileID: 164850089}
   canInteract: {fileID: 413869334}
   denInteract: {fileID: 936814903}
   guongInteract: {fileID: 971399774}
@@ -6240,8 +6250,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0.9204}
-  m_SizeDelta: {x: 700, y: 96.1593}
+  m_AnchoredPosition: {x: 315.51, y: 253.9081}
+  m_SizeDelta: {x: 218.99, y: 56.343}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &980936547
 CanvasRenderer:
@@ -6300,8 +6310,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 40
-  m_fontSizeBase: 40
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -8677,7 +8687,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1457469144
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10293,7 +10303,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1725599006
 RectTransform:
   m_ObjectHideFlags: 0
