@@ -13,58 +13,11 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Thành phần CapsuleCollider để chỉnh chiều cao khi ngồi")]
     public CapsuleCollider vaChamNhanVat;
 
-    [Tooltip("Model Mesh hiển thị nhân vật để co giãn Scale Y riêng biệt")]
-    public Transform moHinhNhanVat;
-
     [Tooltip("Thanh Slider hiển thị thể lực trên giao diện UI")]
     public Slider thanhTheLucUI;
 
-    [Tooltip("Camera chính dùng để tính toán hướng di chuyển theo góc nhìn")]
+    [Tooltip("Camera chính trong Game (Nếu để trống script sẽ tự tìm MainCamera)")]
     public Transform cameraChinh;
-
-    [Header("--- Cấu hình Animator (Animation) ---")]
-    [Tooltip("Component Animator quản lý hoạt ảnh nhân vật")]
-    public Animator animatorNhanVat;
-
-    [Header("--- BỔ SUNG: Cấu hình Vùng Nước (Water Zone) ---")]
-    [Tooltip("Tag của vùng nước để nhận diện")]
-    public string tagVungNuoc = "Water";
-
-    [Tooltip("Hệ số giảm tốc độ khi nhân vật bước xuống nước (Ví dụ: 0.5 là giảm còn một nửa tốc độ)")]
-    [Range(0.1f, 1f)]
-    public float heSoGiamTocDoNuoc = 0.5f;
-
-    [Tooltip("Âm thanh bước chân lội nước đặc trưng")]
-    public AudioClip amThanhBuocChanDuoiNuoc;
-
-    [Header("--- BỔ SUNG: Hệ thống Âm thanh Đa Lớp (2 AudioSources) ---")]
-    [Tooltip("Nguồn âm thanh CHUYÊN DÙNG CHO BƯỚC CHÂN (Đi bộ, Chạy, Ngồi)")]
-    public AudioSource nguonAmThanhBuocChan;
-
-    [Tooltip("Nguồn âm thanh CHUYÊN DÙNG CHO HIỆU ỨNG (Nhảy, Tiếp đất)")]
-    public AudioSource nguonAmThanhHieuUng;
-
-    [Tooltip("File âm thanh tiếng bước chân dùng chung trên cạn")]
-    public AudioClip amThanhBuocChan;
-
-    [Tooltip("File âm thanh khi nhân vật thực hiện hành động nhảy")]
-    public AudioClip amThanhNhay;
-
-    [Tooltip("File âm thanh khi nhân vật chạm/tiếp đất từ trên không")]
-    public AudioClip amThanhTiepDat;
-
-    [Range(0f, 1f)]
-    [Tooltip("Âm lượng hiệu ứng tiếng nhảy và tiếp đất")]
-    public float amLuongNhayTiepDat = 0.8f;
-
-    [Header("--- Cấu hình Nhịp bước chân (Thời gian giữa 2 bước) ---")]
-    [Tooltip("Khoảng thời gian delay giữa các bước đi bộ (Số càng lớn đi càng chậm)")]
-    [Range(0.1f, 2.0f)]
-    public float tocDoAmThanhDiBo = 0.55f;
-
-    [Tooltip("Khoảng thời gian delay giữa các bước chạy (Số càng lớn chạy càng chậm)")]
-    [Range(0.1f, 2.0f)]
-    public float tocDoAmThanhChay = 0.35f;
 
     [Header("--- Tốc độ di chuyển ---")]
     [Tooltip("Tốc độ di chuyển bình thường")]
@@ -73,11 +26,22 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Tốc độ khi giữ Shift (Chạy nhanh)")]
     public float tocDoChay = 7f;
 
+    [Tooltip("Tốc độ khi giữ Alt (Đi chậm)")]
+    public float tocDoDiCham = 2f;
+
     [Tooltip("Tốc độ khi giữ Ctrl (Ngồi)")]
     public float tocDoNgoi = 1.5f;
 
     [Tooltip("Tốc độ xoay thân nhân vật theo hướng Camera")]
     public float tocDoXoayNhanVat = 12f;
+
+    [Header("--- Vùng nước nguy hiểm ---")]
+    [Tooltip("Nhân vật có đang ở trong vùng nước nguy hiểm không")]
+    public bool dangTrongVungNuocNguyHiem = false;
+
+    [Tooltip("Hệ số giảm tốc độ khi ở trong nước nguy hiểm")]
+    [Range(0.1f, 1f)]
+    public float heSoGiamTocDoNuocNguyHiem = 0.5f;
 
     [Header("--- Cấu hình Nhảy & Kiểm tra chạm đất ---")]
     [Tooltip("Lực nhảy bộc phát áp dụng vào Rigidbody")]
@@ -89,17 +53,10 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Bán kính hình cầu kiểm tra chạm đất")]
     public float banKinhKiemTraDat = 0.2f;
 
-    [Tooltip("Layer đánh dấu các bề mặt được coi là mặt đất/bậc thang/trần nhà")]
+    [Tooltip("Layer đánh dấu các bề mặt được coi là mặt đất")]
     public LayerMask lopMatDat;
 
-    [Header("--- Cấu hình Cầu Thang (Step Offset) ---")]
-    [Tooltip("Chiều cao tối đa của bậc thang mà nhân vật có thể bước lên")]
-    public float chieuCaoBacThangToidA = 0.5f;
-
-    [Tooltip("Tốc độ đẩy nhân vật lên bậc thang")]
-    public float tocDoLeoBacThang = 6f;
-
-    [Header("--- Cấu hình Tư thế Ngồi & Bắt Khu Vực Hẹp ---")]
+    [Header("--- Cấu hình Tư thế Ngồi ---")]
     [Tooltip("Chiều cao CapsuleCollider khi đứng")]
     public float chieuCaoDung = 2.0f;
 
@@ -108,13 +65,6 @@ public class PlayerMovement : MonoBehaviour
 
     [Tooltip("Tốc độ chuyển đổi giữa đứng và ngồi")]
     public float tocDoChuyenTuThe = 8f;
-
-    [Header("--- Kiểm tra Trần Nhà Độc Lập ---")]
-    [Tooltip("Transform điểm check trần (đặt ở vị trí đỉnh đầu khi đứng)")]
-    public Transform diemKiemTraTran;
-
-    [Tooltip("Bán kính quả cầu kiểm tra vật cản ở đỉnh đầu")]
-    public float banKinhKiemTraTran = 0.35f;
 
     [Header("--- Cấu hình Thể lực ---")]
     [Tooltip("Thể lực tối đa")]
@@ -130,53 +80,35 @@ public class PlayerMovement : MonoBehaviour
     private float theLucHienTai;
     private float tocDoHienTai;
     private Vector2 giaTriDiChuyenDauVao;
-    private float scaleYMoHinhGoc = 1f;
 
-    private bool dangGiuPhimNgoi = false;
-    private bool dangNhanNgoi = false;
     private bool dangNhanChay = false;
+    private bool dangNhanNgoi = false;
+    private bool dangNhanDiCham = false; // Bổ sung từ script thành viên
     private bool dangDaThietLapNhay = false;
     private bool kiemTraDanGiapDat = false;
-    private bool dangBiVuongTran = false;
-    private bool dangOTrongNuoc = false; // Biến cờ kiểm tra đang ở trong nước
-
-    // Cờ theo dõi trạng thái trên không để phát tiếng tiếp đất 1 lần
-    private bool dangOTrenKhong = false;
-
-    // Biến đếm thời gian cho nhịp phát âm thanh bước chân
-    private float demThoiGianBuocChan = 0f;
-
-    private Collider[] vaChamKiemTraTranBuffer = new Collider[5];
-
-    public bool DangDiChuyen => giaTriDiChuyenDauVao.sqrMagnitude > 0.01f;
 
     private void Start()
     {
-        if (boDieuKhienNhanVat == null) boDieuKhienNhanVat = GetComponent<Rigidbody>();
-        if (vaChamNhanVat == null) vaChamNhanVat = GetComponent<CapsuleCollider>();
-        if (animatorNhanVat == null) animatorNhanVat = GetComponentInChildren<Animator>();
-
-        AudioSource[] danhSachAudioSource = GetComponents<AudioSource>();
-
-        if (nguonAmThanhBuocChan == null)
+        if (boDieuKhienNhanVat == null)
         {
-            if (danhSachAudioSource.Length > 0) nguonAmThanhBuocChan = danhSachAudioSource[0];
-            else nguonAmThanhBuocChan = gameObject.AddComponent<AudioSource>();
+            boDieuKhienNhanVat = GetComponent<Rigidbody>();
         }
 
-        if (nguonAmThanhHieuUng == null)
+        if (vaChamNhanVat == null)
         {
-            if (danhSachAudioSource.Length > 1) nguonAmThanhHieuUng = danhSachAudioSource[1];
-            else nguonAmThanhHieuUng = gameObject.AddComponent<AudioSource>();
+            vaChamNhanVat = GetComponent<CapsuleCollider>();
         }
 
-        ThiEtsLapAudioSource(nguonAmThanhBuocChan);
-        ThiEtsLapAudioSource(nguonAmThanhHieuUng);
+        // Tự động tìm Main Camera nếu chưa gán trong Inspector
+        if (cameraChinh == null && Camera.main != null)
+        {
+            cameraChinh = Camera.main.transform;
+        }
 
-        if (cameraChinh == null && Camera.main != null) cameraChinh = Camera.main.transform;
-
-        if (boDieuKhienNhanVat != null) boDieuKhienNhanVat.freezeRotation = true;
-        if (moHinhNhanVat != null) scaleYMoHinhGoc = moHinhNhanVat.localScale.y;
+        if (boDieuKhienNhanVat != null)
+        {
+            boDieuKhienNhanVat.freezeRotation = true;
+        }
 
         theLucHienTai = theLucToiDa;
 
@@ -185,71 +117,42 @@ public class PlayerMovement : MonoBehaviour
             thanhTheLucUI.maxValue = theLucToiDa;
             thanhTheLucUI.value = theLucHienTai;
         }
-    }
-
-    private void ThiEtsLapAudioSource(AudioSource source)
-    {
-        if (source != null)
-        {
-            source.clip = null;
-            source.playOnAwake = false;
-            source.loop = false;
-        }
+        dangTrongVungNuocNguyHiem = false;
     }
 
     private void Update()
     {
-        // 1. Kiểm tra vị trí chạm đất chính xác mỗi Frame
         if (diemKiemTraChan != null)
         {
-            kiemTraDanGiapDat = Physics.CheckSphere(diemKiemTraChan.position, banKinhKiemTraDat, lopMatDat);
+            kiemTraDanGiapDat = Physics.CheckSphere(
+                diemKiemTraChan.position,
+                banKinhKiemTraDat,
+                lopMatDat
+            );
         }
         else
         {
-            kiemTraDanGiapDat = Physics.Raycast(transform.position, Vector3.down, 1.1f, lopMatDat);
+            kiemTraDanGiapDat = Physics.Raycast(
+                transform.position,
+                Vector3.down,
+                1.1f,
+                lopMatDat
+            );
         }
 
-        // 2. Xử lý âm thanh tiếp đất ngay lập tức ở Kênh Hiệu Ứng
-        XuLyAmThanhTiepDatLapTuc();
-
-        // 3. Kiểm tra trần nhà
-        KiemTraTranNhaPhiaTren();
-
-        // 4. Xử lý tư thế ngồi & âm thanh bước chân
-        XuLyTuTheNgoi();
         XuLyTheLucVaTocDo();
-        XuLyAmThanhBuocChan();
+        XuLyTudTheNgoi();
         CapNhatGiaoDienUI();
-
-        // 5. Cập nhật các trạng thái hoạt ảnh (Animation)
-        CapNhatAnimator();
     }
 
     private void FixedUpdate()
     {
-        XuLyDiChuyen();
+        XuLyDiChuyenTheoCamera();
         XuLyNhay();
     }
 
-    #region Trigger Events (Phát hiện vùng nước)
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag(tagVungNuoc))
-        {
-            dangOTrongNuoc = true;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag(tagVungNuoc))
-        {
-            dangOTrongNuoc = false;
-        }
-    }
-    #endregion
-
     #region Input Events
+
     public void OnMove(InputAction.CallbackContext context)
     {
         giaTriDiChuyenDauVao = context.ReadValue<Vector2>();
@@ -257,286 +160,177 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnSprint(InputAction.CallbackContext context)
     {
-        if (context.started)
-        {
+        if (context.started || context.performed)
             dangNhanChay = true;
-            demThoiGianBuocChan = 0f;
-        }
-        else if (context.performed)
-        {
-            dangNhanChay = true;
-        }
         else if (context.canceled)
-        {
             dangNhanChay = false;
-            demThoiGianBuocChan = 0f;
-        }
     }
 
     public void OnCrouch(InputAction.CallbackContext context)
     {
-        if (context.started || context.performed) dangGiuPhimNgoi = true;
-        else if (context.canceled) dangGiuPhimNgoi = false;
+        if (context.started || context.performed)
+            dangNhanNgoi = true;
+        else if (context.canceled)
+            dangNhanNgoi = false;
+    }
+
+    // Bổ sung từ script thành viên
+    public void OnWalkSlow(InputAction.CallbackContext context)
+    {
+        if (context.started || context.performed)
+            dangNhanDiCham = true;
+        else if (context.canceled)
+            dangNhanDiCham = false;
     }
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (context.started || context.performed)
-        {
-            if (kiemTraDanGiapDat && !dangNhanNgoi && !dangBiVuongTran)
-            {
-                dangDaThietLapNhay = true;
-
-                if (animatorNhanVat != null)
-                {
-                    animatorNhanVat.SetTrigger("JumpTrigger");
-                }
-
-                if (nguonAmThanhHieuUng != null && amThanhNhay != null)
-                {
-                    nguonAmThanhHieuUng.pitch = 1.0f;
-                    nguonAmThanhHieuUng.PlayOneShot(amThanhNhay, amLuongNhayTiepDat);
-                }
-            }
-        }
+        if (context.performed)
+            dangDaThietLapNhay = true;
     }
 
-    public void OnAttack(InputAction.CallbackContext context)
-    {
-        if (context.started || context.performed)
-        {
-            if (animatorNhanVat != null)
-            {
-                animatorNhanVat.SetTrigger("AttackTrigger");
-            }
-        }
-    }
     #endregion
-
-    private void CapNhatAnimator()
-    {
-        if (animatorNhanVat == null) return;
-
-        bool đangDiChuyen = DangDiChuyen && kiemTraDanGiapDat;
-        bool dangChayNhanh = đangDiChuyen && dangNhanChay && theLucHienTai > 0 && !dangNhanNgoi;
-
-        animatorNhanVat.SetBool("IsIdle", !đangDiChuyen && kiemTraDanGiapDat);
-        animatorNhanVat.SetBool("IsWalking", đangDiChuyen && !dangChayNhanh);
-        animatorNhanVat.SetBool("IsRunning", dangChayNhanh);
-    }
-
-    private Vector3 LayViTriKiemTraTran()
-    {
-        if (diemKiemTraTran != null) return diemKiemTraTran.position;
-        return transform.position + Vector3.up * (chieuCaoDung * 0.8f);
-    }
-
-    private void KiemTraTranNhaPhiaTren()
-    {
-        Vector3 viTriCheck = LayViTriKiemTraTran();
-        dangBiVuongTran = false;
-
-        int soLuongVaCham = Physics.OverlapSphereNonAlloc(viTriCheck, banKinhKiemTraTran, vaChamKiemTraTranBuffer, lopMatDat);
-
-        for (int i = 0; i < soLuongVaCham; i++)
-        {
-            if (vaChamKiemTraTranBuffer[i] != vaChamNhanVat)
-            {
-                dangBiVuongTran = true;
-                break;
-            }
-        }
-
-        if (dangGiuPhimNgoi || dangBiVuongTran) dangNhanNgoi = true;
-        else dangNhanNgoi = false;
-    }
-
-    private void XuLyTuTheNgoi()
-    {
-        if (vaChamNhanVat == null) return;
-
-        float chieuCaoMucTieu = dangNhanNgoi ? chieuCaoNgoi : chieuCaoDung;
-        vaChamNhanVat.height = Mathf.Lerp(vaChamNhanVat.height, chieuCaoMucTieu, Time.deltaTime * tocDoChuyenTuThe);
-        vaChamNhanVat.center = Vector3.zero;
-
-        if (moHinhNhanVat != null)
-        {
-            float tiLeScale = vaChamNhanVat.height / chieuCaoDung;
-            Vector3 scaleHienTai = moHinhNhanVat.localScale;
-            moHinhNhanVat.localScale = new Vector3(scaleHienTai.x, scaleYMoHinhGoc * tiLeScale, scaleHienTai.z);
-        }
-    }
-
-    private void XuLyAmThanhBuocChan()
-    {
-        if (DangDiChuyen && kiemTraDanGiapDat)
-        {
-            demThoiGianBuocChan -= Time.deltaTime;
-
-            if (demThoiGianBuocChan <= 0f)
-            {
-                float thoiGianKhoangCach;
-                float doCaoPitch;
-                float amLuongVolume;
-                AudioClip clipBuocChanSuDung;
-
-                // Nếu đang ở trong nước, ưu tiên dùng âm thanh lội nước
-                if (dangOTrongNuoc && amThanhBuocChanDuoiNuoc != null)
-                {
-                    clipBuocChanSuDung = amThanhBuocChanDuoiNuoc;
-                }
-                else
-                {
-                    clipBuocChanSuDung = amThanhBuocChan;
-                }
-
-                if (dangNhanChay && theLucHienTai > 0 && !dangNhanNgoi)
-                {
-                    thoiGianKhoangCach = tocDoAmThanhChay;
-                    doCaoPitch = dangOTrongNuoc ? 0.95f : 1.15f;
-                    amLuongVolume = 1.0f;
-                }
-                else if (dangNhanNgoi)
-                {
-                    thoiGianKhoangCach = tocDoAmThanhDiBo * 1.3f;
-                    doCaoPitch = 0.85f;
-                    amLuongVolume = 0.35f;
-                }
-                else
-                {
-                    thoiGianKhoangCach = tocDoAmThanhDiBo;
-                    doCaoPitch = dangOTrongNuoc ? 0.85f : 1.0f;
-                    amLuongVolume = 0.7f;
-                }
-
-                if (nguonAmThanhBuocChan != null && clipBuocChanSuDung != null)
-                {
-                    nguonAmThanhBuocChan.pitch = doCaoPitch;
-                    nguonAmThanhBuocChan.PlayOneShot(clipBuocChanSuDung, amLuongVolume);
-                }
-
-            demThoiGianKhoangCach:
-                demThoiGianBuocChan = thoiGianKhoangCach;
-            }
-        }
-        else
-        {
-            if (nguonAmThanhBuocChan != null && nguonAmThanhBuocChan.isPlaying)
-            {
-                nguonAmThanhBuocChan.Stop();
-            }
-
-            demThoiGianBuocChan = 0f;
-        }
-    }
-
-    private void XuLyAmThanhTiepDatLapTuc()
-    {
-        if (kiemTraDanGiapDat)
-        {
-            if (dangOTrenKhong)
-            {
-                if (nguonAmThanhHieuUng != null && amThanhTiepDat != null)
-                {
-                    nguonAmThanhHieuUng.pitch = dangOTrongNuoc ? 0.7f : 1.0f;
-                    nguonAmThanhHieuUng.PlayOneShot(amThanhTiepDat, amLuongNhayTiepDat);
-                }
-
-                dangOTrenKhong = false;
-            }
-        }
-        else
-        {
-            dangOTrenKhong = true;
-        }
-    }
 
     private void XuLyTheLucVaTocDo()
     {
-        if (dangNhanChay && DangDiChuyen && theLucHienTai > 0 && !dangNhanNgoi)
+        bool dangDiChuyen =
+            giaTriDiChuyenDauVao.sqrMagnitude > 0.01f;
+
+        if (dangNhanChay && dangDiChuyen &&
+            theLucHienTai > 0 && !dangNhanNgoi)
         {
             tocDoHienTai = tocDoChay;
-            theLucHienTai -= theLucTieuHaoMoiGiay * Time.deltaTime;
-            if (theLucHienTai < 0) theLucHienTai = 0;
+
+            theLucHienTai -=
+                theLucTieuHaoMoiGiay * Time.deltaTime;
+
+            if (theLucHienTai < 0)
+                theLucHienTai = 0;
         }
         else
         {
             if (theLucHienTai < theLucToiDa)
             {
-                theLucHienTai += theLucHoiPhucMoiGiay * Time.deltaTime;
-                if (theLucHienTai > theLucToiDa) theLucHienTai = theLucToiDa;
+                theLucHienTai +=
+                    theLucHoiPhucMoiGiay * Time.deltaTime;
+
+                if (theLucHienTai > theLucToiDa)
+                    theLucHienTai = theLucToiDa;
             }
 
-            if (dangNhanNgoi) tocDoHienTai = tocDoNgoi;
-            else tocDoHienTai = tocDoDiBo;
+            if (dangNhanNgoi)
+                tocDoHienTai = tocDoNgoi;
+            else if (dangNhanDiCham) // Bổ sung điều kiện đi chậm từ script thành viên
+                tocDoHienTai = tocDoDiCham;
+            else
+                tocDoHienTai = tocDoDiBo;
         }
 
-        // BỔ SUNG: Nếu đang ở trong nước, nhân vật sẽ bị giảm tốc độ theo hệ số cấu hình
-        if (dangOTrongNuoc)
+        // Giảm tốc độ khi ở trong vùng nước nguy hiểm
+        if (dangTrongVungNuocNguyHiem)
         {
-            tocDoHienTai *= heSoGiamTocDoNuoc;
+            tocDoHienTai *= heSoGiamTocDoNuocNguyHiem;
+            Debug.Log("ĐANG Ở NƯỚC NGUY HIỂM - Tốc độ: " + tocDoHienTai);
         }
     }
 
-    private void XuLyDiChuyen()
+    // Di chuyển dựa theo hướng quay của Camera
+    private void XuLyDiChuyenTheoCamera()
     {
         if (giaTriDiChuyenDauVao.sqrMagnitude >= 0.01f)
         {
-            Vector3 huongTruocCam = cameraChinh != null ? cameraChinh.forward : Vector3.forward;
-            Vector3 huongPhaiCam = cameraChinh != null ? cameraChinh.right : Vector3.right;
+            Vector3 camForward = Vector3.forward;
+            Vector3 camRight = Vector3.right;
 
-            huongTruocCam.y = 0f;
-            huongPhaiCam.y = 0f;
-            huongTruocCam.Normalize();
-            huongPhaiCam.Normalize();
-
-            Vector3 huongDiChuyenThucTe = (huongTruocCam * giaTriDiChuyenDauVao.y) + (huongPhaiCam * giaTriDiChuyenDauVao.x);
-
-            Quaternion gocXoayMucTieu = Quaternion.LookRotation(huongDiChuyenThucTe);
-            transform.rotation = Quaternion.Slerp(transform.rotation, gocXoayMucTieu, Time.fixedDeltaTime * tocDoXoayNhanVat);
-
-            RaycastHit hitTuong;
-            if (Physics.Raycast(transform.position + Vector3.up * 0.5f, huongDiChuyenThucTe, out hitTuong, 0.6f, lopMatDat))
+            if (cameraChinh != null)
             {
-                if (Vector3.Angle(hitTuong.normal, Vector3.up) > 60f)
-                {
-                    huongDiChuyenThucTe = Vector3.ProjectOnPlane(huongDiChuyenThucTe, hitTuong.normal).normalized;
-                }
+                camForward = cameraChinh.forward;
+                camRight = cameraChinh.right;
+
+                // Bỏ trục Y để di chuyển trên mặt phẳng
+                camForward.y = 0f;
+                camRight.y = 0f;
+
+                camForward.Normalize();
+                camRight.Normalize();
             }
 
-            Vector3 vanTocMucTieu = huongDiChuyenThucTe * tocDoHienTai;
-            boDieuKhienNhanVat.linearVelocity = new Vector3(vanTocMucTieu.x, boDieuKhienNhanVat.linearVelocity.y, vanTocMucTieu.z);
+            Vector3 huongDiChuyen =
+                (camForward * giaTriDiChuyenDauVao.y) +
+                (camRight * giaTriDiChuyenDauVao.x);
 
-            XuLyLeoCauThang(huongDiChuyenThucTe);
+            huongDiChuyen.Normalize();
+
+            Quaternion gocXoayMucTieu =
+                Quaternion.LookRotation(huongDiChuyen);
+
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                gocXoayMucTieu,
+                Time.fixedDeltaTime * tocDoXoayNhanVat
+            );
+
+            Vector3 vanTocMucTieu =
+                huongDiChuyen * tocDoHienTai;
+
+            boDieuKhienNhanVat.linearVelocity = new Vector3(
+                vanTocMucTieu.x,
+                boDieuKhienNhanVat.linearVelocity.y,
+                vanTocMucTieu.z
+            );
         }
         else
         {
-            boDieuKhienNhanVat.linearVelocity = new Vector3(0f, boDieuKhienNhanVat.linearVelocity.y, 0f);
+            boDieuKhienNhanVat.linearVelocity = new Vector3(
+                0f,
+                boDieuKhienNhanVat.linearVelocity.y,
+                0f
+            );
         }
     }
 
-    private void XuLyLeoCauThang(Vector3 huongDiChuyen)
+    private void XuLyTudTheNgoi()
     {
-        Vector3 viTriGocChan = transform.position + Vector3.up * 0.05f;
-        Vector3 viTriGocDauGoi = transform.position + Vector3.up * chieuCaoBacThangToidA;
+        if (vaChamNhanVat == null)
+            return;
 
-        if (Physics.Raycast(viTriGocChan, huongDiChuyen, out _, 0.6f, lopMatDat))
-        {
-            if (!Physics.Raycast(viTriGocDauGoi, huongDiChuyen, out _, 0.7f, lopMatDat))
-            {
-                boDieuKhienNhanVat.position += new Vector3(0f, tocDoLeoBacThang * Time.fixedDeltaTime, 0f);
-            }
-        }
+        float chieuCaoMucTieu =
+            dangNhanNgoi ? chieuCaoNgoi : chieuCaoDung;
+
+        vaChamNhanVat.height = Mathf.Lerp(
+            vaChamNhanVat.height,
+            chieuCaoMucTieu,
+            Time.deltaTime * tocDoChuyenTuThe
+        );
     }
 
     private void XuLyNhay()
     {
         if (dangDaThietLapNhay)
         {
-            boDieuKhienNhanVat.linearVelocity = new Vector3(boDieuKhienNhanVat.linearVelocity.x, 0f, boDieuKhienNhanVat.linearVelocity.z);
-            boDieuKhienNhanVat.AddForce(Vector3.up * lucNhay, ForceMode.Impulse);
+            if (kiemTraDanGiapDat && !dangNhanNgoi)
+            {
+                boDieuKhienNhanVat.linearVelocity = new Vector3(
+                    boDieuKhienNhanVat.linearVelocity.x,
+                    0f,
+                    boDieuKhienNhanVat.linearVelocity.z
+                );
+
+                boDieuKhienNhanVat.AddForce(
+                    Vector3.up * lucNhay,
+                    ForceMode.Impulse
+                );
+            }
+
             dangDaThietLapNhay = false;
         }
+    }
+
+    // Bổ sung từ script thành viên
+    public void DatLaiTrangThaiNuocNguyHiem()
+    {
+        dangTrongVungNuocNguyHiem = false;
+        tocDoHienTai = tocDoDiBo;
     }
 
     private void CapNhatGiaoDienUI()
@@ -545,12 +339,5 @@ public class PlayerMovement : MonoBehaviour
         {
             thanhTheLucUI.value = theLucHienTai;
         }
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Vector3 viTriCheck = LayViTriKiemTraTran();
-        Gizmos.color = dangBiVuongTran ? Color.red : Color.yellow;
-        Gizmos.DrawWireSphere(viTriCheck, banKinhKiemTraTran);
     }
 }
