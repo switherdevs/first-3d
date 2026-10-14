@@ -368,7 +368,7 @@ public class Map1PuzzleManager : MonoBehaviour
         ShowClue(
             "BỨC THƯ CỦA BA MẸ\n\n" +
             "Chìa khóa mở lối tới nơi chưa ngủ yên.\n" +
-            "Nếu nghe ai gọi phía sau... đừng quay đầu.\n\n"
+            "Nếu nghe ai gọi phía sau... đừng quay đầu.!!!\n\n"
         );
 
         currentStep = PuzzleStep.Riddle;
