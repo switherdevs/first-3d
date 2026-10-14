@@ -65,6 +65,16 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "Interact_door",
+                    "type": "Button",
+                    "id": "511b45f1-520c-4b60-bc9f-54fe0f48a941",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -175,6 +185,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Nem_muoi",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "017fc020-a525-4570-8fe0-922b3b1849de",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Interact_door",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

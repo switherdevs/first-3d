@@ -148,6 +148,7 @@ GameObject:
   - component: {fileID: 8315169420744586584}
   - component: {fileID: 8811396050990696472}
   - component: {fileID: 6644825651513273540}
+  - component: {fileID: 4469287859759618717}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -356,6 +357,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 8d75b0c4-d9c8-44fd-a0c5-863dd684df83
     m_ActionName: 'Move/Nem_muoi[/Keyboard/r]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4469287859759618717}
+        m_TargetAssemblyTypeName: PlayerInteraction, Assembly-CSharp
+        m_MethodName: OnInteract
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 511b45f1-520c-4b60-bc9f-54fe0f48a941
+    m_ActionName: 'Move/Interact_door[/Keyboard/e]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Move
@@ -632,6 +649,18 @@ MonoBehaviour:
   player: {fileID: 405972151833300060}
   checkpoint: {fileID: 0}
   respawnDelay: 5
+--- !u!114 &4469287859759618717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 405972151833300060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d74ba4fc9ffe2f44b8f525fbae86bac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteraction
 --- !u!1 &956966910075323337
 GameObject:
   m_ObjectHideFlags: 0
