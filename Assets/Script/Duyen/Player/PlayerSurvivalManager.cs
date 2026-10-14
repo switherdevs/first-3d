@@ -1,14 +1,14 @@
-
+﻿
 using System.Collections;
 using UnityEngine;
 
 public class PlayerSurvivalManager : MonoBehaviour
 {
-    [Header("Player v� Checkpoint")]
+    [Header("Player và Checkpoint")]
     public GameObject player;
     public Transform checkpoint;
 
-    [Header("Th?i gian h?i sinh")]
+    [Header("Thời gian hồi sinh")]
     public float respawnDelay = 3f;
 
     private bool isRespawning = false;
@@ -24,20 +24,29 @@ public class PlayerSurvivalManager : MonoBehaviour
     {
         isRespawning = true;
 
-        // ?n Player khi b? Ma Da b?t
+        // Player khi bị Ma Da bắt
         player.SetActive(false);
 
         yield return new WaitForSeconds(respawnDelay);
 
-        // ??a Player v? Checkpoint
+        //  Đưa Player về Checkpoint
         player.transform.position = checkpoint.position;
         player.transform.rotation = checkpoint.rotation;
 
-        // Hi?n Player tr? l?i
+        // Hiện Player trở lạii
         player.SetActive(true);
 
         isRespawning = false;
 
-        Debug.Log("Player ?� h?i sinh t?i Checkpoint!");
+        Debug.Log("Player đã hồi sinh tại Checkpoint!");
+
+        // Đặt lại trạng thái nước nguy hiểm
+        PlayerMovement playerMovement =
+            player.GetComponent<PlayerMovement>();
+
+        if (playerMovement != null)
+        {
+            playerMovement.DatLaiTrangThaiNuocNguyHiem();
+        }
     }
 }
