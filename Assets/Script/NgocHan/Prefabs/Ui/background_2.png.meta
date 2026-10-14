@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 5c88471577cf10e469538c681dcde212
+guid: 6f502143ba03fce46a9249e2e593c5ac
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7122538025888778043
-    second: "phi\u1EBFu mua h\xE0ng_0"
+      213: 214582040267025251
+    second: background_2_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "phi\u1EBFu mua h\xE0ng_0"
+      name: background_2_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 418
-        height: 313
+        width: 333
+        height: 262
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5c8ffabf669a72d90800000000000000
-      internalID: -7122538025888778043
+      spriteID: 36b6b4d8a395af200800000000000000
+      internalID: 214582040267025251
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "phi\u1EBFu mua h\xE0ng_0": -7122538025888778043
+      background_2_0: 214582040267025251
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
