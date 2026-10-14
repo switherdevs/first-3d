@@ -19,6 +19,60 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Camera chính trong Game (Nếu để trống script sẽ tự tìm MainCamera)")]
     public Transform cameraChinh;
 
+    [Header("--- BỔ SUNG: Hệ thống Âm thanh Đa Lớp (2 AudioSources) ---")]
+    [Tooltip("Nguồn âm thanh CHUYÊN DÙNG CHO BƯỚC CHÂN (Đi bộ, Chạy, Ngồi, Đi chậm, Dưới nước)")]
+    public AudioSource nguonAmThanhBuocChan;
+
+    [Tooltip("Nguồn âm thanh CHUYÊN DÙNG CHO HIỆU ỨNG (Nhảy, Tiếp đất)")]
+    public AudioSource nguonAmThanhHieuUng;
+
+    [Header("--- Cấu hình Audio Clips & Âm Lượng ---")]
+    [Tooltip("File âm thanh bước chân thông thường trên cạn")]
+    public AudioClip amThanhBuocChan;
+    [Range(0f, 1f)] public float amLuongBuocChan = 0.7f;
+
+    [Tooltip("File âm thanh chạy nhanh trên cạn")]
+    public AudioClip amThanhChay;
+    [Range(0f, 1f)] public float amLuongChay = 1.0f;
+
+    [Tooltip("File âm thanh đi chậm khi giữ Alt")]
+    public AudioClip amThanhDiCham;
+    [Range(0f, 1f)] public float amLuongDiCham = 0.5f;
+
+    [Tooltip("File âm thanh khi ngồi khi giữ Ctrl")]
+    public AudioClip amThanhNgoi;
+    [Range(0f, 1f)] public float amLuongNgoi = 0.35f;
+
+    [Tooltip("File âm thanh lội nước khi đi bộ trong vùng nước (Tag Water)")]
+    public AudioClip amThanhDuoiNuoc;
+    [Range(0f, 1f)] public float amLuongDuoiNuoc = 0.8f;
+
+    [Tooltip("File âm thanh lội nước khi chạy trong vùng nước (Tag Water)")]
+    public AudioClip amThanhChayDuoiNuoc;
+    [Range(0f, 1f)] public float amLuongChayDuoiNuoc = 1.0f;
+
+    [Tooltip("File âm thanh khi nhân vật nhảy")]
+    public AudioClip amThanhNhay;
+    [Range(0f, 1f)] public float amLuongNhay = 0.8f;
+
+    [Tooltip("File âm thanh khi nhân vật tiếp đất")]
+    public AudioClip amThanhTiepDat;
+    [Range(0f, 1f)] public float amLuongTiepDat = 0.8f;
+
+    [Header("--- Cấu hình Nhịp bước chân (Thời gian delay giữa các bước) ---")]
+    [Tooltip("Khoảng thời gian delay giữa các bước đi bộ")]
+    public float thoiGianBuocDiBo = 0.55f;
+    [Tooltip("Khoảng thời gian delay giữa các bước chạy trên cạn (Càng nhỏ bước chân càng nhanh)")]
+    public float thoiGianBuocChay = 0.3f;
+    [Tooltip("Khoảng thời gian delay giữa các bước đi chậm")]
+    public float thoiGianBuocDiCham = 0.7f;
+    [Tooltip("Khoảng thời gian delay giữa các bước khi ngồi")]
+    public float thoiGianBuocNgoi = 0.65f;
+    [Tooltip("Khoảng thời gian delay khi đi bộ dưới nước")]
+    public float thoiGianBuocDuoiNuoc = 0.6f;
+    [Tooltip("Khoảng thời gian delay khi chạy dưới nước")]
+    public float thoiGianBuocChayDuoiNuoc = 0.35f;
+
     [Header("--- Tốc độ di chuyển ---")]
     [Tooltip("Tốc độ di chuyển bình thường")]
     public float tocDoDiBo = 4f;
@@ -35,13 +89,16 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Tốc độ xoay thân nhân vật theo hướng Camera")]
     public float tocDoXoayNhanVat = 12f;
 
-    [Header("--- Vùng nước nguy hiểm ---")]
+    [Header("--- Vùng nước nguy hiểm & Vùng nước chung ---")]
     [Tooltip("Nhân vật có đang ở trong vùng nước nguy hiểm không")]
     public bool dangTrongVungNuocNguyHiem = false;
 
     [Tooltip("Hệ số giảm tốc độ khi ở trong nước nguy hiểm")]
     [Range(0.1f, 1f)]
     public float heSoGiamTocDoNuocNguyHiem = 0.5f;
+
+    [Tooltip("Tag nhận diện vùng nước để phát âm thanh lội nước")]
+    public string tagVungNuoc = "Water";
 
     [Header("--- Cấu hình Nhảy & Kiểm tra chạm đất ---")]
     [Tooltip("Lực nhảy bộc phát áp dụng vào Rigidbody")]
@@ -83,9 +140,14 @@ public class PlayerMovement : MonoBehaviour
 
     private bool dangNhanChay = false;
     private bool dangNhanNgoi = false;
-    private bool dangNhanDiCham = false; // Bổ sung từ script thành viên
+    private bool dangNhanDiCham = false;
     private bool dangDaThietLapNhay = false;
     private bool kiemTraDanGiapDat = false;
+    private bool dangOTrongNuoc = false;
+    private bool dangOTrenKhong = false;
+    private float demThoiGianBuocChan = 0f;
+
+    public bool DangDiChuyen => giaTriDiChuyenDauVao.sqrMagnitude > 0.01f;
 
     private void Start()
     {
@@ -99,7 +161,19 @@ public class PlayerMovement : MonoBehaviour
             vaChamNhanVat = GetComponent<CapsuleCollider>();
         }
 
-        // Tự động tìm Main Camera nếu chưa gán trong Inspector
+        AudioSource[] danhSachAudio = GetComponents<AudioSource>();
+        if (nguonAmThanhBuocChan == null)
+        {
+            nguonAmThanhBuocChan = danhSachAudio.Length > 0 ? danhSachAudio[0] : gameObject.AddComponent<AudioSource>();
+        }
+        if (nguonAmThanhHieuUng == null)
+        {
+            nguonAmThanhHieuUng = danhSachAudio.Length > 1 ? danhSachAudio[1] : gameObject.AddComponent<AudioSource>();
+        }
+
+        CauHinhAudioSource(nguonAmThanhBuocChan);
+        CauHinhAudioSource(nguonAmThanhHieuUng);
+
         if (cameraChinh == null && Camera.main != null)
         {
             cameraChinh = Camera.main.transform;
@@ -118,6 +192,16 @@ public class PlayerMovement : MonoBehaviour
             thanhTheLucUI.value = theLucHienTai;
         }
         dangTrongVungNuocNguyHiem = false;
+    }
+
+    private void CauHinhAudioSource(AudioSource source)
+    {
+        if (source != null)
+        {
+            source.clip = null;
+            source.playOnAwake = false;
+            source.loop = false;
+        }
     }
 
     private void Update()
@@ -140,8 +224,10 @@ public class PlayerMovement : MonoBehaviour
             );
         }
 
+        XuLyAmThanhTiepDatLapTuc();
         XuLyTheLucVaTocDo();
         XuLyTudTheNgoi();
+        XuLyAmThanhBuocChan();
         CapNhatGiaoDienUI();
     }
 
@@ -150,6 +236,24 @@ public class PlayerMovement : MonoBehaviour
         XuLyDiChuyenTheoCamera();
         XuLyNhay();
     }
+
+    #region Trigger Events (Phát hiện vùng nước)
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag(tagVungNuoc))
+        {
+            dangOTrongNuoc = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag(tagVungNuoc))
+        {
+            dangOTrongNuoc = false;
+        }
+    }
+    #endregion
 
     #region Input Events
 
@@ -161,9 +265,15 @@ public class PlayerMovement : MonoBehaviour
     public void OnSprint(InputAction.CallbackContext context)
     {
         if (context.started || context.performed)
+        {
             dangNhanChay = true;
+            demThoiGianBuocChan = 0f;
+        }
         else if (context.canceled)
+        {
             dangNhanChay = false;
+            demThoiGianBuocChan = 0f;
+        }
     }
 
     public void OnCrouch(InputAction.CallbackContext context)
@@ -174,7 +284,6 @@ public class PlayerMovement : MonoBehaviour
             dangNhanNgoi = false;
     }
 
-    // Bổ sung từ script thành viên
     public void OnWalkSlow(InputAction.CallbackContext context)
     {
         if (context.started || context.performed)
@@ -186,15 +295,25 @@ public class PlayerMovement : MonoBehaviour
     public void OnJump(InputAction.CallbackContext context)
     {
         if (context.performed)
-            dangDaThietLapNhay = true;
+        {
+            if (kiemTraDanGiapDat && !dangNhanNgoi)
+            {
+                dangDaThietLapNhay = true;
+
+                if (nguonAmThanhHieuUng != null && amThanhNhay != null)
+                {
+                    nguonAmThanhHieuUng.pitch = 1.0f;
+                    nguonAmThanhHieuUng.PlayOneShot(amThanhNhay, amLuongNhay);
+                }
+            }
+        }
     }
 
     #endregion
 
     private void XuLyTheLucVaTocDo()
     {
-        bool dangDiChuyen =
-            giaTriDiChuyenDauVao.sqrMagnitude > 0.01f;
+        bool dangDiChuyen = DangDiChuyen;
 
         if (dangNhanChay && dangDiChuyen &&
             theLucHienTai > 0 && !dangNhanNgoi)
@@ -220,21 +339,18 @@ public class PlayerMovement : MonoBehaviour
 
             if (dangNhanNgoi)
                 tocDoHienTai = tocDoNgoi;
-            else if (dangNhanDiCham) // Bổ sung điều kiện đi chậm từ script thành viên
+            else if (dangNhanDiCham)
                 tocDoHienTai = tocDoDiCham;
             else
                 tocDoHienTai = tocDoDiBo;
         }
 
-        // Giảm tốc độ khi ở trong vùng nước nguy hiểm
         if (dangTrongVungNuocNguyHiem)
         {
             tocDoHienTai *= heSoGiamTocDoNuocNguyHiem;
-            Debug.Log("ĐANG Ở NƯỚC NGUY HIỂM - Tốc độ: " + tocDoHienTai);
         }
     }
 
-    // Di chuyển dựa theo hướng quay của Camera
     private void XuLyDiChuyenTheoCamera()
     {
         if (giaTriDiChuyenDauVao.sqrMagnitude >= 0.01f)
@@ -247,7 +363,6 @@ public class PlayerMovement : MonoBehaviour
                 camForward = cameraChinh.forward;
                 camRight = cameraChinh.right;
 
-                // Bỏ trục Y để di chuyển trên mặt phẳng
                 camForward.y = 0f;
                 camRight.y = 0f;
 
@@ -304,6 +419,113 @@ public class PlayerMovement : MonoBehaviour
         );
     }
 
+    private void XuLyAmThanhBuocChan()
+    {
+        if (DangDiChuyen && kiemTraDanGiapDat)
+        {
+            demThoiGianBuocChan -= Time.deltaTime;
+
+            if (demThoiGianBuocChan <= 0f)
+            {
+                float khoangCachDelay = thoiGianBuocDiBo;
+                AudioClip clipSuDung = amThanhBuocChan;
+                float amLuongSuDung = amLuongBuocChan;
+                float doCaoPitch = 1.0f;
+
+                // Xác định nhân vật có đang chạy thực sự hay không (giữ Shift + có di chuyển + còn thể lực + không ngồi)
+                bool dangChayThucSu = dangNhanChay && theLucHienTai > 0 && !dangNhanNgoi;
+
+                if (dangOTrongNuoc)
+                {
+                    if (dangChayThucSu)
+                    {
+                        // Chạy dưới nước: Ẩn âm thanh đi bộ, dùng âm thanh chạy nước
+                        clipSuDung = amThanhChayDuoiNuoc != null ? amThanhChayDuoiNuoc : amThanhDuoiNuoc;
+                        amLuongSuDung = amLuongChayDuoiNuoc;
+                        khoangCachDelay = thoiGianBuocChayDuoiNuoc;
+                        doCaoPitch = 1.05f;
+                    }
+                    else
+                    {
+                        // Đi bộ / Ngồi / Đi chậm dưới nước
+                        clipSuDung = amThanhDuoiNuoc;
+                        amLuongSuDung = amLuongDuoiNuoc;
+                        khoangCachDelay = thoiGianBuocDuoiNuoc;
+                        doCaoPitch = 0.9f;
+                    }
+                }
+                else
+                {
+                    if (dangChayThucSu)
+                    {
+                        // Chạy trên cạn: Ẩn âm thanh đi bộ, dùng âm thanh chạy
+                        clipSuDung = amThanhChay != null ? amThanhChay : amThanhBuocChan;
+                        amLuongSuDung = amLuongChay;
+                        khoangCachDelay = thoiGianBuocChay;
+                        doCaoPitch = 1.15f;
+                    }
+                    else if (dangNhanNgoi)
+                    {
+                        clipSuDung = amThanhNgoi != null ? amThanhNgoi : amThanhBuocChan;
+                        amLuongSuDung = amLuongNgoi;
+                        khoangCachDelay = thoiGianBuocNgoi;
+                        doCaoPitch = 0.85f;
+                    }
+                    else if (dangNhanDiCham)
+                    {
+                        clipSuDung = amThanhDiCham != null ? amThanhDiCham : amThanhBuocChan;
+                        amLuongSuDung = amLuongDiCham;
+                        khoangCachDelay = thoiGianBuocDiCham;
+                        doCaoPitch = 0.95f;
+                    }
+                    else
+                    {
+                        clipSuDung = amThanhBuocChan;
+                        amLuongSuDung = amLuongBuocChan;
+                        khoangCachDelay = thoiGianBuocDiBo;
+                        doCaoPitch = 1.0f;
+                    }
+                }
+
+                if (nguonAmThanhBuocChan != null && clipSuDung != null)
+                {
+                    nguonAmThanhBuocChan.pitch = doCaoPitch;
+                    nguonAmThanhBuocChan.PlayOneShot(clipSuDung, amLuongSuDung);
+                }
+
+                demThoiGianBuocChan = khoangCachDelay;
+            }
+        }
+        else
+        {
+            if (nguonAmThanhBuocChan != null && nguonAmThanhBuocChan.isPlaying)
+            {
+                nguonAmThanhBuocChan.Stop();
+            }
+            demThoiGianBuocChan = 0f;
+        }
+    }
+
+    private void XuLyAmThanhTiepDatLapTuc()
+    {
+        if (kiemTraDanGiapDat)
+        {
+            if (dangOTrenKhong)
+            {
+                if (nguonAmThanhHieuUng != null && amThanhTiepDat != null)
+                {
+                    nguonAmThanhHieuUng.pitch = dangOTrongNuoc ? 0.7f : 1.0f;
+                    nguonAmThanhHieuUng.PlayOneShot(amThanhTiepDat, amLuongTiepDat);
+                }
+                dangOTrenKhong = false;
+            }
+        }
+        else
+        {
+            dangOTrenKhong = true;
+        }
+    }
+
     private void XuLyNhay()
     {
         if (dangDaThietLapNhay)
@@ -326,7 +548,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // Bổ sung từ script thành viên
     public void DatLaiTrangThaiNuocNguyHiem()
     {
         dangTrongVungNuocNguyHiem = false;

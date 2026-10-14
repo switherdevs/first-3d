@@ -147,6 +147,7 @@ GameObject:
   - component: {fileID: 5900918098836160475}
   - component: {fileID: 8315169420744586584}
   - component: {fileID: 8811396050990696472}
+  - component: {fileID: 6644825651513273540}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -424,38 +425,49 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   boDieuKhienNhanVat: {fileID: 5561068137419104221}
   vaChamNhanVat: {fileID: 6487397509989601377}
-  moHinhNhanVat: {fileID: 5152364962001924596}
   thanhTheLucUI: {fileID: 0}
   cameraChinh: {fileID: 0}
-  animatorNhanVat: {fileID: 0}
-  tagVungNuoc: Water
-  heSoGiamTocDoNuoc: 0.5
-  amThanhBuocChanDuoiNuoc: {fileID: 8300000, guid: f7f8e80480dfaa54d8b8bbe46c203b05, type: 3}
   nguonAmThanhBuocChan: {fileID: 3782988732214023643}
   nguonAmThanhHieuUng: {fileID: 8393279192059739196}
   amThanhBuocChan: {fileID: 8300000, guid: 177d46b001cbd6c4b8cdb0758779620f, type: 3}
+  amLuongBuocChan: 0.7
+  amThanhChay: {fileID: 8300000, guid: 177d46b001cbd6c4b8cdb0758779620f, type: 3}
+  amLuongChay: 1
+  amThanhDiCham: {fileID: 8300000, guid: 177d46b001cbd6c4b8cdb0758779620f, type: 3}
+  amLuongDiCham: 0.5
+  amThanhNgoi: {fileID: 0}
+  amLuongNgoi: 0.35
+  amThanhDuoiNuoc: {fileID: 8300000, guid: f7f8e80480dfaa54d8b8bbe46c203b05, type: 3}
+  amLuongDuoiNuoc: 0.5
+  amThanhChayDuoiNuoc: {fileID: 8300000, guid: f7f8e80480dfaa54d8b8bbe46c203b05, type: 3}
+  amLuongChayDuoiNuoc: 0.5
   amThanhNhay: {fileID: 8300000, guid: c4e4e4732b644214a9659ccd57a52acf, type: 3}
+  amLuongNhay: 0.5
   amThanhTiepDat: {fileID: 8300000, guid: 64ca5b36f0f122345a8a843fae50196f, type: 3}
-  amLuongNhayTiepDat: 0.25
-  tocDoAmThanhDiBo: 1.25
-  tocDoAmThanhChay: 0.35
+  amLuongTiepDat: 0.5
+  thoiGianBuocDiBo: 0.55
+  thoiGianBuocChay: 0.35
+  thoiGianBuocDiCham: 0.7
+  thoiGianBuocNgoi: 0.65
+  thoiGianBuocDuoiNuoc: 0.6
+  thoiGianBuocChayDuoiNuoc: 0.35
   tocDoDiBo: 10
   tocDoChay: 20
+  tocDoDiCham: 2
   tocDoNgoi: 1.5
   tocDoXoayNhanVat: 7
+  dangTrongVungNuocNguyHiem: 0
+  heSoGiamTocDoNuocNguyHiem: 0.5
+  tagVungNuoc: Water
   lucNhay: 7
   diemKiemTraChan: {fileID: 2712971640426656229}
   banKinhKiemTraDat: 0.2
   lopMatDat:
     serializedVersion: 2
     m_Bits: 64
-  chieuCaoBacThangToidA: 0.5
-  tocDoLeoBacThang: 10
   chieuCaoDung: 2
   chieuCaoNgoi: 1
   tocDoChuyenTuThe: 8
-  diemKiemTraTran: {fileID: 7112146902414953760}
-  banKinhKiemTraTran: 0.35
   theLucToiDa: 200
   theLucTieuHaoMoiGiay: 20
   theLucHoiPhucMoiGiay: 15
@@ -605,6 +617,21 @@ MonoBehaviour:
   cameraChinh: {fileID: 0}
   tocDoBay: 20
   doCaoDuongBay: 4
+--- !u!114 &6644825651513273540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 405972151833300060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d8e2da764e6204428e6b38b5033f920, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSurvivalManager
+  player: {fileID: 405972151833300060}
+  checkpoint: {fileID: 0}
+  respawnDelay: 5
 --- !u!1 &956966910075323337
 GameObject:
   m_ObjectHideFlags: 0
