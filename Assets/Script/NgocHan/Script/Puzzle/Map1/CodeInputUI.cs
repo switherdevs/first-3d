@@ -2,13 +2,21 @@ using UnityEngine;
 
 public class CodeInputUI : MonoBehaviour
 {
+    [Header("CODE LOCK")]
+    [SerializeField]
+    private CodeLock codeLock;
+
     public void CheckCode()
     {
-        if (Map1PuzzleManager.Instance == null)
+        if (codeLock == null)
+        {
+            Debug.LogError(
+                "[CodeInputUI] Chưa gắn CodeLock!"
+            );
+
             return;
+        }
 
-
-        Map1PuzzleManager.Instance
-            .CheckCode();
+        codeLock.CheckCode();
     }
 }

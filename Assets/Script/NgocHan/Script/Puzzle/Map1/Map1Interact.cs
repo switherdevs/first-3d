@@ -4,10 +4,7 @@ public class Map1Interact : MonoBehaviour
 {
     public enum PuzzleType
     {
-        // =========================
-        // PUZZLE CŨ
-        // =========================
-
+        // PUZZLE
         HuyPhoto,
         Letter,
 
@@ -22,16 +19,13 @@ public class Map1Interact : MonoBehaviour
 
         Exit,
 
-        // =========================
         // ITEM ÁNH SÁNG
-        // NHẶT TỰ DO
-        // =========================
-
         FlashlightPickup,
         BatteryPickup,
         OilLampPickup,
         OilPickup
     }
+
 
     // =========================================================
     // TYPE
@@ -41,26 +35,6 @@ public class Map1Interact : MonoBehaviour
     [SerializeField]
     private PuzzleType puzzleType;
 
-    // =========================================================
-    // INTERACTION
-    // =========================================================
-
-    [Header("INTERACTION")]
-
-    [Tooltip("Khoảng cách tối đa để nhặt/tương tác")]
-    [SerializeField]
-    private float interactDistance = 3f;
-
-    [Tooltip("Kéo model vật phẩm vào đây để đo khoảng cách chính xác")]
-    [SerializeField]
-    private Transform interactionPoint;
-
-    [Tooltip("Kéo WorldPrompt có hình E Interact vào đây")]
-    [SerializeField]
-    private GameObject worldPrompt;
-
-    [SerializeField]
-    private KeyCode interactKey = KeyCode.E;
 
     // =========================================================
     // INSPECT R
@@ -74,126 +48,19 @@ public class Map1Interact : MonoBehaviour
     [SerializeField]
     private string inspectText;
 
+
     // =========================================================
-    // LIGHT ITEM SETTINGS
+    // LIGHT
     // =========================================================
 
     [Header("LIGHT ITEM SETTINGS")]
 
-    [Tooltip("Pin ban đầu khi nhặt đèn pin")]
     [SerializeField]
     private float flashlightStartBattery = 25f;
 
-    [Tooltip("Dầu ban đầu khi nhặt đèn dầu")]
     [SerializeField]
     private float oilLampStartOil = 25f;
 
-    // =========================================================
-    // PRIVATE
-    // =========================================================
-
-    private Transform player;
-
-    private bool collected = false;
-
-    // Chống trường hợp script cũ + script này
-    // cùng gọi Interact trong một frame.
-    private int lastInteractFrame = -1;
-
-    // =========================================================
-    // START
-    // =========================================================
-
-    private void Start()
-    {
-        GameObject playerObject =
-            GameObject.FindGameObjectWithTag("Player");
-
-        if (playerObject != null)
-        {
-            player = playerObject.transform;
-        }
-        else
-        {
-            Debug.LogError(
-                "[Map1Interact] Không tìm thấy Player có Tag Player!"
-            );
-        }
-
-        // E phải ẩn khi bắt đầu
-        if (worldPrompt != null)
-        {
-            worldPrompt.SetActive(false);
-        }
-    }
-
-    // =========================================================
-    // UPDATE
-    // =========================================================
-
-    private void Update()
-    {
-        if (collected)
-            return;
-
-        if (player == null)
-            return;
-
-        bool inRange =
-            IsPlayerInRange();
-
-        // =========================
-        // HIỆN / ẨN E
-        // =========================
-
-        if (worldPrompt != null)
-        {
-            worldPrompt.SetActive(inRange);
-        }
-
-        // =========================
-        // E TƯƠNG TÁC
-        // =========================
-
-        if (inRange &&
-            Input.GetKeyDown(interactKey))
-        {
-            Interact();
-        }
-    }
-
-    // =========================================================
-    // DISTANCE
-    // =========================================================
-
-    private bool IsPlayerInRange()
-    {
-        if (player == null)
-            return false;
-
-        Vector3 itemPosition;
-
-        // Nếu có Interaction Point
-        // thì đo đúng tới model
-        if (interactionPoint != null)
-        {
-            itemPosition =
-                interactionPoint.position;
-        }
-        else
-        {
-            itemPosition =
-                transform.position;
-        }
-
-        float distance =
-            Vector3.Distance(
-                player.position,
-                itemPosition
-            );
-
-        return distance <= interactDistance;
-    }
 
     // =========================================================
     // INTERACT
@@ -201,25 +68,6 @@ public class Map1Interact : MonoBehaviour
 
     public void Interact()
     {
-        if (collected)
-            return;
-
-        // Chống gọi 2 lần trong cùng 1 frame
-        if (lastInteractFrame ==
-            Time.frameCount)
-        {
-            return;
-        }
-
-        lastInteractFrame =
-            Time.frameCount;
-
-        // Không cho tương tác ngoài 3m
-        if (!IsPlayerInRange())
-        {
-            return;
-        }
-
         Debug.Log(
             "[Map1Interact] E -> " +
             gameObject.name +
@@ -227,43 +75,39 @@ public class Map1Interact : MonoBehaviour
             puzzleType
         );
 
+
         // =====================================================
-        // 4 ITEM MỚI
-        // NHẶT BẤT CỨ LÚC NÀO
+        // ITEM ÁNH SÁNG
+        // KHÔNG THUỘC PUZZLE
         // =====================================================
 
         if (IsFreeLightItem())
         {
             CollectFreeLightItem();
-
             return;
         }
 
-        // =====================================================
-        // PUZZLE CŨ
-        // =====================================================
-
-        if (Map1PuzzleManager.Instance == null)
-        {
-            Debug.LogError(
-                "[Map1Interact] Không có Map1PuzzleManager!"
-            );
-
-            return;
-        }
-
-        bool success = false;
 
         // =====================================================
         // PUZZLE
         // =====================================================
 
+        if (Map1PuzzleManager.Instance == null)
+        {
+            Debug.LogError(
+                "[Map1Interact] Không tìm thấy Map1PuzzleManager!"
+            );
+
+            return;
+        }
+
+
+        bool success = false;
+
+
         switch (puzzleType)
         {
-            // =================================================
             // ẢNH HUY
-            // =================================================
-
             case PuzzleType.HuyPhoto:
 
                 success =
@@ -272,10 +116,8 @@ public class Map1Interact : MonoBehaviour
 
                 break;
 
-            // =================================================
-            // THƯ
-            // =================================================
 
+            // MẢNH GIẤY
             case PuzzleType.Letter:
 
                 success =
@@ -284,10 +126,8 @@ public class Map1Interact : MonoBehaviour
 
                 break;
 
-            // =================================================
-            // CÂN -> 4
-            // =================================================
 
+            // CÂN -> 4
             case PuzzleType.Number4:
 
                 success =
@@ -296,10 +136,8 @@ public class Map1Interact : MonoBehaviour
 
                 break;
 
-            // =================================================
-            // ĐÈN DẦU PUZZLE -> 1
-            // =================================================
 
+            // ĐÈN DẦU -> 1
             case PuzzleType.Number1:
 
                 success =
@@ -308,10 +146,8 @@ public class Map1Interact : MonoBehaviour
 
                 break;
 
-            // =================================================
-            // GƯƠNG -> 7
-            // =================================================
 
+            // GƯƠNG -> 7
             case PuzzleType.Number7:
 
                 success =
@@ -320,34 +156,17 @@ public class Map1Interact : MonoBehaviour
 
                 break;
 
-            // =================================================
-            // HỘP
-            // =================================================
 
+            // HỘP KHÓA
             case PuzzleType.Box:
-
-                if (
-                    Map1PuzzleManager.Instance
-                        .GetCurrentStep()
-                    !=
-                    Map1PuzzleManager.PuzzleStep.Box
-                )
-                {
-                    Map1PuzzleManager.Instance
-                        .ShowInteractionResult(false);
-
-                    return;
-                }
 
                 Map1PuzzleManager.Instance
                     .TryOpenBox();
 
                 return;
 
-            // =================================================
-            // THƯ TRONG HỘP
-            // =================================================
 
+            // MANH MỐI TRONG HỘP
             case PuzzleType.BoxClue:
 
                 success =
@@ -356,10 +175,8 @@ public class Map1Interact : MonoBehaviour
 
                 break;
 
-            // =================================================
-            // CHÌA KHÓA
-            // =================================================
 
+            // CHÌA KHÓA
             case PuzzleType.Key:
 
                 success =
@@ -368,10 +185,8 @@ public class Map1Interact : MonoBehaviour
 
                 break;
 
-            // =================================================
-            // VÒNG TAY
-            // =================================================
 
+            // VÒNG TAY
             case PuzzleType.Bracelet:
 
                 success =
@@ -380,40 +195,38 @@ public class Map1Interact : MonoBehaviour
 
                 break;
 
-            // =================================================
-            // EXIT
-            // =================================================
 
+            // EXIT
             case PuzzleType.Exit:
 
-                Debug.Log(
-                    "[MAP1] EXIT"
-                );
+                Debug.Log("[MAP1] EXIT");
 
                 return;
         }
 
+
         // =====================================================
-        // SAI THỨ TỰ
+        // SAI
         // =====================================================
 
         if (!success)
         {
             Debug.Log(
-                "[Map1Interact] SAI THỨ TỰ -> " +
+                "[Map1Interact] SAI -> " +
                 gameObject.name
             );
+
 
             Map1PuzzleManager.Instance
                 .ShowInteractionResult(false);
 
-            // KHÔNG NHẶT
-            // KHÔNG VÀO KHO
+
             return;
         }
 
+
         // =====================================================
-        // ĐÚNG THỨ TỰ
+        // ĐÚNG
         // =====================================================
 
         Debug.Log(
@@ -421,173 +234,250 @@ public class Map1Interact : MonoBehaviour
             gameObject.name
         );
 
+
         Map1PuzzleManager.Instance
             .ShowInteractionResult(true);
 
-        // Đúng mới được thêm vào kho
+
+        // Đúng mới vào kho
         AddToInventory();
     }
 
+
     // =========================================================
-    // CHECK 4 ITEM TỰ DO
+    // CHECK LIGHT ITEM
     // =========================================================
 
     private bool IsFreeLightItem()
     {
         return
-            puzzleType ==
-                PuzzleType.FlashlightPickup ||
-
-            puzzleType ==
-                PuzzleType.BatteryPickup ||
-
-            puzzleType ==
-                PuzzleType.OilLampPickup ||
-
-            puzzleType ==
-                PuzzleType.OilPickup;
+            puzzleType == PuzzleType.FlashlightPickup ||
+            puzzleType == PuzzleType.BatteryPickup ||
+            puzzleType == PuzzleType.OilLampPickup ||
+            puzzleType == PuzzleType.OilPickup;
     }
 
+
     // =========================================================
-    // COLLECT 4 ITEM MỚI
+    // COLLECT LIGHT ITEM
     // =========================================================
 
-  private void CollectFreeLightItem()
+    private void CollectFreeLightItem()
     {
-        // =====================================================
-        // INVENTORY CŨ
-        // =====================================================
-
         InventoryPickup pickup =
             GetComponent<InventoryPickup>();
+
 
         if (pickup == null)
         {
             Debug.LogError(
                 "[Map1Interact] " +
                 gameObject.name +
-                " chưa có InventoryPickup!"
+                " thiếu InventoryPickup!"
             );
 
             return;
         }
 
-        bool added =
-            pickup.Collect();
 
-        // Không thêm được vào kho
-        if (!added)
+        // =====================================================
+        // FLASHLIGHT
+        // =====================================================
+
+        if (puzzleType ==
+            PuzzleType.FlashlightPickup)
         {
+            bool added =
+                pickup.Collect();
+
+
+            if (!added)
+                return;
+
+
+            LightResourceManager resources =
+                LightResourceManager.Instance;
+
+
+            if (resources != null &&
+                !resources.HasFlashlight)
+            {
+                resources.UnlockFlashlight(
+                    flashlightStartBattery
+                );
+            }
+
+
             Debug.Log(
-                "[Map1Interact] Không thêm được " +
-                gameObject.name +
-                " vào kho."
+                "[LIGHT] Đã nhặt đèn pin."
             );
+
 
             return;
         }
 
-        collected = true;
-
-        if (worldPrompt != null)
-        {
-            worldPrompt.SetActive(false);
-        }
-
-        Debug.Log(
-            "[Map1Interact] ĐÃ NHẶT -> " +
-            gameObject.name
-        );
 
         // =====================================================
-        // LIGHT RESOURCE
+        // OIL LAMP
         // =====================================================
 
-        LightResourceManager resources =
-            LightResourceManager.Instance;
-
-        // Pin và dầu vẫn được cho vào kho
-        // dù manager chưa tồn tại.
-        if (resources == null)
+        if (puzzleType ==
+            PuzzleType.OilLampPickup)
         {
-            Debug.LogWarning(
-                "[Map1Interact] Không tìm thấy LightResourceManager!"
+            bool added =
+                pickup.Collect();
+
+
+            if (!added)
+                return;
+
+
+            LightResourceManager resources =
+                LightResourceManager.Instance;
+
+
+            if (resources != null &&
+                !resources.HasOilLamp)
+            {
+                resources.UnlockOilLamp(
+                    oilLampStartOil
+                );
+            }
+
+
+            Debug.Log(
+                "[LIGHT] Đã nhặt đèn dầu."
             );
+
 
             return;
         }
 
-        switch (puzzleType)
+
+        // =====================================================
+        // BATTERY
+        // =====================================================
+
+        if (puzzleType ==
+            PuzzleType.BatteryPickup)
         {
-            // =================================================
-            // ĐÈN PIN
-            // =================================================
-
-            case PuzzleType.FlashlightPickup:
-
-                if (!resources.HasFlashlight)
-                {
-                    resources.UnlockFlashlight(
-                        flashlightStartBattery
-                    );
-                }
-
-                Debug.Log(
-                    "[LIGHT] Đã mở khóa đèn pin."
+            if (LightStackManager.Instance == null)
+            {
+                Debug.LogError(
+                    "[BATTERY] Không có LightStackManager!"
                 );
 
-                break;
+                return;
+            }
 
-            // =================================================
-            // ĐÈN DẦU
-            // =================================================
 
-            case PuzzleType.OilLampPickup:
+            LightStackManager stack =
+                LightStackManager.Instance;
 
-                if (!resources.HasOilLamp)
-                {
-                    resources.UnlockOilLamp(
-                        oilLampStartOil
-                    );
-                }
 
-                Debug.Log(
-                    "[LIGHT] Đã mở khóa đèn dầu."
-                );
+            // PIN ĐẦU TIÊN
+            if (stack.BatteryCount <= 0)
+            {
+                bool added =
+                    pickup.Collect();
 
-                break;
 
-            // =================================================
-            // CỤC PIN
-            // =================================================
+                if (!added)
+                    return;
 
-            case PuzzleType.BatteryPickup:
 
-                // Không nạp ngay.
-                // Chỉ nằm trong kho.
+                stack.AddBattery();
+
 
                 Debug.Log(
-                    "[LIGHT] Cục pin đã vào kho."
+                    "[BATTERY] x" +
+                    stack.BatteryCount
                 );
 
-                break;
 
-            // =================================================
-            // CAN DẦU
-            // =================================================
+                return;
+            }
 
-            case PuzzleType.OilPickup:
 
-                // Không nạp ngay.
-                // Chỉ nằm trong kho.
+            // PIN THỨ 2 TRỞ ĐI
+            stack.AddBattery();
+
+
+            Debug.Log(
+                "[BATTERY] x" +
+                stack.BatteryCount
+            );
+
+
+            gameObject.SetActive(false);
+
+
+            return;
+        }
+
+
+        // =====================================================
+        // OIL
+        // =====================================================
+
+        if (puzzleType ==
+            PuzzleType.OilPickup)
+        {
+            if (LightStackManager.Instance == null)
+            {
+                Debug.LogError(
+                    "[OIL] Không có LightStackManager!"
+                );
+
+                return;
+            }
+
+
+            LightStackManager stack =
+                LightStackManager.Instance;
+
+
+            // CAN ĐẦU TIÊN
+            if (stack.OilCount <= 0)
+            {
+                bool added =
+                    pickup.Collect();
+
+
+                if (!added)
+                    return;
+
+
+                stack.AddOil();
+
 
                 Debug.Log(
-                    "[LIGHT] Can dầu đã vào kho."
+                    "[OIL] x" +
+                    stack.OilCount
                 );
 
-                break;
+
+                return;
+            }
+
+
+            // CAN THỨ 2 TRỞ ĐI
+            stack.AddOil();
+
+
+            Debug.Log(
+                "[OIL] x" +
+                stack.OilCount
+            );
+
+
+            gameObject.SetActive(false);
+
+
+            return;
         }
     }
+
 
     // =========================================================
     // ADD PUZZLE ITEM TO INVENTORY
@@ -598,10 +488,10 @@ public class Map1Interact : MonoBehaviour
         InventoryPickup pickup =
             GetComponent<InventoryPickup>();
 
-        // Vật này không cần vào kho
+
         if (pickup == null)
         {
-            Debug.Log(
+            Debug.LogWarning(
                 "[Map1Interact] " +
                 gameObject.name +
                 " không có InventoryPickup."
@@ -610,26 +500,19 @@ public class Map1Interact : MonoBehaviour
             return;
         }
 
+
         bool added =
             pickup.Collect();
 
-        if (added)
-        {
-            collected = true;
-
-            if (worldPrompt != null)
-            {
-                worldPrompt.SetActive(false);
-            }
-        }
 
         Debug.Log(
-            "[Map1Interact] InventoryPickup " +
+            "[INVENTORY] " +
             gameObject.name +
             " = " +
             added
         );
     }
+
 
     // =========================================================
     // GETTERS
@@ -640,18 +523,15 @@ public class Map1Interact : MonoBehaviour
         return puzzleType;
     }
 
+
     public string GetDisplayName()
     {
         return displayName;
     }
 
+
     public string GetInspectText()
     {
         return inspectText;
-    }
-
-    public float GetInteractDistance()
-    {
-        return interactDistance;
     }
 }

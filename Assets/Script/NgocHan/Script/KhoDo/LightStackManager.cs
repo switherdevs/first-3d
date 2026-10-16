@@ -2,42 +2,40 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
+
 public class LightStackManager : MonoBehaviour
 {
     public static LightStackManager Instance;
 
     // =========================================================
-    // REFERENCES
+    // HOTBAR
     // =========================================================
 
     [Header("HOTBAR")]
-    [Tooltip("Kéo Kho_do_Ui vào đây")]
-    [SerializeField]
-    private Transform hotbarRoot;
+    [SerializeField] private Transform hotbarRoot;
 
     [Header("ITEM ICON")]
-    [Tooltip("Đúng sprite cục pin đang dùng trong SearchItem")]
-    [SerializeField]
-    private Sprite batteryIcon;
-
-    [Tooltip("Đúng sprite can dầu đang dùng trong SearchItem")]
-    [SerializeField]
-    private Sprite oilIcon;
+    [SerializeField] private Sprite batteryIcon;
+    [SerializeField] private Sprite oilIcon;
 
 
     // =========================================================
-    // COUNT
+    // SỐ LƯỢNG PIN / DẦU DỰ PHÒNG
     // =========================================================
 
-    private int batteryCount = 0;
-    private int oilCount = 0;
+    [Header("STACK COUNT")]
+    [SerializeField] private int batteryCount = 0;
+    [SerializeField] private int oilCount = 0;
 
     public int BatteryCount => batteryCount;
     public int OilCount => oilCount;
 
 
     // =========================================================
-    // TEXT ĐƯỢC TẠO TỰ ĐỘNG
+    // TEXT x1 x2 x3
     // =========================================================
 
     private TMP_Text batteryCountText;
@@ -50,72 +48,202 @@ public class LightStackManager : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
     }
 
 
     // =========================================================
-    // ADD BATTERY
+    // START
+    // =========================================================
+
+    private void Start()
+    {
+        RefreshAll();
+    }
+
+
+    // =========================================================
+    // UPDATE
+    // B = NẠP PIN
+    // O = THÊM DẦU
+    // =========================================================
+
+    private void Update()
+    {
+        bool pressB = false;
+        bool pressO = false;
+
+#if ENABLE_INPUT_SYSTEM
+
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current.bKey.wasPressedThisFrame)
+                pressB = true;
+
+            if (Keyboard.current.oKey.wasPressedThisFrame)
+                pressO = true;
+        }
+
+#endif
+
+
+#if ENABLE_LEGACY_INPUT_MANAGER
+
+        if (Input.GetKeyDown(KeyCode.B))
+            pressB = true;
+
+        if (Input.GetKeyDown(KeyCode.O))
+            pressO = true;
+
+#endif
+
+
+        // B = NẠP PIN
+        if (pressB)
+        {
+            Debug.Log("[BATTERY] Đã bấm B");
+
+            UseBattery();
+        }
+
+
+        // O = THÊM DẦU
+        if (pressO)
+        {
+            Debug.Log("[OIL] Đã bấm O");
+
+            UseOil();
+        }
+    }
+
+
+    // =========================================================
+    // NHẶT PIN
     // =========================================================
 
     public void AddBattery()
     {
         batteryCount++;
 
-        RefreshBatteryUI();
-
         Debug.Log(
-            "[STACK] Battery x" +
+            "[BATTERY] Nhặt pin thành công. Hiện có x" +
             batteryCount
         );
+
+        RefreshBatteryUI();
     }
 
 
     // =========================================================
-    // ADD OIL
+    // NHẶT DẦU
     // =========================================================
 
     public void AddOil()
     {
         oilCount++;
 
-        RefreshOilUI();
-
         Debug.Log(
-            "[STACK] Oil x" +
+            "[OIL] Nhặt dầu thành công. Hiện có x" +
             oilCount
         );
+
+        RefreshOilUI();
     }
 
 
     // =========================================================
-    // USE BATTERY
+    // B = DÙNG 1 CỤC PIN
     // =========================================================
 
     public bool UseBattery()
     {
+        Debug.Log(
+            "[BATTERY] Pin dự phòng hiện có: x" +
+            batteryCount
+        );
+
+
+        // Không có pin
         if (batteryCount <= 0)
         {
-            Debug.Log(
-                "[STACK] Không còn pin."
+            Debug.LogWarning(
+                "[BATTERY] Không có pin dự phòng!"
             );
 
             return false;
         }
 
-        if (LightResourceManager.Instance == null)
-            return false;
 
-        bool success =
-            LightResourceManager.Instance
-                .AddBattery(25f);
+        // Không tìm thấy ResourceManager
+        if (LightResourceManager.Instance == null)
+        {
+            Debug.LogError(
+                "[BATTERY] Không tìm thấy LightResourceManager!"
+            );
+
+            return false;
+        }
+
+
+        LightResourceManager resources =
+            LightResourceManager.Instance;
+
+
+        // Chưa có đèn pin
+        if (!resources.HasFlashlight)
+        {
+            Debug.LogWarning(
+                "[BATTERY] Chưa nhặt đèn pin!"
+            );
+
+            return false;
+        }
+
 
         // Pin đang đầy
-        // thì không mất cục pin
-        if (!success)
-            return false;
+        if (resources.CurrentBattery >= resources.MaxBattery)
+        {
+            Debug.Log(
+                "[BATTERY] Pin đang đầy 100%."
+            );
 
+            return false;
+        }
+
+
+        // Nạp 25%
+        bool success =
+            resources.AddBattery(25f);
+
+
+        if (!success)
+        {
+            Debug.LogWarning(
+                "[BATTERY] Không nạp được pin!"
+            );
+
+            return false;
+        }
+
+
+        // Trừ 1 cục
         batteryCount--;
+
+        Debug.Log(
+            "[BATTERY] Nạp thành công. Pin còn: " +
+            resources.CurrentBattery +
+            "/" +
+            resources.MaxBattery +
+            " | Pin dự phòng: x" +
+            batteryCount
+        );
+
 
         RefreshBatteryUI();
 
@@ -124,33 +252,92 @@ public class LightStackManager : MonoBehaviour
 
 
     // =========================================================
-    // USE OIL
+    // O = DÙNG 1 CAN DẦU
     // =========================================================
 
     public bool UseOil()
     {
+        Debug.Log(
+            "[OIL] Dầu dự phòng hiện có: x" +
+            oilCount
+        );
+
+
+        // Không có dầu
         if (oilCount <= 0)
         {
-            Debug.Log(
-                "[STACK] Không còn can dầu."
+            Debug.LogWarning(
+                "[OIL] Không có dầu dự phòng!"
             );
 
             return false;
         }
 
+
+        // Không tìm thấy ResourceManager
         if (LightResourceManager.Instance == null)
-            return false;
+        {
+            Debug.LogError(
+                "[OIL] Không tìm thấy LightResourceManager!"
+            );
 
+            return false;
+        }
+
+
+        LightResourceManager resources =
+            LightResourceManager.Instance;
+
+
+        // Chưa có đèn dầu
+        if (!resources.HasOilLamp)
+        {
+            Debug.LogWarning(
+                "[OIL] Chưa nhặt đèn dầu!"
+            );
+
+            return false;
+        }
+
+
+        // Dầu đang đầy
+        if (resources.CurrentOil >= resources.MaxOil)
+        {
+            Debug.Log(
+                "[OIL] Dầu đang đầy 100%."
+            );
+
+            return false;
+        }
+
+
+        // Thêm 25%
         bool success =
-            LightResourceManager.Instance
-                .AddOil(25f);
+            resources.AddOil(25f);
 
-        // Dầu đầy
-        // thì không mất can dầu
+
         if (!success)
-            return false;
+        {
+            Debug.LogWarning(
+                "[OIL] Không thêm được dầu!"
+            );
 
+            return false;
+        }
+
+
+        // Trừ 1 can
         oilCount--;
+
+        Debug.Log(
+            "[OIL] Thêm dầu thành công. Dầu còn: " +
+            resources.CurrentOil +
+            "/" +
+            resources.MaxOil +
+            " | Dầu dự phòng: x" +
+            oilCount
+        );
+
 
         RefreshOilUI();
 
@@ -159,45 +346,29 @@ public class LightStackManager : MonoBehaviour
 
 
     // =========================================================
-    // BATTERY UI
+    // UPDATE UI PIN
     // =========================================================
 
     private void RefreshBatteryUI()
     {
-        Image icon =
-            FindItemIcon(
-                batteryIcon
-            );
+        Image icon = FindItemIcon(batteryIcon);
 
         if (icon == null)
         {
             Debug.LogWarning(
-                "[STACK] Chưa tìm thấy icon pin trong kho."
+                "[BATTERY] Chưa tìm thấy icon pin trong kho."
             );
 
             return;
         }
 
 
-        // Nếu chưa có chữ
-        // hoặc pin đã chuyển sang slot khác
-        if (
-            batteryCountText == null ||
-            batteryCountText.transform.parent !=
-            icon.transform.parent
-        )
+        if (batteryCountText == null)
         {
-            if (batteryCountText != null)
-            {
-                Destroy(
-                    batteryCountText.gameObject
-                );
-            }
-
             batteryCountText =
                 CreateCountText(
                     icon,
-                    "BatteryCount"
+                    "BatteryCountText"
                 );
         }
 
@@ -205,59 +376,45 @@ public class LightStackManager : MonoBehaviour
         if (batteryCount <= 0)
         {
             batteryCountText.text = "";
-            batteryCountText.gameObject
-                .SetActive(false);
+            batteryCountText.gameObject.SetActive(false);
 
             return;
         }
 
 
-        batteryCountText.gameObject
-            .SetActive(true);
+        batteryCountText.gameObject.SetActive(true);
 
         batteryCountText.text =
             "x" + batteryCount;
+
+        batteryCountText.transform.SetAsLastSibling();
     }
 
 
     // =========================================================
-    // OIL UI
+    // UPDATE UI DẦU
     // =========================================================
 
     private void RefreshOilUI()
     {
-        Image icon =
-            FindItemIcon(
-                oilIcon
-            );
+        Image icon = FindItemIcon(oilIcon);
 
         if (icon == null)
         {
             Debug.LogWarning(
-                "[STACK] Chưa tìm thấy icon can dầu trong kho."
+                "[OIL] Chưa tìm thấy icon dầu trong kho."
             );
 
             return;
         }
 
 
-        if (
-            oilCountText == null ||
-            oilCountText.transform.parent !=
-            icon.transform.parent
-        )
+        if (oilCountText == null)
         {
-            if (oilCountText != null)
-            {
-                Destroy(
-                    oilCountText.gameObject
-                );
-            }
-
             oilCountText =
                 CreateCountText(
                     icon,
-                    "OilCount"
+                    "OilCountText"
                 );
         }
 
@@ -265,52 +422,56 @@ public class LightStackManager : MonoBehaviour
         if (oilCount <= 0)
         {
             oilCountText.text = "";
-            oilCountText.gameObject
-                .SetActive(false);
+            oilCountText.gameObject.SetActive(false);
 
             return;
         }
 
 
-        oilCountText.gameObject
-            .SetActive(true);
+        oilCountText.gameObject.SetActive(true);
 
         oilCountText.text =
             "x" + oilCount;
+
+        oilCountText.transform.SetAsLastSibling();
     }
 
 
     // =========================================================
-    // TÌM ICON TRONG HOTBAR
+    // TÌM ICON TRONG KHO
     // =========================================================
 
-    private Image FindItemIcon(
-        Sprite targetSprite
-    )
+    private Image FindItemIcon(Sprite targetSprite)
     {
         if (hotbarRoot == null)
         {
             Debug.LogError(
-                "[STACK] Chưa kéo Kho_do_Ui vào Hotbar Root!"
+                "[STACK] Chưa gắn Kho_do_Ui vào Hotbar Root!"
             );
 
             return null;
         }
 
+
         if (targetSprite == null)
+        {
+            Debug.LogError(
+                "[STACK] Chưa gắn Battery Icon hoặc Oil Icon!"
+            );
+
             return null;
+        }
 
 
         Image[] images =
-            hotbarRoot.GetComponentsInChildren<Image>(
-                true
-            );
+            hotbarRoot.GetComponentsInChildren<Image>(true);
 
 
         foreach (Image image in images)
         {
             if (image == null)
                 continue;
+
 
             if (image.sprite == targetSprite)
             {
@@ -324,7 +485,7 @@ public class LightStackManager : MonoBehaviour
 
 
     // =========================================================
-    // TỰ TẠO x1 x2 x3
+    // TẠO CHỮ x1 x2 x3
     // =========================================================
 
     private TMP_Text CreateCountText(
@@ -334,11 +495,11 @@ public class LightStackManager : MonoBehaviour
     {
         GameObject textObject =
             new GameObject(
-                objectName
+                objectName,
+                typeof(RectTransform)
             );
 
 
-        // Cho chữ đi theo đúng slot chứa icon
         textObject.transform.SetParent(
             icon.transform.parent,
             false
@@ -346,41 +507,24 @@ public class LightStackManager : MonoBehaviour
 
 
         RectTransform rect =
-            textObject.AddComponent<RectTransform>();
+            textObject.GetComponent<RectTransform>();
 
 
-        // Neo góc phải dưới
+        // Góc phải dưới của ô
         rect.anchorMin =
-            new Vector2(
-                1f,
-                0f
-            );
+            new Vector2(1f, 0f);
 
         rect.anchorMax =
-            new Vector2(
-                1f,
-                0f
-            );
+            new Vector2(1f, 0f);
 
         rect.pivot =
-            new Vector2(
-                1f,
-                0f
-            );
-
+            new Vector2(1f, 0f);
 
         rect.anchoredPosition =
-            new Vector2(
-                -4f,
-                4f
-            );
-
+            new Vector2(-4f, 4f);
 
         rect.sizeDelta =
-            new Vector2(
-                55f,
-                30f
-            );
+            new Vector2(55f, 30f);
 
 
         TextMeshProUGUI text =
@@ -400,9 +544,7 @@ public class LightStackManager : MonoBehaviour
         text.raycastTarget = false;
 
 
-        // Đưa chữ lên trên icon
-        textObject.transform
-            .SetAsLastSibling();
+        textObject.transform.SetAsLastSibling();
 
 
         return text;
@@ -410,19 +552,12 @@ public class LightStackManager : MonoBehaviour
 
 
     // =========================================================
-    // REFRESH THỦ CÔNG NẾU CẦN
+    // REFRESH ALL
     // =========================================================
 
     public void RefreshAll()
     {
-        if (batteryCount > 0)
-        {
-            RefreshBatteryUI();
-        }
-
-        if (oilCount > 0)
-        {
-            RefreshOilUI();
-        }
+        RefreshBatteryUI();
+        RefreshOilUI();
     }
 }

@@ -297,7 +297,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -835,10 +835,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 11
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: 
   inspectText: 
   flashlightStartBattery: 25
@@ -900,10 +896,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 13
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: 
   inspectText: 
   flashlightStartBattery: 25
@@ -1632,47 +1624,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1PuzzleManager
   currentStep: 0
-  interactionResultText: {fileID: 0}
+  interactionResultText: {fileID: 570032356}
+  resultDisplayTime: 1
+  correctColor: {r: 0, g: 1, b: 0, a: 1}
+  wrongColor: {r: 1, g: 0, b: 0, a: 1}
   playerInteraction: {fileID: 1909864618}
   objectiveText: {fileID: 1867931447}
   missionText: {fileID: 833252579}
   cluePanel: {fileID: 1457469143}
   clueText: {fileID: 1541823295}
+  codePanel: {fileID: 2108590084}
+  correctCode: 417
   riddlePanel: {fileID: 1725599005}
   riddleTitle: {fileID: 1165997284}
   riddleText: {fileID: 1107540712}
   riddleSlot1: {fileID: 87767892}
   riddleSlot2: {fileID: 1342021498}
   riddleSlot3: {fileID: 911619516}
-  riddleResultText: {fileID: 980936548}
-  canButton: {fileID: 50892526}
-  denButton: {fileID: 1956753018}
-  guongButton: {fileID: 1016940574}
-  radioButton: {fileID: 1204604868}
-  keyAnswerButton: {fileID: 383070492}
-  braceletButton: {fileID: 512124775}
-  resetButton: {fileID: 605052798}
-  confirmButton: {fileID: 164850089}
-  canInteract: {fileID: 413869334}
-  denInteract: {fileID: 936814903}
-  guongInteract: {fileID: 971399774}
-  number4Model: {fileID: 2019904709}
-  number1Model: {fileID: 731965116}
-  number7Model: {fileID: 1974050695}
-  codePanel: {fileID: 2108590084}
-  digit1Text: {fileID: 1583330602}
-  digit2Text: {fileID: 271522241}
-  digit3Text: {fileID: 328729741}
-  enterButton: {fileID: 1075198610}
-  paperTarget: {fileID: 794203415}
-  photoTarget: {fileID: 1135813330}
-  number4Target: {fileID: 1628381259}
-  number1Target: {fileID: 1355496749}
-  number7Target: {fileID: 1984993534}
-  boxTarget: {fileID: 2023904694}
-  boxClueTarget: {fileID: 892653279}
-  keyTarget: {fileID: 1599517987}
-  braceletTarget: {fileID: 459457644}
 --- !u!1 &206206110 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1956426819731019268, guid: 716673a1ae5391646a6e31724a861c3d, type: 3}
@@ -2707,9 +2675,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1884247123294004394, guid: 446eef3ed754daf41847020d92854fa2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 576899970}
-    - targetCorrespondingSourceObject: {fileID: 1884247123294004394, guid: 446eef3ed754daf41847020d92854fa2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 576899979}
   m_SourcePrefab: {fileID: 100100000, guid: 446eef3ed754daf41847020d92854fa2, type: 3}
 --- !u!1 &285606633 stripped
 GameObject:
@@ -3770,6 +3735,143 @@ Transform:
   - {fileID: 621895909}
   m_Father: {fileID: 2023904694}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &458473727
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 458473728}
+  - component: {fileID: 458473730}
+  - component: {fileID: 458473729}
+  m_Layer: 5
+  m_Name: BatteryHintText
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &458473728
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 458473727}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1264421084}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 288.80005, y: -11.3}
+  m_SizeDelta: {x: 200, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &458473729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 458473727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: "[B] N\u1EA1p pin"
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 20
+  m_fontSizeBase: 20
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &458473730
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 458473727}
+  m_CullTransparentMesh: 1
 --- !u!1 &459457643
 GameObject:
   m_ObjectHideFlags: 0
@@ -3856,10 +3958,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 8
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: Manh moi
   inspectText: Khong co noi dung.
   flashlightStartBattery: 25
@@ -4307,10 +4405,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 13
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: 
   inspectText: 
   flashlightStartBattery: 25
@@ -4564,7 +4658,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4724,6 +4818,145 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 567933131}
   m_CullTransparentMesh: 1
+--- !u!1 &570032353
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 570032354}
+  - component: {fileID: 570032355}
+  - component: {fileID: 570032356}
+  m_Layer: 5
+  m_Name: InteractionResultText
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &570032354
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 570032353}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2016506123}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 246}
+  m_SizeDelta: {x: 200, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &570032355
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 570032353}
+  m_CullTransparentMesh: 1
+--- !u!114 &570032356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 570032353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: '
+
+'
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 36
+  m_fontSizeBase: 36
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 1
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &576899970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4768,21 +5001,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8423133230734424256, guid: 446eef3ed754daf41847020d92854fa2, type: 3}
   m_PrefabInstance: {fileID: 285606632}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &576899979
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 285606633}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92199701af91e044987a77c5fe6a9e75, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LightStackManager
-  hotbarRoot: {fileID: 0}
-  batteryIcon: {fileID: 0}
-  oilIcon: {fileID: 0}
 --- !u!1 &600617102
 GameObject:
   m_ObjectHideFlags: 0
@@ -6051,10 +6269,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 11
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: 
   inspectText: 
   flashlightStartBattery: 25
@@ -6408,6 +6622,8 @@ MonoBehaviour:
   hotbarRoot: {fileID: 576899975}
   batteryIcon: {fileID: 8589793106043979624, guid: 6fb0d9e0e36dc48498215cceed6a7eae, type: 3}
   oilIcon: {fileID: -8471536733816478750, guid: fe3bb3d92c66d8a4e9ecd5f5067ff8cc, type: 3}
+  batteryCount: 0
+  oilCount: 0
 --- !u!4 &786428396
 Transform:
   m_ObjectHideFlags: 0
@@ -6562,10 +6778,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 1
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: Manh moi
   inspectText: Khong co noi dung.
   flashlightStartBattery: 25
@@ -6775,10 +6987,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 12
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: 
   inspectText: 
   flashlightStartBattery: 25
@@ -6879,7 +7087,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &833252577
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7433,10 +7641,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 6
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: 
   inspectText: 
   flashlightStartBattery: 25
@@ -8075,10 +8279,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0ffa490c891024788a0b9a9731961b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightStatusUI
+  resources: {fileID: 384169333}
   batteryFill: {fileID: 1370250388}
-  batteryPercentText: {fileID: 1503350458}
+  batteryPercentText: {fileID: 936949772}
   oilFill: {fileID: 1909647381}
-  oilPercentText: {fileID: 1823264223}
+  oilPercentText: {fileID: 1588673807}
 --- !u!4 &968319316
 Transform:
   m_ObjectHideFlags: 0
@@ -8567,7 +8772,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1006849415
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9672,10 +9877,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 0
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: Manh moi
   inspectText: Khong co noi dung.
   flashlightStartBattery: 25
@@ -9869,10 +10070,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 10
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: 
   inspectText: 
   flashlightStartBattery: 25
@@ -10504,10 +10701,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 13
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: 
   inspectText: 
   flashlightStartBattery: 25
@@ -10593,11 +10786,12 @@ RectTransform:
   - {fileID: 513566649}
   - {fileID: 936949771}
   - {fileID: 1297234824}
+  - {fileID: 458473728}
   m_Father: {fileID: 2016506123}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -217.5, y: 120}
+  m_AnchoredPosition: {x: -386, y: 120}
   m_SizeDelta: {x: 260, y: 35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1279101318
@@ -11351,10 +11545,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 3
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: Manh moi
   inspectText: Khong co noi dung.
   flashlightStartBattery: 25
@@ -11509,10 +11699,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 513566649}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 90.1, y: 0}
-  m_SizeDelta: {x: 40, y: 40}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1370250388
 MonoBehaviour:
@@ -11535,7 +11725,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
@@ -12195,7 +12385,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1457469144
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12254,6 +12444,143 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1457469143}
+  m_CullTransparentMesh: 1
+--- !u!1 &1485735282
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1485735283}
+  - component: {fileID: 1485735285}
+  - component: {fileID: 1485735284}
+  m_Layer: 5
+  m_Name: OilHintText
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1485735283
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1485735282}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1624684617}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 288.8, y: -11.3}
+  m_SizeDelta: {x: 200, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1485735284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1485735282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: "[O] Th\xEAm d\u1EA7u"
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 20
+  m_fontSizeBase: 20
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1485735285
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1485735282}
   m_CullTransparentMesh: 1
 --- !u!1 &1486621032 stripped
 GameObject:
@@ -12411,7 +12738,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -5, y: 240}
+  m_AnchoredPosition: {x: -173.49994, y: 240}
   m_SizeDelta: {x: 45, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1503350457
@@ -13443,10 +13770,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 7
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: 
   inspectText: 
   flashlightStartBattery: 25
@@ -13825,11 +14148,12 @@ RectTransform:
   - {fileID: 21616322}
   - {fileID: 1588673806}
   - {fileID: 1052006952}
+  - {fileID: 1485735283}
   m_Father: {fileID: 2016506123}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -217.5, y: 75}
+  m_AnchoredPosition: {x: -385.99994, y: 75}
   m_SizeDelta: {x: 260, y: 35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &1625371615
@@ -13991,10 +14315,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 2
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: Manh moi
   inspectText: Khong co noi dung.
   flashlightStartBattery: 25
@@ -14348,10 +14668,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 13
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: 
   inspectText: 
   flashlightStartBattery: 25
@@ -14809,10 +15125,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 11
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: 
   inspectText: 
   flashlightStartBattery: 25
@@ -14834,7 +15146,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1725599006
 RectTransform:
   m_ObjectHideFlags: 0
@@ -15103,10 +15415,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 11
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: 
   inspectText: 
   flashlightStartBattery: 25
@@ -15179,10 +15487,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 11
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: 
   inspectText: 
   flashlightStartBattery: 25
@@ -15668,7 +15972,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -5, y: 5}
+  m_AnchoredPosition: {x: -173.49994, y: 5}
   m_SizeDelta: {x: 45, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1867931444
@@ -15688,7 +15992,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1867931445
 RectTransform:
   m_ObjectHideFlags: 0
@@ -15918,10 +16222,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 21616322}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 89.5, y: 0}
-  m_SizeDelta: {x: 40, y: 40}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1909647381
 MonoBehaviour:
@@ -15944,7 +16248,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
@@ -16130,7 +16434,7 @@ MonoBehaviour:
   oilLampLight: {fileID: 284427926}
   flashlightController: {fileID: 1909864620}
   toggleKey: 103
-  oilDrainInterval: 20
+  oilDrainInterval: 2
   oilDrainPercent: 1
   maxIntensity: 2.5
   minRange: 2
@@ -16152,7 +16456,7 @@ MonoBehaviour:
   flashlightLight: {fileID: 656877946}
   oilLampController: {fileID: 1909864619}
   toggleKey: 102
-  batteryDrainInterval: 20
+  batteryDrainInterval: 2
   batteryDrainPercent: 1
 --- !u!1 &1923458173 stripped
 GameObject:
@@ -16172,10 +16476,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 13
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: 
   inspectText: 
   flashlightStartBattery: 25
@@ -16899,10 +17199,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 4
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: Manh moi
   inspectText: Khong co noi dung.
   flashlightStartBattery: 25
@@ -16949,6 +17245,7 @@ RectTransform:
   - {fileID: 1624684617}
   - {fileID: 1503350456}
   - {fileID: 1823264225}
+  - {fileID: 570032354}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -17194,10 +17491,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 5
-  interactDistance: 3
-  interactionPoint: {fileID: 0}
-  worldPrompt: {fileID: 0}
-  interactKey: 101
   displayName: Manh moi
   inspectText: Khong co noi dung.
   flashlightStartBattery: 25
@@ -17478,7 +17771,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2108590085
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17559,6 +17852,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 581e08b32e4b4fb43a0b14cb33cad8bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CodeInputUI
+  codeLock: {fileID: 0}
 --- !u!114 &2108590090
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17574,9 +17868,6 @@ MonoBehaviour:
   digit1Text: {fileID: 1583330602}
   digit2Text: {fileID: 271522241}
   digit3Text: {fileID: 328729741}
-  correctDigit1: 4
-  correctDigit2: 1
-  correctDigit3: 7
   correctText: {fileID: 0}
   wrongText: {fileID: 0}
 --- !u!1001 &4736140147104989852

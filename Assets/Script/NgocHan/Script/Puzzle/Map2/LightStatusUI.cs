@@ -4,69 +4,79 @@ using TMPro;
 
 public class LightStatusUI : MonoBehaviour
 {
-    [Header("BATTERY")]
-    [SerializeField] private Image batteryFill;
-    [SerializeField] private TMP_Text batteryPercentText;
+    [Header("RESOURCE MANAGER")]
+    [SerializeField]
+    private LightResourceManager resources;
 
-    [Header("OIL")]
-    [SerializeField] private Image oilFill;
-    [SerializeField] private TMP_Text oilPercentText;
+
+    [Header("BATTERY UI")]
+    [SerializeField]
+    private Image batteryFill;
+
+    [SerializeField]
+    private TMP_Text batteryPercentText;
+
+
+    [Header("OIL UI")]
+    [SerializeField]
+    private Image oilFill;
+
+    [SerializeField]
+    private TMP_Text oilPercentText;
+
 
     private void Update()
     {
-        LightResourceManager r =
-            LightResourceManager.Instance;
+        if (resources == null)
+        {
+            resources = LightResourceManager.Instance;
 
-        if (r == null)
-            return;
+            if (resources == null)
+                return;
+        }
 
-        // ==========================
-        // PIN
-        // ==========================
+        UpdateBatteryUI();
+        UpdateOilUI();
+    }
 
-        float batteryPercent =
-            r.MaxBattery > 0
-            ? r.CurrentBattery / r.MaxBattery
-            : 0f;
+    // =========================================================
+    // BATTERY
+    // =========================================================
 
-        batteryPercent =
-            Mathf.Clamp01(batteryPercent);
+    private void UpdateBatteryUI()
+    {
+        float percent =
+            resources.CurrentBattery /
+            resources.MaxBattery;
+
+        percent = Mathf.Clamp01(percent);
 
         if (batteryFill != null)
-            batteryFill.fillAmount =
-                batteryPercent;
+            batteryFill.fillAmount = percent;
 
         if (batteryPercentText != null)
-        {
             batteryPercentText.text =
-                Mathf.RoundToInt(
-                    batteryPercent * 100f
-                ) + "%";
-        }
+                Mathf.RoundToInt(percent * 100f) + "%";
+    }
 
 
-        // ==========================
-        // DẦU
-        // ==========================
+    // =========================================================
+    // OIL
+    // ========================================================= 
 
-        float oilPercent =
-            r.MaxOil > 0
-            ? r.CurrentOil / r.MaxOil
-            : 0f;
+    private void UpdateOilUI()
+    {
+        float percent =
+            resources.CurrentOil /
+            resources.MaxOil;
 
-        oilPercent =
-            Mathf.Clamp01(oilPercent);
+        percent = Mathf.Clamp01(percent);
 
         if (oilFill != null)
-            oilFill.fillAmount =
-                oilPercent;
+            oilFill.fillAmount = percent;
 
         if (oilPercentText != null)
-        {
             oilPercentText.text =
-                Mathf.RoundToInt(
-                    oilPercent * 100f
-                ) + "%";
-        }
+                Mathf.RoundToInt(percent * 100f) + "%";
     }
 }

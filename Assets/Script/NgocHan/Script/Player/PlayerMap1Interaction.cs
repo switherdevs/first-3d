@@ -12,7 +12,7 @@ public class PlayerMap1Interaction : MonoBehaviour
 
 
     // =========================================================
-    // TARGET
+    // TARGET MANH MỐI
     // =========================================================
 
     private Transform targetClue;
@@ -68,12 +68,15 @@ public class PlayerMap1Interaction : MonoBehaviour
     private void Update()
     {
         UpdateTargetUI();
+
         UpdateInteraction();
     }
 
 
     // =========================================================
     // TARGET UI
+    // CHỈ LO MANH MỐI + KHOẢNG CÁCH
+    // KHÔNG QUYẾT ĐỊNH CÓ BẤM E ĐƯỢC HAY KHÔNG
     // =========================================================
 
     private void UpdateTargetUI()
@@ -130,22 +133,17 @@ public class PlayerMap1Interaction : MonoBehaviour
 
     private void UpdateInteraction()
     {
-        if (targetClue == null)
-        {
-            ClearCurrentInteraction();
-            return;
-        }
+        // =====================================================
+        // TỰ TÌM VẬT GẦN PLAYER
+        // KHÔNG PHỤ THUỘC targetClue
+        // =====================================================
+
+        Map1Interact nearest =
+            FindNearestInteractable();
 
 
-        float distance =
-            Vector3.Distance(
-                transform.position,
-                targetClue.position
-            );
-
-
-        // XA HƠN 2M
-        if (distance > interactionDistance)
+        // Không có vật nào trong 2m
+        if (nearest == null)
         {
             ClearCurrentInteraction();
             return;
@@ -153,44 +151,42 @@ public class PlayerMap1Interaction : MonoBehaviour
 
 
         // =====================================================
-        // TÌM INTERACT CỦA ĐÚNG TARGET
+        // LẤY PROMPT CỦA VẬT ĐÓ
         // =====================================================
-
-        Map1Interact interactable =
-            FindInteractable(targetClue);
-
 
         PuzzleWorldPrompt prompt =
-            FindPrompt(targetClue);
-
-
-        if (interactable == null)
-        {
-            Debug.LogWarning(
-                "[PlayerMap1Interaction] Target " +
-                targetClue.name +
-                " không có Map1Interact."
+            FindPrompt(
+                nearest.transform
             );
 
-            ClearCurrentInteraction();
-            return;
-        }
 
-
-        // Nếu đổi target prompt
-        if (currentPrompt != prompt)
+        // Đổi sang vật khác
+        if (currentInteractable != nearest)
         {
             if (currentPrompt != null)
+            {
                 currentPrompt.HidePrompt();
+            }
 
-            currentPrompt = prompt;
+
+            currentInteractable =
+                nearest;
+
+
+            currentPrompt =
+                prompt;
+        }
+        else
+        {
+            currentPrompt =
+                prompt;
         }
 
 
-        currentInteractable = interactable;
+        // =====================================================
+        // HIỆN E
+        // =====================================================
 
-
-        // Hiện E
         if (currentPrompt != null)
         {
             currentPrompt.ShowPrompt();
@@ -204,9 +200,7 @@ public class PlayerMap1Interaction : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             Debug.Log(
-                "[PLAYER] E -> Target = " +
-                targetClue.name +
-                " | Interact = " +
+                "[PLAYER] E -> " +
                 currentInteractable.gameObject.name
             );
 
@@ -217,40 +211,71 @@ public class PlayerMap1Interaction : MonoBehaviour
 
 
     // =========================================================
-    // FIND INTERACTABLE
+    // TÌM VẬT GẦN NHẤT TRONG 2M
     // =========================================================
 
-    private Map1Interact FindInteractable(
-        Transform target
-    )
+    private Map1Interact FindNearestInteractable()
     {
-        if (target == null)
-            return null;
-
-
-        // 1. Ưu tiên chính target
-        Map1Interact interactable =
-            target.GetComponent<Map1Interact>();
-
-
-        if (interactable != null)
-            return interactable;
-
-
-        // 2. Tìm trong child của target
-        interactable =
-            target.GetComponentInChildren<Map1Interact>(
-                true
+        Collider[] colliders =
+            Physics.OverlapSphere(
+                transform.position,
+                interactionDistance
             );
 
 
-        if (interactable != null)
-            return interactable;
+        Map1Interact nearest = null;
+
+        float nearestDistance =
+            float.MaxValue;
 
 
-        // KHÔNG tìm parent.
-        // Tránh BoxClue / Key lấy nhầm Map1Interact của LockBox.
-        return null;
+        foreach (Collider col in colliders)
+        {
+            if (col == null)
+                continue;
+
+
+            Map1Interact interactable =
+                col.GetComponent<Map1Interact>();
+
+
+            // Nếu collider nằm ở child
+            // thử tìm Map1Interact trên parent
+            if (interactable == null)
+            {
+                interactable =
+                    col.GetComponentInParent<Map1Interact>();
+            }
+
+
+            if (interactable == null)
+                continue;
+
+
+            // Không lấy Player
+            if (interactable.transform == transform)
+                continue;
+
+
+            float distance =
+                Vector3.Distance(
+                    transform.position,
+                    interactable.transform.position
+                );
+
+
+            if (distance < nearestDistance)
+            {
+                nearestDistance =
+                    distance;
+
+                nearest =
+                    interactable;
+            }
+        }
+
+
+        return nearest;
     }
 
 
@@ -266,7 +291,6 @@ public class PlayerMap1Interaction : MonoBehaviour
             return null;
 
 
-        // Component trên target
         PuzzleWorldPrompt prompt =
             target.GetComponent<PuzzleWorldPrompt>();
 
@@ -275,7 +299,6 @@ public class PlayerMap1Interaction : MonoBehaviour
             return prompt;
 
 
-        // Component trong child
         prompt =
             target.GetComponentInChildren<PuzzleWorldPrompt>(
                 true
@@ -287,7 +310,7 @@ public class PlayerMap1Interaction : MonoBehaviour
 
 
     // =========================================================
-    // CLEAR CURRENT
+    // CLEAR CURRENT INTERACTION
     // =========================================================
 
     private void ClearCurrentInteraction()
@@ -299,6 +322,7 @@ public class PlayerMap1Interaction : MonoBehaviour
 
 
         currentPrompt = null;
+
         currentInteractable = null;
     }
 
@@ -327,7 +351,8 @@ public class PlayerMap1Interaction : MonoBehaviour
 
 
     // =========================================================
-    // SET TARGET
+    // SET TARGET CLUE
+    // CHỈ DÙNG CHO MANH MỐI / KHOẢNG CÁCH
     // =========================================================
 
     public void SetTargetClue(
@@ -335,12 +360,12 @@ public class PlayerMap1Interaction : MonoBehaviour
         string hint
     )
     {
-        ClearCurrentInteraction();
-        HideAllPrompts();
+        targetClue =
+            newTarget;
 
 
-        targetClue = newTarget;
-        currentHint = hint;
+        currentHint =
+            hint;
 
 
         if (targetClue == null)
@@ -351,7 +376,7 @@ public class PlayerMap1Interaction : MonoBehaviour
 
 
         Debug.Log(
-            "[PLAYER] Target mới = " +
+            "[PLAYER] Target manh mối mới = " +
             targetClue.name
         );
 
@@ -361,33 +386,38 @@ public class PlayerMap1Interaction : MonoBehaviour
 
 
     // =========================================================
-    // CLEAR TARGET
+    // CLEAR TARGET CLUE
     // =========================================================
 
     public void ClearTargetClue()
     {
-        ClearCurrentInteraction();
-        HideAllPrompts();
-
-
         targetClue = null;
+
         currentHint = "";
 
 
         if (itemNameText != null)
+        {
             itemNameText.text = "";
+        }
 
 
         if (itemNameGroup != null)
+        {
             itemNameGroup.SetActive(false);
+        }
 
 
         if (distanceText != null)
+        {
             distanceText.text = "";
+        }
 
 
         if (distanceGroup != null)
+        {
             distanceGroup.SetActive(false);
+        }
     }
 
 
@@ -410,6 +440,19 @@ public class PlayerMap1Interaction : MonoBehaviour
         return Vector3.Distance(
             transform.position,
             targetClue.position
+        );
+    }
+
+
+    // =========================================================
+    // DEBUG VẼ BÁN KÍNH 2M
+    // =========================================================
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.DrawWireSphere(
+            transform.position,
+            interactionDistance
         );
     }
 }
