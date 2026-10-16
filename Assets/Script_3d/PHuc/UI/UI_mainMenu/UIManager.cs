@@ -29,6 +29,10 @@ public class UIManager : MonoBehaviour
 
         [Tooltip("Dừng thời gian game (Pause) khi mở bảng UI này?")]
         public bool dungThoiGianKhiMo = false;
+
+        [Header("--- Cấu hình Con trỏ chuột ---")]
+        [Tooltip("Tick chọn nếu khi tắt UI này KHÔNG muốn khóa và ẩn chuột (Dành cho Main Menu, giao diện chọn màn...)")]
+        public bool khongKhoaChuotKhiTat = false;
     }
 
     [Header("--- THAM CHIẾU HỆ THỐNG ---")]
@@ -152,13 +156,11 @@ public class UIManager : MonoBehaviour
     {
         if (item == null) return;
 
-        // 1. Ưu tiên Animator được kéo thủ công vào biến animatorUI trong Inspector
         if (item.animatorUI != null)
         {
             item.animatorUI.updateMode = AnimatorUpdateMode.UnscaledTime;
         }
 
-        // 2. Dự phòng: Quét toàn bộ Animator nằm trên bangUI hoặc các object con của nó
         if (item.bangUI != null)
         {
             Animator[] dsAnimators = item.bangUI.GetComponentsInChildren<Animator>(true);
@@ -177,22 +179,18 @@ public class UIManager : MonoBehaviour
     {
         if (item == null || item.bangUI == null) return;
 
-        // Tự động cấu hình Animator trên UI sang Unscaled Time để chạy bình thường khi Pause Game
         KiemTraVaCauHinhAnimatorUI(item);
 
         item.bangUI.SetActive(true);
 
-        // Vô hiệu hóa CameraController để dừng hoàn toàn việc di chuột xoay góc nhìn
         if (boDieuKhienCamera != null)
         {
             boDieuKhienCamera.enabled = false;
         }
 
-        // Hiện và mở khóa con trỏ chuột để người chơi thao tác UI
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // Dừng thời gian nếu cấu hình yêu cầu
         if (item.dungThoiGianKhiMo)
         {
             Time.timeScale = 0f;
@@ -206,17 +204,27 @@ public class UIManager : MonoBehaviour
 
         item.bangUI.SetActive(false);
 
-        // Kích hoạt lại CameraController để người chơi có thể xoay chuột tiếp tục game
-        if (boDieuKhienCamera != null)
+        // Kiểm tra nếu cấu hình yêu cầu KHÔNG khóa chuột thì giữ nguyên trạng thái chuột
+        if (item.khongKhoaChuotKhiTat)
         {
-            boDieuKhienCamera.enabled = true;
+            // Chỉ bật lại Camera để nhìn, giữ nguyên chuột hiển thị
+            if (boDieuKhienCamera != null)
+            {
+                boDieuKhienCamera.enabled = true;
+            }
+        }
+        else
+        {
+            // Mặc định gameplay thông thường: Khóa và ẩn chuột
+            if (boDieuKhienCamera != null)
+            {
+                boDieuKhienCamera.enabled = true;
+            }
+
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
 
-        // Khóa lại con trỏ chuột khi quay lại gameplay
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
-        // Khôi phục thời gian game chạy bình thường
         if (item.dungThoiGianKhiMo)
         {
             Time.timeScale = 1f;
@@ -225,7 +233,6 @@ public class UIManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Dọn dẹp sự kiện để tránh Memory Leak
         if (danhSachUI != null)
         {
             foreach (var item in danhSachUI)

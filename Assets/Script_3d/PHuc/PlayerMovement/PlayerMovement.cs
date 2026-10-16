@@ -19,7 +19,7 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Camera chính trong Game (Nếu để trống script sẽ tự tìm MainCamera)")]
     public Transform cameraChinh;
 
-    [Header("--- BỔ SUNG: Hệ thống Âm thanh Đa Lớp (2 AudioSources) ---")]
+    [Header("--- Hệ thống Âm thanh Đa Lớp (2 AudioSources) ---")]
     [Tooltip("Nguồn âm thanh CHUYÊN DÙNG CHO BƯỚC CHÂN (Đi bộ, Chạy, Ngồi, Đi chậm, Dưới nước)")]
     public AudioSource nguonAmThanhBuocChan;
 
@@ -113,7 +113,7 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Layer đánh dấu các bề mặt được coi là mặt đất")]
     public LayerMask lopMatDat;
 
-    [Header("--- Cấu hình Tư thế Ngồi ---")]
+    [Header("--- Cấu hình Tư thế Ngồi & Kiểm tra đầu ---")]
     [Tooltip("Chiều cao CapsuleCollider khi đứng")]
     public float chieuCaoDung = 2.0f;
 
@@ -122,6 +122,12 @@ public class PlayerMovement : MonoBehaviour
 
     [Tooltip("Tốc độ chuyển đổi giữa đứng và ngồi")]
     public float tocDoChuyenTuThe = 8f;
+
+    [Tooltip("Game object trống đặt ở đỉnh đầu để check vật cản khi đứng lên")]
+    public Transform diemKiemTraDau;
+
+    [Tooltip("Bán kính hình cầu kiểm tra vật cản trên đầu")]
+    public float banKinhKiemTraDau = 0.2f;
 
     [Header("--- Cấu hình Thể lực ---")]
     [Tooltip("Thể lực tối đa")]
@@ -409,9 +415,25 @@ public class PlayerMovement : MonoBehaviour
         if (vaChamNhanVat == null)
             return;
 
-        float chieuCaoMucTieu =
-            dangNhanNgoi ? chieuCaoNgoi : chieuCaoDung;
+        // 1. Kiểm tra vật cản phía trên đầu bằng hình cầu (Sphere) tại vị trí diemKiemTraDau
+        bool coVatCanTrenDau = false;
+        if (diemKiemTraDau != null)
+        {
+            coVatCanTrenDau = Physics.CheckSphere(
+                diemKiemTraDau.position,
+                banKinhKiemTraDau,
+                lopMatDat
+            );
+        }
 
+        // 2. Xác định thực sự có đang ngồi không: 
+        // Hoặc người chơi đang bấm giữ phím ngồi, HOẶC phía trên đầu đang vướng vật cản (bắt buộc phải cúi)
+        bool thucSuDangNgoi = dangNhanNgoi || coVatCanTrenDau;
+
+        // 3. Chọn chiều cao mục tiêu dựa vào trạng thái thực tế
+        float chieuCaoMucTieu = thucSuDangNgoi ? chieuCaoNgoi : chieuCaoDung;
+
+        // 4. Co giãn mượt mà chiều cao của CapsuleCollider
         vaChamNhanVat.height = Mathf.Lerp(
             vaChamNhanVat.height,
             chieuCaoMucTieu,
@@ -432,14 +454,12 @@ public class PlayerMovement : MonoBehaviour
                 float amLuongSuDung = amLuongBuocChan;
                 float doCaoPitch = 1.0f;
 
-                // Xác định nhân vật có đang chạy thực sự hay không (giữ Shift + có di chuyển + còn thể lực + không ngồi)
                 bool dangChayThucSu = dangNhanChay && theLucHienTai > 0 && !dangNhanNgoi;
 
                 if (dangOTrongNuoc)
                 {
                     if (dangChayThucSu)
                     {
-                        // Chạy dưới nước: Ẩn âm thanh đi bộ, dùng âm thanh chạy nước
                         clipSuDung = amThanhChayDuoiNuoc != null ? amThanhChayDuoiNuoc : amThanhDuoiNuoc;
                         amLuongSuDung = amLuongChayDuoiNuoc;
                         khoangCachDelay = thoiGianBuocChayDuoiNuoc;
@@ -447,7 +467,6 @@ public class PlayerMovement : MonoBehaviour
                     }
                     else
                     {
-                        // Đi bộ / Ngồi / Đi chậm dưới nước
                         clipSuDung = amThanhDuoiNuoc;
                         amLuongSuDung = amLuongDuoiNuoc;
                         khoangCachDelay = thoiGianBuocDuoiNuoc;
@@ -458,7 +477,6 @@ public class PlayerMovement : MonoBehaviour
                 {
                     if (dangChayThucSu)
                     {
-                        // Chạy trên cạn: Ẩn âm thanh đi bộ, dùng âm thanh chạy
                         clipSuDung = amThanhChay != null ? amThanhChay : amThanhBuocChan;
                         amLuongSuDung = amLuongChay;
                         khoangCachDelay = thoiGianBuocChay;
@@ -500,6 +518,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (nguonAmThanhBuocChan != null && nguonAmThanhBuocChan.isPlaying)
             {
+                nguonAmThanhHieuUng?.Stop(); // Giữ nguyên an toàn
                 nguonAmThanhBuocChan.Stop();
             }
             demThoiGianBuocChan = 0f;
@@ -508,7 +527,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void XuLyAmThanhTiepDatLapTuc()
     {
-        if (kiemTraDanGiapDat)
+        if (kiemTraDanGiapDat) // Giữ nguyên
         {
             if (dangOTrenKhong)
             {

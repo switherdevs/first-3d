@@ -469,9 +469,9 @@ MonoBehaviour:
   thoiGianBuocChayDuoiNuoc: 0.35
   tocDoDiBo: 10
   tocDoChay: 20
-  tocDoDiCham: 2
-  tocDoNgoi: 1.5
-  tocDoXoayNhanVat: 7
+  tocDoDiCham: 7
+  tocDoNgoi: 7
+  tocDoXoayNhanVat: 12
   dangTrongVungNuocNguyHiem: 0
   heSoGiamTocDoNuocNguyHiem: 0.5
   tagVungNuoc: Water
@@ -483,7 +483,9 @@ MonoBehaviour:
     m_Bits: 64
   chieuCaoDung: 2
   chieuCaoNgoi: 1
-  tocDoChuyenTuThe: 8
+  tocDoChuyenTuThe: 10
+  diemKiemTraDau: {fileID: 7112146902414953760}
+  banKinhKiemTraDau: 0.2
   theLucToiDa: 200
   theLucTieuHaoMoiGiay: 20
   theLucHoiPhucMoiGiay: 15
