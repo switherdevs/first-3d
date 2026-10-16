@@ -452,7 +452,7 @@ public class Map1Interact : MonoBehaviour
     // COLLECT 4 ITEM MỚI
     // =========================================================
 
-    private void CollectFreeLightItem()
+  private void CollectFreeLightItem()
     {
         // =====================================================
         // INVENTORY CŨ
