@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class Map1PuzzleManager : MonoBehaviour
 {
@@ -30,6 +31,12 @@ public class Map1PuzzleManager : MonoBehaviour
     [Header("PUZZLE STATE")]
     [SerializeField]
     private PuzzleStep currentStep = PuzzleStep.Photo;
+
+    [Header("INTERACTION RESULT")]
+    [SerializeField]
+    private TMP_Text interactionResultText;
+
+    private Coroutine interactionResultCoroutine;
 
     // =========================================================
     // PLAYER
@@ -1149,6 +1156,69 @@ public class Map1PuzzleManager : MonoBehaviour
             playerInteraction.ClearTargetClue();
 
         return true;
+    }
+    // =========================================================
+    // SHOW ĐÚNG / SAI
+    // =========================================================
+
+    public void ShowInteractionResult(bool correct)
+    {
+        if (interactionResultText == null)
+        {
+            Debug.LogWarning(
+                "[MAP1] Chưa gắn InteractionResultText!"
+            );
+
+            return;
+        }
+
+        if (interactionResultCoroutine != null)
+        {
+            StopCoroutine(
+                interactionResultCoroutine
+            );
+        }
+
+        interactionResultText
+            .gameObject
+            .SetActive(true);
+
+        if (correct)
+        {
+            interactionResultText.text =
+                "ĐÚNG";
+        }
+        else
+        {
+            interactionResultText.text =
+                "SAI\nChưa phải vật cần tìm.";
+        }
+
+        interactionResultCoroutine =
+            StartCoroutine(
+                HideInteractionResult()
+            );
+    }
+
+
+    // =========================================================
+    // HIDE RESULT
+    // =========================================================
+
+    private IEnumerator HideInteractionResult()
+    {
+        yield return new WaitForSeconds(
+            1.2f
+        );
+
+        if (interactionResultText != null)
+        {
+            interactionResultText
+                .gameObject
+                .SetActive(false);
+        }
+
+        interactionResultCoroutine = null;
     }
 
     // =========================================================

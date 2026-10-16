@@ -9,31 +9,27 @@ public class LightResourceManager : MonoBehaviour
     // =========================================================
 
     [Header("FLASHLIGHT")]
-    [SerializeField]
-    private bool hasFlashlight = false;
+    [SerializeField] private bool hasFlashlight = false;
 
-    [SerializeField]
-    private float maxBattery = 100f;
+    [SerializeField] private float maxBattery = 100f;
 
-    [SerializeField]
-    private float currentBattery = 0f;
+    [SerializeField] private float currentBattery = 0f;
+
 
     // =========================================================
     // OIL LAMP
     // =========================================================
 
     [Header("OIL LAMP")]
-    [SerializeField]
-    private bool hasOilLamp = false;
+    [SerializeField] private bool hasOilLamp = false;
 
-    [SerializeField]
-    private float maxOil = 100f;
+    [SerializeField] private float maxOil = 100f;
 
-    [SerializeField]
-    private float currentOil = 0f;
+    [SerializeField] private float currentOil = 0f;
+
 
     // =========================================================
-    // PUBLIC GETTERS
+    // GETTERS
     // =========================================================
 
     public bool HasFlashlight => hasFlashlight;
@@ -45,6 +41,7 @@ public class LightResourceManager : MonoBehaviour
     public float CurrentOil => currentOil;
     public float MaxOil => maxOil;
 
+
     public float Battery01
     {
         get
@@ -52,9 +49,12 @@ public class LightResourceManager : MonoBehaviour
             if (maxBattery <= 0f)
                 return 0f;
 
-            return currentBattery / maxBattery;
+            return Mathf.Clamp01(
+                currentBattery / maxBattery
+            );
         }
     }
+
 
     public float Oil01
     {
@@ -63,9 +63,12 @@ public class LightResourceManager : MonoBehaviour
             if (maxOil <= 0f)
                 return 0f;
 
-            return currentOil / maxOil;
+            return Mathf.Clamp01(
+                currentOil / maxOil
+            );
         }
     }
+
 
     // =========================================================
     // AWAKE
@@ -97,6 +100,7 @@ public class LightResourceManager : MonoBehaviour
             );
     }
 
+
     // =========================================================
     // NHẶT ĐÈN PIN
     // =========================================================
@@ -119,15 +123,36 @@ public class LightResourceManager : MonoBehaviour
 
         Debug.Log(
             "[LIGHT] Đã nhặt đèn pin. Pin = " +
-            currentBattery
+            currentBattery + "%"
         );
     }
 
+
     // =========================================================
-    // HỒI PIN
+    // TRỪ PIN
     // =========================================================
 
-    public bool AddBattery(float amount)
+    public void ConsumeBattery(float amount)
+    {
+        if (!hasFlashlight)
+            return;
+
+        currentBattery -= amount;
+
+        currentBattery =
+            Mathf.Clamp(
+                currentBattery,
+                0f,
+                maxBattery
+            );
+    }
+
+
+    // =========================================================
+    // NẠP PIN
+    // =========================================================
+
+    public bool AddBattery(float percent)
     {
         // Chưa có đèn pin
         if (!hasFlashlight)
@@ -139,7 +164,7 @@ public class LightResourceManager : MonoBehaviour
             return false;
         }
 
-        // Pin đã đầy
+        // Pin đầy
         if (currentBattery >= maxBattery)
         {
             Debug.Log(
@@ -148,6 +173,10 @@ public class LightResourceManager : MonoBehaviour
 
             return false;
         }
+
+        float amount =
+            maxBattery *
+            (percent / 100f);
 
         currentBattery += amount;
 
@@ -159,27 +188,15 @@ public class LightResourceManager : MonoBehaviour
             );
 
         Debug.Log(
-            "[LIGHT] Nhặt pin. Pin hiện tại = " +
-            currentBattery
+            "[LIGHT] Nạp +" +
+            percent +
+            "% pin. Pin hiện tại = " +
+            currentBattery + "%"
         );
 
         return true;
     }
 
-    // =========================================================
-    // TIÊU HAO PIN
-    // =========================================================
-
-    public void ConsumeBattery(float amount)
-    {
-        if (!hasFlashlight)
-            return;
-
-        currentBattery -= amount;
-
-        if (currentBattery < 0f)
-            currentBattery = 0f;
-    }
 
     // =========================================================
     // NHẶT ĐÈN DẦU
@@ -203,15 +220,36 @@ public class LightResourceManager : MonoBehaviour
 
         Debug.Log(
             "[LIGHT] Đã nhặt đèn dầu. Dầu = " +
-            currentOil
+            currentOil + "%"
         );
     }
 
+
     // =========================================================
-    // HỒI DẦU
+    // TRỪ DẦU
     // =========================================================
 
-    public bool AddOil(float amount)
+    public void ConsumeOil(float amount)
+    {
+        if (!hasOilLamp)
+            return;
+
+        currentOil -= amount;
+
+        currentOil =
+            Mathf.Clamp(
+                currentOil,
+                0f,
+                maxOil
+            );
+    }
+
+
+    // =========================================================
+    // THÊM DẦU
+    // =========================================================
+
+    public bool AddOil(float percent)
     {
         // Chưa có đèn dầu
         if (!hasOilLamp)
@@ -233,6 +271,10 @@ public class LightResourceManager : MonoBehaviour
             return false;
         }
 
+        float amount =
+            maxOil *
+            (percent / 100f);
+
         currentOil += amount;
 
         currentOil =
@@ -243,25 +285,12 @@ public class LightResourceManager : MonoBehaviour
             );
 
         Debug.Log(
-            "[LIGHT] Nhặt dầu. Dầu hiện tại = " +
-            currentOil
+            "[LIGHT] Thêm +" +
+            percent +
+            "% dầu. Dầu hiện tại = " +
+            currentOil + "%"
         );
 
         return true;
-    }
-
-    // =========================================================
-    // TIÊU HAO DẦU
-    // =========================================================
-
-    public void ConsumeOil(float amount)
-    {
-        if (!hasOilLamp)
-            return;
-
-        currentOil -= amount;
-
-        if (currentOil < 0f)
-            currentOil = 0f;
     }
 }

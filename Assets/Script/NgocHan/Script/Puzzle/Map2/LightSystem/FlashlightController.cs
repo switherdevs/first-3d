@@ -2,166 +2,185 @@ using UnityEngine;
 
 public class FlashlightController : MonoBehaviour
 {
-    // =========================================================
-    // REFERENCES
-    // =========================================================
-
     [Header("REFERENCES")]
-    [SerializeField]
-    private LightResourceManager resources;
-
-    [SerializeField]
-    private GameObject flashlightHolder;
-
-    [SerializeField]
-    private Light flashlightLight;
-
-    [SerializeField]
-    private OilLampController oilLampController;
-
-    // =========================================================
-    // SETTINGS
-    // =========================================================
+    [SerializeField] private LightResourceManager resources;
+    [SerializeField] private GameObject flashlightHolder;
+    [SerializeField] private Light flashlightLight;
+    [SerializeField] private OilLampController oilLampController;
 
     [Header("SETTINGS")]
-    [SerializeField]
-    private KeyCode toggleKey = KeyCode.F;
+    [SerializeField] private KeyCode toggleKey = KeyCode.F;
 
-    [Tooltip("Số pin tiêu hao mỗi giây")]
-    [SerializeField]
-    private float batteryUsePerSecond = 2f;
+    [Tooltip("Bao nhiêu giây thì trừ pin 1 lần")]
+    [SerializeField] private float batteryDrainInterval = 10f;
+
+    [Tooltip("Mỗi lần trừ bao nhiêu % pin")]
+    [SerializeField] private float batteryDrainPercent = 1f;
 
     private bool isOn = false;
 
+    private float batteryTimer = 0f;
+
     public bool IsOn => isOn;
 
-    // =========================================================
-    // START
-    // =========================================================
 
     private void Start()
     {
         if (resources == null)
-        {
-            resources =
-                LightResourceManager.Instance;
-        }
+            resources = LightResourceManager.Instance;
 
         ForceOff();
     }
 
-    // =========================================================
-    // UPDATE
-    // =========================================================
 
     private void Update()
     {
         if (resources == null)
             return;
 
-        // F bật / tắt
+
+        // =====================================================
+        // F BẬT / TẮT
+        // =====================================================
+
         if (Input.GetKeyDown(toggleKey))
         {
             if (isOn)
-            {
                 ForceOff();
-            }
             else
-            {
                 TryTurnOn();
-            }
         }
 
-        // Đang bật -> tiêu hao pin
-        if (isOn)
+
+        // =====================================================
+        // KHÔNG BẬT -> KHÔNG TÍNH THỜI GIAN
+        // =====================================================
+
+        if (!isOn)
+            return;
+
+
+        // =====================================================
+        // ĐẾM 10 GIÂY
+        // =====================================================
+
+        batteryTimer += Time.deltaTime;
+
+
+        if (batteryTimer >= batteryDrainInterval)
         {
+            batteryTimer = 0f;
+
             DrainBattery();
         }
     }
 
-    // =========================================================
-    // TURN ON
-    // =========================================================
-
-    private void TryTurnOn()
-    {
-        // Chưa nhặt đèn pin
-        if (!resources.HasFlashlight)
-        {
-            Debug.Log(
-                "[FLASHLIGHT] Chưa có đèn pin."
-            );
-
-            return;
-        }
-
-        // Hết pin
-        if (resources.CurrentBattery <= 0f)
-        {
-            Debug.Log(
-                "[FLASHLIGHT] Hết pin."
-            );
-
-            return;
-        }
-
-        // Tắt đèn dầu nếu đang dùng
-        if (oilLampController != null)
-        {
-            oilLampController.ForceOff();
-        }
-
-        isOn = true;
-
-        if (flashlightHolder != null)
-        {
-            flashlightHolder.SetActive(true);
-        }
-
-        if (flashlightLight != null)
-        {
-            flashlightLight.enabled = true;
-        }
-    }
 
     // =========================================================
-    // BATTERY
+    // TRỪ PIN
     // =========================================================
 
     private void DrainBattery()
     {
-        resources.ConsumeBattery(
-            batteryUsePerSecond *
-            Time.deltaTime
+        // 1% của Max Battery
+        float amount =
+            resources.MaxBattery *
+            (batteryDrainPercent / 100f);
+
+
+        resources.ConsumeBattery(amount);
+
+
+        Debug.Log(
+            "[FLASHLIGHT] Trừ " +
+            batteryDrainPercent +
+            "% pin. Còn: " +
+            resources.CurrentBattery
         );
 
-        // Hết pin -> tự tắt
+
+        // =====================================================
+        // HẾT PIN
+        // =====================================================
+
         if (resources.CurrentBattery <= 0f)
         {
             Debug.Log(
-                "[FLASHLIGHT] Pin đã hết."
+                "[FLASHLIGHT] HẾT PIN"
             );
 
             ForceOff();
         }
     }
 
+
     // =========================================================
-    // FORCE OFF
+    // BẬT ĐÈN
+    // =========================================================
+
+    private void TryTurnOn()
+    {
+        if (!resources.HasFlashlight)
+        {
+            Debug.LogWarning(
+                "[FLASHLIGHT] Chưa nhặt đèn pin!"
+            );
+
+            return;
+        }
+
+
+        if (resources.CurrentBattery <= 0f)
+        {
+            Debug.LogWarning(
+                "[FLASHLIGHT] Hết pin!"
+            );
+
+            return;
+        }
+
+
+        // Bật đèn pin -> tắt đèn dầu
+        if (oilLampController != null)
+            oilLampController.ForceOff();
+
+
+        isOn = true;
+
+        // Bắt đầu đếm từ 0
+        batteryTimer = 0f;
+
+
+        if (flashlightHolder != null)
+            flashlightHolder.SetActive(true);
+
+
+        if (flashlightLight != null)
+            flashlightLight.enabled = true;
+
+
+        Debug.Log(
+            "[FLASHLIGHT] BẬT ĐÈN"
+        );
+    }
+
+
+    // =========================================================
+    // TẮT ĐÈN
     // =========================================================
 
     public void ForceOff()
     {
         isOn = false;
 
+        batteryTimer = 0f;
+
+
         if (flashlightLight != null)
-        {
             flashlightLight.enabled = false;
-        }
+
 
         if (flashlightHolder != null)
-        {
             flashlightHolder.SetActive(false);
-        }
     }
 }

@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5605929809189949963}
-  - component: {fileID: 5068960728030266534}
   m_Layer: 0
   m_Name: OilPickup
   m_TagString: Untagged
@@ -34,24 +33,6 @@ Transform:
   - {fileID: 7272747799448356041}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5068960728030266534
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1775490246421125763}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b74ee1cb83bb844da8f8fdbfe360dbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LightResourcePickup
-  pickupType: 3
-  amount: 25
-  interactDistance: 2
-  interactKey: 101
-  worldPrompt: {fileID: 5828901572952175766}
-  promptText: {fileID: 0}
 --- !u!1 &6475726481415110102
 GameObject:
   m_ObjectHideFlags: 0
@@ -257,11 +238,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 446103cfc6978be4c9f723eaac053e97, type: 3}
---- !u!1 &5828901572952175766 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5632167415543955050, guid: 446103cfc6978be4c9f723eaac053e97, type: 3}
-  m_PrefabInstance: {fileID: 2219449387745102588}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7272747799448356041 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8800294130621009461, guid: 446103cfc6978be4c9f723eaac053e97, type: 3}

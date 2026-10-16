@@ -1,164 +1,183 @@
+
 using UnityEngine;
 
 public class OilLampController : MonoBehaviour
 {
-    // =========================================================
-    // REFERENCES
-    // =========================================================
-
     [Header("REFERENCES")]
-    [SerializeField]
-    private LightResourceManager resources;
-
-    [SerializeField]
-    private GameObject oilLampHolder;
-
-    [SerializeField]
-    private Light oilLampLight;
-
-    [SerializeField]
-    private FlashlightController flashlightController;
-
-    // =========================================================
-    // SETTINGS
-    // =========================================================
+    [SerializeField] private LightResourceManager resources;
+    [SerializeField] private GameObject oilLampHolder;
+    [SerializeField] private Light oilLampLight;
+    [SerializeField] private FlashlightController flashlightController;
 
     [Header("SETTINGS")]
-    [SerializeField]
-    private KeyCode toggleKey = KeyCode.G;
+    [SerializeField] private KeyCode toggleKey = KeyCode.G;
 
-    [Tooltip("Lượng dầu tiêu hao mỗi giây")]
-    [SerializeField]
-    private float oilUsePerSecond = 1.5f;
+    [Tooltip("Bao nhiêu giây thì trừ dầu 1 lần")]
+    [SerializeField] private float oilDrainInterval = 10f;
+
+    [Tooltip("Mỗi lần trừ bao nhiêu % dầu")]
+    [SerializeField] private float oilDrainPercent = 1f;
 
     [Header("LIGHT STRENGTH")]
-
-    [SerializeField]
-    private float maxIntensity = 2.5f;
-
-    [SerializeField]
-    private float minRange = 2f;
-
-    [SerializeField]
-    private float maxRange = 7f;
+    [SerializeField] private float maxIntensity = 2.5f;
+    [SerializeField] private float minRange = 2f;
+    [SerializeField] private float maxRange = 7f;
 
     private bool isOn = false;
+    private float oilTimer = 0f;
 
     public bool IsOn => isOn;
 
-    // =========================================================
-    // START
-    // =========================================================
 
     private void Start()
     {
         if (resources == null)
-        {
-            resources =
-                LightResourceManager.Instance;
-        }
+            resources = LightResourceManager.Instance;
 
         ForceOff();
     }
 
-    // =========================================================
-    // UPDATE
-    // =========================================================
 
     private void Update()
     {
         if (resources == null)
             return;
 
+
+        // =====================================================
+        // G BẬT / TẮT
+        // =====================================================
+
         if (Input.GetKeyDown(toggleKey))
         {
             if (isOn)
-            {
                 ForceOff();
-            }
             else
-            {
                 TryTurnOn();
-            }
         }
 
-        if (isOn)
+
+        // =====================================================
+        // KHÔNG BẬT -> KHÔNG HAO DẦU
+        // =====================================================
+
+        if (!isOn)
+            return;
+
+
+        // =====================================================
+        // ĐẾM THỜI GIAN
+        // =====================================================
+
+        oilTimer += Time.deltaTime;
+
+
+        if (oilTimer >= oilDrainInterval)
         {
+            oilTimer = 0f;
+
             DrainOil();
-            UpdateLightStrength();
-        }
-    }
-
-    // =========================================================
-    // TURN ON
-    // =========================================================
-
-    private void TryTurnOn()
-    {
-        // Chưa có đèn dầu
-        if (!resources.HasOilLamp)
-        {
-            Debug.Log(
-                "[OIL LAMP] Chưa có đèn dầu."
-            );
-
-            return;
         }
 
-        // Hết dầu
-        if (resources.CurrentOil <= 0f)
-        {
-            Debug.Log(
-                "[OIL LAMP] Hết dầu."
-            );
 
-            return;
-        }
-
-        // Tắt đèn pin
-        if (flashlightController != null)
-        {
-            flashlightController.ForceOff();
-        }
-
-        isOn = true;
-
-        if (oilLampHolder != null)
-        {
-            oilLampHolder.SetActive(true);
-        }
-
-        if (oilLampLight != null)
-        {
-            oilLampLight.enabled = true;
-        }
-
+        // Cập nhật độ sáng theo lượng dầu
         UpdateLightStrength();
     }
 
+
     // =========================================================
-    // DRAIN OIL
+    // TRỪ DẦU
     // =========================================================
 
     private void DrainOil()
     {
-        resources.ConsumeOil(
-            oilUsePerSecond *
-            Time.deltaTime
+        // 1% của Max Oil
+        float amount =
+            resources.MaxOil *
+            (oilDrainPercent / 100f);
+
+
+        resources.ConsumeOil(amount);
+
+
+        Debug.Log(
+            "[OIL LAMP] Trừ " +
+            oilDrainPercent +
+            "% dầu. Còn: " +
+            resources.CurrentOil
         );
+
+
+        // =====================================================
+        // HẾT DẦU
+        // =====================================================
 
         if (resources.CurrentOil <= 0f)
         {
             Debug.Log(
-                "[OIL LAMP] Dầu đã hết."
+                "[OIL LAMP] HẾT DẦU"
             );
 
             ForceOff();
         }
     }
 
+
     // =========================================================
-    // LIGHT STRENGTH
+    // BẬT ĐÈN DẦU
+    // =========================================================
+
+    private void TryTurnOn()
+    {
+        if (!resources.HasOilLamp)
+        {
+            Debug.LogWarning(
+                "[OIL LAMP] Chưa nhặt đèn dầu!"
+            );
+
+            return;
+        }
+
+
+        if (resources.CurrentOil <= 0f)
+        {
+            Debug.LogWarning(
+                "[OIL LAMP] Hết dầu!"
+            );
+
+            return;
+        }
+
+
+        // Bật đèn dầu -> tắt đèn pin
+        if (flashlightController != null)
+            flashlightController.ForceOff();
+
+
+        isOn = true;
+
+        oilTimer = 0f;
+
+
+        if (oilLampHolder != null)
+            oilLampHolder.SetActive(true);
+
+
+        if (oilLampLight != null)
+            oilLampLight.enabled = true;
+
+
+        UpdateLightStrength();
+
+
+        Debug.Log(
+            "[OIL LAMP] BẬT ĐÈN"
+        );
+    }
+
+
+    // =========================================================
+    // ĐỘ SÁNG THEO DẦU
     // =========================================================
 
     private void UpdateLightStrength()
@@ -166,13 +185,22 @@ public class OilLampController : MonoBehaviour
         if (oilLampLight == null)
             return;
 
+
         float oilRatio =
-            resources.Oil01;
+            resources.MaxOil > 0f
+            ? resources.CurrentOil /
+              resources.MaxOil
+            : 0f;
+
+
+        oilRatio =
+            Mathf.Clamp01(oilRatio);
+
 
         // Dầu càng ít -> đèn càng yếu
         oilLampLight.intensity =
-            maxIntensity *
-            oilRatio;
+            maxIntensity * oilRatio;
+
 
         oilLampLight.range =
             Mathf.Lerp(
@@ -182,22 +210,23 @@ public class OilLampController : MonoBehaviour
             );
     }
 
+
     // =========================================================
-    // FORCE OFF
+    // TẮT ĐÈN
     // =========================================================
 
     public void ForceOff()
     {
         isOn = false;
 
+        oilTimer = 0f;
+
+
         if (oilLampLight != null)
-        {
             oilLampLight.enabled = false;
-        }
+
 
         if (oilLampHolder != null)
-        {
             oilLampHolder.SetActive(false);
-        }
     }
 }
