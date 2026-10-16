@@ -26,24 +26,25 @@ public class MaDaAI : MonoBehaviour
 
     private float timer;
 
-
     private void Start()
     {
         if (agent == null)
             agent = GetComponent<NavMeshAgent>();
 
         if (survivalManager == null)
+        {
             survivalManager =
                 FindFirstObjectByType<PlayerSurvivalManager>();
+        }
 
-        // Ưu tiên lấy Player từ SurvivalManager
+        // Lay Player tu SurvivalManager
         if (survivalManager != null &&
             survivalManager.player != null)
         {
             playerTransform = survivalManager.player.transform;
         }
 
-        // Nếu chưa tìm thấy thì tìm theo tag Player
+        // Neu chua tim thay thi tim theo tag Player
         if (playerTransform == null)
         {
             GameObject playerObj =
@@ -60,33 +61,45 @@ public class MaDaAI : MonoBehaviour
 
         if (playerTransform == null)
             Debug.LogWarning(
-                "Ma Da AI: Không tìm thấy Player. Kiểm tra Player trong SurvivalManager hoặc tag Player!"
+                "Ma Da AI: Khong tim thay Player!"
             );
 
         if (waterSystem == null)
             Debug.LogWarning(
-                "Ma Da AI: Không tìm thấy WaterSystem trong Scene!"
+                "Ma Da AI: Khong tim thay WaterSystem!"
             );
 
         if (agent == null)
             Debug.LogWarning(
-                "Ma Da AI: Không tìm thấy NavMeshAgent!"
+                "Ma Da AI: Khong tim thay NavMeshAgent!"
             );
     }
 
     private void Update()
     {
-        if (agent == null || playerTransform == null || waterSystem == null)
+        if (agent == null ||
+            playerTransform == null ||
+            waterSystem == null)
             return;
 
         if (!agent.isOnNavMesh)
             return;
 
+        // PLAYER DANG TREN THUYEN
+        // Ma Da khong duoc duoi hoac bat Player
+        if (BoatController.PlayerDangTrenThuyen)
+        {
+            agent.ResetPath();
+            currentState = AIState.Wander;
+            timer = wanderTimer;
+            return;
+        }
+
         Vector3 maDaPosition = transform.position;
         Vector3 playerPosition = playerTransform.position;
 
-        maDaPosition.y = 0;
-        playerPosition.y = 0;
+        maDaPosition.y = 0f;
+        playerPosition.y = 0f;
 
         float distanceToPlayer =
             Vector3.Distance(maDaPosition, playerPosition);
@@ -100,7 +113,7 @@ public class MaDaAI : MonoBehaviour
                     waterSystem.playerInWater)
                 {
                     currentState = AIState.Chase;
-                    Debug.Log("Ma Da phát hiện Player trong nước!");
+                    Debug.Log("Ma Da phat hien Player trong nuoc!");
                 }
                 break;
 
@@ -118,7 +131,7 @@ public class MaDaAI : MonoBehaviour
                     agent.ResetPath();
                     currentState = AIState.Wander;
                     timer = wanderTimer;
-                    Debug.Log("Player đã chạy thoát!");
+                    Debug.Log("Player da chay thoat!");
                     break;
                 }
 
@@ -133,7 +146,7 @@ public class MaDaAI : MonoBehaviour
                 {
                     agent.ResetPath();
                     currentState = AIState.Attack;
-                    Debug.Log("Ma Da đã bắt được Player!");
+                    Debug.Log("Ma Da da bat duoc Player!");
                 }
                 break;
 
@@ -144,23 +157,31 @@ public class MaDaAI : MonoBehaviour
         }
     }
 
-
     private void CatchPlayer()
     {
-        if (survivalManager == null)
+        // Kiem tra lai truoc khi bat Player
+        if (BoatController.PlayerDangTrenThuyen)
         {
-            Debug.LogWarning(
-                "Chưa tìm thấy PlayerSurvivalManager!"
-            );
             currentState = AIState.Wander;
             timer = wanderTimer;
             return;
         }
 
-        Debug.Log("Ma Da bắt được Player!");
+        if (survivalManager == null)
+        {
+            Debug.LogWarning(
+                "Chua tim thay PlayerSurvivalManager!"
+            );
+
+            currentState = AIState.Wander;
+            timer = wanderTimer;
+            return;
+        }
+
+        Debug.Log("Ma Da bat duoc Player!");
         survivalManager.PlayerCaught();
 
-        // Chỉ bắt một lần, không gọi liên tục mỗi frame
+        // Chi bat mot lan
         currentState = AIState.Wander;
         timer = wanderTimer;
     }
@@ -174,13 +195,15 @@ public class MaDaAI : MonoBehaviour
             Vector3 newPos = RandomNavMeshLocation(wanderRadius);
 
             if (NavMesh.SamplePosition(
-                newPos, out NavMeshHit hit, wanderRadius,
+                newPos,
+                out NavMeshHit hit,
+                wanderRadius,
                 NavMesh.AllAreas))
             {
                 agent.SetDestination(hit.position);
             }
 
-            timer = 0;
+            timer = 0f;
         }
     }
 
@@ -192,7 +215,9 @@ public class MaDaAI : MonoBehaviour
         randomDirection += transform.position;
 
         if (NavMesh.SamplePosition(
-            randomDirection, out NavMeshHit hit, radius,
+            randomDirection,
+            out NavMeshHit hit,
+            radius,
             NavMesh.AllAreas))
         {
             return hit.position;
@@ -204,6 +229,10 @@ public class MaDaAI : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+
+        Gizmos.DrawWireSphere(
+            transform.position,
+            detectionRadius
+        );
     }
 }
