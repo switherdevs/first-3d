@@ -67,7 +67,7 @@
                     "priority": 0
                 },
                 {
-                    "name": "Interact_door",
+                    "name": "Interact",
                     "type": "Button",
                     "id": "511b45f1-520c-4b60-bc9f-54fe0f48a941",
                     "expectedControlType": "",
@@ -195,7 +195,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Interact_door",
+                    "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

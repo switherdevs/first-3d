@@ -148,7 +148,6 @@ GameObject:
   - component: {fileID: 8315169420744586584}
   - component: {fileID: 8811396050990696472}
   - component: {fileID: 6644825651513273540}
-  - component: {fileID: 4469287859759618717}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -359,7 +358,7 @@ MonoBehaviour:
     m_ActionName: 'Move/Nem_muoi[/Keyboard/r]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4469287859759618717}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PlayerInteraction, Assembly-CSharp
         m_MethodName: OnInteract
         m_Mode: 0
@@ -649,18 +648,6 @@ MonoBehaviour:
   player: {fileID: 405972151833300060}
   checkpoint: {fileID: 0}
   respawnDelay: 5
---- !u!114 &4469287859759618717
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 405972151833300060}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d74ba4fc9ffe2f44b8f525fbae86bac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteraction
 --- !u!1 &956966910075323337
 GameObject:
   m_ObjectHideFlags: 0
