@@ -1,0 +1,8 @@
+newmtl Aged_Nickel
+Ka 0.12 0.11 0.09
+Kd 1 1 1
+Ks 0.65 0.65 0.65
+Ns 90
+d 1
+illum 2
+map_Kd Key_BaseColor.png
