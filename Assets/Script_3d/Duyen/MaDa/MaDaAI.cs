@@ -31,10 +31,9 @@ public class MaDaAI : MonoBehaviour
     [Tooltip("Thời gian (giây) hiệu ứng chậm kết thúc")]
     public float thoiGianDinhMuoi = 10f;
 
+    // Phúc
     private float timer;
     private float tocDoGocAgent = 3.5f; // Lưu tốc độ mặc định của agent
-
-    // Phúc
     private bool dangDinhMuoi = false;
     private float boDemThoiGianMuoi = 0f;
 

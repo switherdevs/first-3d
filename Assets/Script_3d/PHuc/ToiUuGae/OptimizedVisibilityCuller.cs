@@ -21,6 +21,12 @@ public class OptimizedVisibilityCuller : MonoBehaviour
     private Plane[] cameraPlanes;
     private Coroutine processCoroutine;
 
+    private void Awake()
+    {
+        // Tự động quét toàn bộ MeshRenderer ngay khi vừa vào game
+        TuDongTimRenderer();
+    }
+
     private void Start()
     {
         // Tự động tìm Main Camera nếu chưa gán từ Inspector
@@ -88,7 +94,6 @@ public class OptimizedVisibilityCuller : MonoBehaviour
         objectRenderers.Clear();
 
 #if UNITY_2023_1_OR_NEWER
-        // ĐÃ SỬA: Sửa đúng tên Enum có chữ 's' (FindObjectsInactive & FindObjectsSortMode)
         MeshRenderer[] allRenderers = FindObjectsByType<MeshRenderer>(UnityEngine.FindObjectsInactive.Exclude, UnityEngine.FindObjectsSortMode.None);
 #else
 #pragma warning disable CS0618

@@ -1114,7 +1114,7 @@ GameObject:
   - component: {fileID: 410087041}
   - component: {fileID: 410087040}
   - component: {fileID: 410087042}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Directional Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1374,7 +1374,7 @@ GameObject:
   m_Component:
   - component: {fileID: 832575519}
   - component: {fileID: 832575518}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Global Volume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1802,7 +1802,7 @@ GameObject:
   - component: {fileID: 957798863}
   - component: {fileID: 957798862}
   - component: {fileID: 957798866}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Danger
   m_TagString: DangerZone
   m_Icon: {fileID: 0}
@@ -14494,7 +14494,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1393396910}
   - component: {fileID: 1393396909}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Dark_volume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14888,7 +14888,7 @@ Transform:
   m_GameObject: {fileID: 1486457491}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 7.2028923, y: -11.709619, z: 3.460854}
+  m_LocalPosition: {x: 7.2028923, y: -11.6, z: 3.460854}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -14915,7 +14915,7 @@ GameObject:
   - component: {fileID: 1608844895}
   - component: {fileID: 1608844897}
   - component: {fileID: 1608844896}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EventSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15284,7 +15284,7 @@ GameObject:
   - component: {fileID: 1933143313}
   - component: {fileID: 1933143312}
   - component: {fileID: 1933143311}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16015,7 +16015,7 @@ GameObject:
   - component: {fileID: 1959222978}
   - component: {fileID: 1959222977}
   - component: {fileID: 1959222976}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Map
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16796,7 +16796,7 @@ GameObject:
   - component: {fileID: 2028443622}
   - component: {fileID: 2028443621}
   - component: {fileID: 2028443623}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Water
   m_TagString: Water
   m_Icon: {fileID: 0}
@@ -17142,7 +17142,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2113651733}
   - component: {fileID: 2113651734}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Red_volume (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
