@@ -1,5 +1,7 @@
 using UnityEngine;
 
+namespace NgocHan.Map2
+{
 public class FlashlightController : MonoBehaviour
 {
     [Header("REFERENCES")]
@@ -183,4 +185,5 @@ public class FlashlightController : MonoBehaviour
         if (flashlightHolder != null)
             flashlightHolder.SetActive(false);
     }
+}
 }

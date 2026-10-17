@@ -123,7 +123,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8917641395338353762}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81a6c6fd6faf6c944b02889faa6cb708, type: 3}
+  m_Script: {fileID: 11500000, guid: cf115ec8aa9f319448a6a177887f6ec1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 0

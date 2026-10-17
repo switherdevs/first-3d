@@ -16299,7 +16299,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 01d66c965eeb4684782d4539c8707110, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
+  m_EditorClassIdentifier: Assembly-CSharp::NgocHan.PlayerMovement
   moveSpeed: 5
   gravity: -9.81
 --- !u!143 &1909864612
@@ -16450,7 +16450,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e4f387903c3f39e4c8e9689f0813a9d4, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FlashlightController
+  m_EditorClassIdentifier: Assembly-CSharp::NgocHan.Map2.FlashlightController
   resources: {fileID: 384169333}
   flashlightHolder: {fileID: 2048007305}
   flashlightLight: {fileID: 656877946}

@@ -1,5 +1,7 @@
 using UnityEngine;
 
+namespace NgocHan
+{
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
@@ -41,4 +43,5 @@ public class PlayerMovement : MonoBehaviour
         // Áp dụng trọng lực
         controller.Move(velocity * Time.deltaTime);
     }
+}
 }

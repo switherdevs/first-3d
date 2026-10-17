@@ -2394,7 +2394,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 180612398}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81a6c6fd6faf6c944b02889faa6cb708, type: 3}
+  m_Script: {fileID: 11500000, guid: cf115ec8aa9f319448a6a177887f6ec1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 1
@@ -2655,7 +2655,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 183724594}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81a6c6fd6faf6c944b02889faa6cb708, type: 3}
+  m_Script: {fileID: 11500000, guid: cf115ec8aa9f319448a6a177887f6ec1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 5
@@ -4077,7 +4077,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 271128117}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58699f9d8cbb8214bb5fe6a887461a8e, type: 3}
+  m_Script: {fileID: 11500000, guid: 581e08b32e4b4fb43a0b14cb33cad8bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CodeInputUI
   input1: {fileID: 2033349428}
@@ -6246,7 +6246,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 418047228}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81a6c6fd6faf6c944b02889faa6cb708, type: 3}
+  m_Script: {fileID: 11500000, guid: cf115ec8aa9f319448a6a177887f6ec1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 2
@@ -7244,7 +7244,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 479276100}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81a6c6fd6faf6c944b02889faa6cb708, type: 3}
+  m_Script: {fileID: 11500000, guid: cf115ec8aa9f319448a6a177887f6ec1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 3
@@ -11025,7 +11025,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 789985745}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: edc960d770c3591479df5a2f1ac5a34b, type: 3}
+  m_Script: {fileID: 11500000, guid: 4832593e78351484b8b500c4458c9f1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1PuzzleManager
   cluePanel: {fileID: 1167964258}
@@ -11992,7 +11992,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 871993504}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81a6c6fd6faf6c944b02889faa6cb708, type: 3}
+  m_Script: {fileID: 11500000, guid: cf115ec8aa9f319448a6a177887f6ec1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 6
@@ -15503,7 +15503,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1126280354}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81a6c6fd6faf6c944b02889faa6cb708, type: 3}
+  m_Script: {fileID: 11500000, guid: cf115ec8aa9f319448a6a177887f6ec1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 4
@@ -23122,7 +23122,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1771676087}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81a6c6fd6faf6c944b02889faa6cb708, type: 3}
+  m_Script: {fileID: 11500000, guid: cf115ec8aa9f319448a6a177887f6ec1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Map1Interact
   puzzleType: 0

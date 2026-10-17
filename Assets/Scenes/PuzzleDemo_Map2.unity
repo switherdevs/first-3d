@@ -1231,7 +1231,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 01d66c965eeb4684782d4539c8707110, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
+  m_EditorClassIdentifier: Assembly-CSharp::NgocHan.PlayerMovement
   moveSpeed: 10
   gravity: -9.81
 --- !u!143 &1704753461
