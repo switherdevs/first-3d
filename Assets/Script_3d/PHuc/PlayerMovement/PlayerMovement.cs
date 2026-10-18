@@ -19,8 +19,12 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Camera chính trong Game (Nếu để trống script sẽ tự tìm MainCamera)")]
     public Transform cameraChinh;
 
+    [Header("--- Animator Tham Chiếu ---")]
+    [Tooltip("Animator của nhân vật để điều khiển hoạt ảnh")]
+    public Animator animatorNhanVat;
+
     [Header("--- Hệ thống Âm thanh Đa Lớp (2 AudioSources) ---")]
-    [Tooltip("Nguồn âm thanh CHUYÊN DÙNG CHO BƯỚC CHÂN (Đi bộ, Chạy, Ngồi, Đi chậm, Dưới nước)")]
+    [Tooltip("Nguồn âm thanh CHUYÊN DÙNG CHO BƯỚC CHÂN (Đi bộ, Chạy, Ngồi, Dưới nước)")]
     public AudioSource nguonAmThanhBuocChan;
 
     [Tooltip("Nguồn âm thanh CHUYÊN DÙNG CHO HIỆU ỨNG (Nhảy, Tiếp đất)")]
@@ -34,10 +38,6 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("File âm thanh chạy nhanh trên cạn")]
     public AudioClip amThanhChay;
     [Range(0f, 1f)] public float amLuongChay = 1.0f;
-
-    [Tooltip("File âm thanh đi chậm khi giữ Alt")]
-    public AudioClip amThanhDiCham;
-    [Range(0f, 1f)] public float amLuongDiCham = 0.5f;
 
     [Tooltip("File âm thanh khi ngồi khi giữ Ctrl")]
     public AudioClip amThanhNgoi;
@@ -62,10 +62,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("--- Cấu hình Nhịp bước chân (Thời gian delay giữa các bước) ---")]
     [Tooltip("Khoảng thời gian delay giữa các bước đi bộ")]
     public float thoiGianBuocDiBo = 0.55f;
-    [Tooltip("Khoảng thời gian delay giữa các bước chạy trên cạn (Càng nhỏ bước chân càng nhanh)")]
+    [Tooltip("Khoảng thời gian delay giữa các bước chạy trên cạn")]
     public float thoiGianBuocChay = 0.3f;
-    [Tooltip("Khoảng thời gian delay giữa các bước đi chậm")]
-    public float thoiGianBuocDiCham = 0.7f;
     [Tooltip("Khoảng thời gian delay giữa các bước khi ngồi")]
     public float thoiGianBuocNgoi = 0.65f;
     [Tooltip("Khoảng thời gian delay khi đi bộ dưới nước")]
@@ -79,9 +77,6 @@ public class PlayerMovement : MonoBehaviour
 
     [Tooltip("Tốc độ khi giữ Shift (Chạy nhanh)")]
     public float tocDoChay = 7f;
-
-    [Tooltip("Tốc độ khi giữ Alt (Đi chậm)")]
-    public float tocDoDiCham = 2f;
 
     [Tooltip("Tốc độ khi giữ Ctrl (Ngồi)")]
     public float tocDoNgoi = 1.5f;
@@ -146,7 +141,6 @@ public class PlayerMovement : MonoBehaviour
 
     private bool dangNhanChay = false;
     private bool dangNhanNgoi = false;
-    private bool dangNhanDiCham = false;
     private bool dangDaThietLapNhay = false;
     private bool kiemTraDanGiapDat = false;
     private bool dangOTrongNuoc = false;
@@ -158,14 +152,13 @@ public class PlayerMovement : MonoBehaviour
     private void Start()
     {
         if (boDieuKhienNhanVat == null)
-        {
             boDieuKhienNhanVat = GetComponent<Rigidbody>();
-        }
 
         if (vaChamNhanVat == null)
-        {
             vaChamNhanVat = GetComponent<CapsuleCollider>();
-        }
+
+        if (animatorNhanVat == null)
+            animatorNhanVat = GetComponentInChildren<Animator>();
 
         AudioSource[] danhSachAudio = GetComponents<AudioSource>();
         if (nguonAmThanhBuocChan == null)
@@ -181,13 +174,13 @@ public class PlayerMovement : MonoBehaviour
         CauHinhAudioSource(nguonAmThanhHieuUng);
 
         if (cameraChinh == null && Camera.main != null)
-        {
             cameraChinh = Camera.main.transform;
-        }
 
         if (boDieuKhienNhanVat != null)
         {
             boDieuKhienNhanVat.freezeRotation = true;
+            // Khóa xoay tự động và tối ưu nội suy vật lý
+            boDieuKhienNhanVat.collisionDetectionMode = CollisionDetectionMode.Continuous;
         }
 
         theLucHienTai = theLucToiDa;
@@ -234,6 +227,7 @@ public class PlayerMovement : MonoBehaviour
         XuLyTheLucVaTocDo();
         XuLyTudTheNgoi();
         XuLyAmThanhBuocChan();
+        CapNhatAnimator();
         CapNhatGiaoDienUI();
     }
 
@@ -290,14 +284,6 @@ public class PlayerMovement : MonoBehaviour
             dangNhanNgoi = false;
     }
 
-    public void OnWalkSlow(InputAction.CallbackContext context)
-    {
-        if (context.started || context.performed)
-            dangNhanDiCham = true;
-        else if (context.canceled)
-            dangNhanDiCham = false;
-    }
-
     public void OnJump(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -305,6 +291,11 @@ public class PlayerMovement : MonoBehaviour
             if (kiemTraDanGiapDat && !dangNhanNgoi)
             {
                 dangDaThietLapNhay = true;
+
+                if (animatorNhanVat != null)
+                {
+                    animatorNhanVat.SetTrigger("Jump");
+                }
 
                 if (nguonAmThanhHieuUng != null && amThanhNhay != null)
                 {
@@ -345,8 +336,6 @@ public class PlayerMovement : MonoBehaviour
 
             if (dangNhanNgoi)
                 tocDoHienTai = tocDoNgoi;
-            else if (dangNhanDiCham)
-                tocDoHienTai = tocDoDiCham;
             else
                 tocDoHienTai = tocDoDiBo;
         }
@@ -391,9 +380,10 @@ public class PlayerMovement : MonoBehaviour
                 Time.fixedDeltaTime * tocDoXoayNhanVat
             );
 
-            Vector3 vanTocMucTieu =
-                huongDiChuyen * tocDoHienTai;
+            Vector3 vanTocMucTieu = huongDiChuyen * tocDoHienTai;
 
+            // Sử dụng cơ chế vận tốc mượt mà kết hợp với xử lý trượt tường,
+            // giữ lại lực theo trục Y của Rigidbody để không ảnh hưởng trọng lực và nhảy
             boDieuKhienNhanVat.linearVelocity = new Vector3(
                 vanTocMucTieu.x,
                 boDieuKhienNhanVat.linearVelocity.y,
@@ -402,6 +392,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
+            // Triệt tiêu hoàn toàn vận tốc ngang khi không bấm phím di chuyển để tránh trôi trượt ảo
             boDieuKhienNhanVat.linearVelocity = new Vector3(
                 0f,
                 boDieuKhienNhanVat.linearVelocity.y,
@@ -415,7 +406,6 @@ public class PlayerMovement : MonoBehaviour
         if (vaChamNhanVat == null)
             return;
 
-        // 1. Kiểm tra vật cản phía trên đầu bằng hình cầu (Sphere) tại vị trí diemKiemTraDau
         bool coVatCanTrenDau = false;
         if (diemKiemTraDau != null)
         {
@@ -426,14 +416,9 @@ public class PlayerMovement : MonoBehaviour
             );
         }
 
-        // 2. Xác định thực sự có đang ngồi không: 
-        // Hoặc người chơi đang bấm giữ phím ngồi, HOẶC phía trên đầu đang vướng vật cản (bắt buộc phải cúi)
         bool thucSuDangNgoi = dangNhanNgoi || coVatCanTrenDau;
-
-        // 3. Chọn chiều cao mục tiêu dựa vào trạng thái thực tế
         float chieuCaoMucTieu = thucSuDangNgoi ? chieuCaoNgoi : chieuCaoDung;
 
-        // 4. Co giãn mượt mà chiều cao của CapsuleCollider
         vaChamNhanVat.height = Mathf.Lerp(
             vaChamNhanVat.height,
             chieuCaoMucTieu,
@@ -489,13 +474,6 @@ public class PlayerMovement : MonoBehaviour
                         khoangCachDelay = thoiGianBuocNgoi;
                         doCaoPitch = 0.85f;
                     }
-                    else if (dangNhanDiCham)
-                    {
-                        clipSuDung = amThanhDiCham != null ? amThanhDiCham : amThanhBuocChan;
-                        amLuongSuDung = amLuongDiCham;
-                        khoangCachDelay = thoiGianBuocDiCham;
-                        doCaoPitch = 0.95f;
-                    }
                     else
                     {
                         clipSuDung = amThanhBuocChan;
@@ -518,7 +496,6 @@ public class PlayerMovement : MonoBehaviour
         {
             if (nguonAmThanhBuocChan != null && nguonAmThanhBuocChan.isPlaying)
             {
-                nguonAmThanhHieuUng?.Stop(); // Giữ nguyên an toàn
                 nguonAmThanhBuocChan.Stop();
             }
             demThoiGianBuocChan = 0f;
@@ -527,7 +504,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void XuLyAmThanhTiepDatLapTuc()
     {
-        if (kiemTraDanGiapDat) // Giữ nguyên
+        if (kiemTraDanGiapDat)
         {
             if (dangOTrenKhong)
             {
@@ -565,6 +542,26 @@ public class PlayerMovement : MonoBehaviour
 
             dangDaThietLapNhay = false;
         }
+    }
+
+    private void CapNhatAnimator()
+    {
+        if (animatorNhanVat == null) return;
+
+        float tocDoTruyenAnimator = 0f;
+        if (DangDiChuyen)
+        {
+            bool dangChayThucSu = dangNhanChay && theLucHienTai > 0 && !dangNhanNgoi;
+            tocDoTruyenAnimator = dangChayThucSu ? 1.0f : 0.5f;
+        }
+        animatorNhanVat.SetFloat("Speed", tocDoTruyenAnimator);
+
+        bool coVatCanTrenDau = diemKiemTraDau != null && Physics.CheckSphere(diemKiemTraDau.position, banKinhKiemTraDau, lopMatDat);
+        bool thucSuDangNgoi = dangNhanNgoi || coVatCanTrenDau;
+
+        animatorNhanVat.SetBool("IsCrouching", thucSuDangNgoi);
+        animatorNhanVat.SetBool("IsGrounded", kiemTraDanGiapDat);
+        animatorNhanVat.SetBool("IsInWater", dangOTrongNuoc);
     }
 
     public void DatLaiTrangThaiNuocNguyHiem()

@@ -13,6 +13,10 @@ public class SaltThrower : MonoBehaviour
     [Tooltip("Camera chính dùng để lấy hướng nhìn ném muối (Tự động tìm nếu để trống)")]
     public Camera cameraChinh;
 
+    [Header("--- Animator Tham Chiếu ---")]
+    [Tooltip("Animator của nhân vật để kích hoạt hoạt ảnh ném muối")]
+    public Animator animatorNhanVat;
+
     [Header("--- Cấu Hình Đường Bay & Tốc Độ ---")]
     [Tooltip("Tốc độ bay phóng theo hướng nhìn Camera")]
     public float tocDoBay = 12f;
@@ -26,6 +30,12 @@ public class SaltThrower : MonoBehaviour
         if (cameraChinh == null && Camera.main != null)
         {
             cameraChinh = Camera.main;
+        }
+
+        // Tự động tìm Animator nếu chưa gán thủ công
+        if (animatorNhanVat == null)
+        {
+            animatorNhanVat = GetComponentInParent<Animator>();
         }
     }
 
@@ -41,7 +51,7 @@ public class SaltThrower : MonoBehaviour
     }
 
     /// <summary>
-    /// Thuật toán khởi tạo và ném viên muối theo hướng Camera
+    /// Thuật toán khởi tạo, kích hoạt animation và ném viên muối theo hướng Camera
     /// </summary>
     private void ThucHienNemMuoi()
     {
@@ -61,15 +71,20 @@ public class SaltThrower : MonoBehaviour
             }
         }
 
-        // 1. Lấy hướng nhìn phía trước và hướng lên của Camera để tính hướng ném
+        // 1. Kích hoạt Animation Trigger "ThrowSalt" trong Animator
+        if (animatorNhanVat != null)
+        {
+            animatorNhanVat.SetTrigger("ThrowSalt");
+        }
+
+        // 2. Lấy hướng nhìn phía trước và hướng lên của Camera để tính hướng ném
         Vector3 huongNhinCam = cameraChinh.transform.forward;
 
-        // 2. Tạo viên muối tại vị trí GameObject con (viTriNemMuoi) của Player
-        // Góc xoay của viên muối sẽ quay theo hướng nhìn của Camera
+        // 3. Tạo viên muối tại vị trí GameObject con (viTriNemMuoi) của Player
         Quaternion gocXoayNem = Quaternion.LookRotation(huongNhinCam);
         GameObject vienMuoi = Instantiate(muoiPrefab, viTriNemMuoi.position, gocXoayNem);
 
-        // 3. Tính toán vận tốc bay: Kết hợp hướng nhìn Camera nhân với tốc độ + lực nâng parabol theo trục Y
+        // 4. Tính toán vận tốc bay: Kết hợp hướng nhìn Camera nhân với tốc độ + lực nâng parabol theo trục Y
         Rigidbody rbMuoi = vienMuoi.GetComponent<Rigidbody>();
         if (rbMuoi != null)
         {

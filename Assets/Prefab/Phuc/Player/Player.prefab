@@ -443,14 +443,13 @@ MonoBehaviour:
   vaChamNhanVat: {fileID: 6487397509989601377}
   thanhTheLucUI: {fileID: 0}
   cameraChinh: {fileID: 0}
+  animatorNhanVat: {fileID: 0}
   nguonAmThanhBuocChan: {fileID: 3782988732214023643}
   nguonAmThanhHieuUng: {fileID: 8393279192059739196}
   amThanhBuocChan: {fileID: 8300000, guid: 177d46b001cbd6c4b8cdb0758779620f, type: 3}
   amLuongBuocChan: 0.7
   amThanhChay: {fileID: 8300000, guid: 177d46b001cbd6c4b8cdb0758779620f, type: 3}
   amLuongChay: 1
-  amThanhDiCham: {fileID: 8300000, guid: 177d46b001cbd6c4b8cdb0758779620f, type: 3}
-  amLuongDiCham: 0.5
   amThanhNgoi: {fileID: 0}
   amLuongNgoi: 0.35
   amThanhDuoiNuoc: {fileID: 8300000, guid: f7f8e80480dfaa54d8b8bbe46c203b05, type: 3}
@@ -463,13 +462,11 @@ MonoBehaviour:
   amLuongTiepDat: 0.5
   thoiGianBuocDiBo: 0.55
   thoiGianBuocChay: 0.35
-  thoiGianBuocDiCham: 0.7
   thoiGianBuocNgoi: 0.65
   thoiGianBuocDuoiNuoc: 0.6
   thoiGianBuocChayDuoiNuoc: 0.35
   tocDoDiBo: 10
   tocDoChay: 20
-  tocDoDiCham: 7
   tocDoNgoi: 7
   tocDoXoayNhanVat: 12
   dangTrongVungNuocNguyHiem: 0
@@ -502,11 +499,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DangerZoneEffect
   globalVolume: {fileID: 0}
-  doToiToiDa: 0.75
+  doToiToiDa: 0.85
   tocDoChuyenDoiUI: 20
   globalVolumeThuHai: {fileID: 0}
-  weightToiDaThuHai: 0.5
-  khoangCachBatDauHieuUng: 35
+  weightToiDaThuHai: 0.75
+  khoangCachBatDauHieuUng: 40
   khoangCachDatDinhToiDa: 10
   layerDangerZone:
     serializedVersion: 2
@@ -518,7 +515,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: a9ba2a3053490ca45b7f383fcefc378b, type: 3}
   - {fileID: 8300000, guid: 226e54512355f5f45a500138d5b77031, type: 3}
   - {fileID: 8300000, guid: f2c5236d52c179e49ac09faa16cc22ef, type: 3}
-  thoiGianPhatRandom: 5
+  thoiGianPhatRandom: 60
   thoiGianFadeIn: 1
   thoiGianFadeOut: 0.5
 --- !u!82 &8315169420744586584
@@ -633,6 +630,7 @@ MonoBehaviour:
   muoiPrefab: {fileID: 4364770415958049677, guid: 64dc408a8ab00be44a9036ef1a7263a5, type: 3}
   viTriNemMuoi: {fileID: 4304647458811863936}
   cameraChinh: {fileID: 0}
+  animatorNhanVat: {fileID: 0}
   tocDoBay: 20
   doCaoDuongBay: 4
 --- !u!114 &6644825651513273540
