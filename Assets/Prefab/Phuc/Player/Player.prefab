@@ -372,6 +372,10 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 511b45f1-520c-4b60-bc9f-54fe0f48a941
     m_ActionName: 'Move/Interact_door[/Keyboard/e]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: cb3a0f68-3c3a-454e-b214-fd31239cf13b
+    m_ActionName: 'Move/Npc[/Keyboard/e]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Move
