@@ -3,7 +3,42 @@ guid: 623681fceb980f947be74d65e46e3e5f
 ModelImporter:
   serializedVersion: 24300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Apples
+    second: {fileID: 2100000, guid: 2efd28d05da141a4a95e0d5bc042595c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Bananas
+    second: {fileID: 2100000, guid: a4ff290c115602442889f838edfb9cbb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Chestnut fine wood texture
+    second: {fileID: 2100000, guid: fbe00914822ab714fa0fd0767ad43183, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Dark iron
+    second: {fileID: 2100000, guid: a03e282f5737fba438f4769628e0604f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Dirty Wood Planks
+    second: {fileID: 2100000, guid: 46161a2f86975f14f842ed2a32d2637d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Fabric 22
+    second: {fileID: 2100000, guid: bd73de53168e5374dad2bffc2cf29d18, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Grapes
+    second: {fileID: 2100000, guid: f5554ba759fad1a47858e9671c97b082, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
