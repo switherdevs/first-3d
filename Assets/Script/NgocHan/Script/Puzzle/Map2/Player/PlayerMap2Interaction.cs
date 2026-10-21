@@ -6,105 +6,249 @@ public class PlayerMap2Interaction : MonoBehaviour
     [Header("Khoảng cách tương tác")]
     [SerializeField] private float interactionDistance = 2f;
 
-    private Map2PickupInteract currentItem;
+    // Vật phẩm hệ thống cũ
+    private Map2PickupInteract currentPickupItem;
+
+    // Vật phẩm hệ thống Universal mới
+    private UniversalInteractable currentUniversalItem;
+
 
     private void Start()
     {
         HideAllPrompts();
     }
 
+
     private void Update()
     {
         FindNearestItem();
 
-        if (currentItem != null &&
-            Keyboard.current != null &&
-            Keyboard.current.eKey.wasPressedThisFrame)
+        if (Keyboard.current == null)
+            return;
+
+        if (!Keyboard.current.eKey.wasPressedThisFrame)
+            return;
+
+
+        // =====================================================
+        // UNIVERSAL INTERACTABLE
+        // =====================================================
+
+        if (currentUniversalItem != null)
         {
-            Map2PickupInteract itemToPickup = currentItem;
+            UniversalInteractable item = currentUniversalItem;
 
-            currentItem.SetPrompt(false);
-            currentItem = null;
+            item.SetPrompt(false);
 
-            itemToPickup.Interact();
+            currentUniversalItem = null;
+
+            item.Interact();
+
+            return;
+        }
+
+
+        // =====================================================
+        // MAP 2 PICKUP CŨ
+        // =====================================================
+
+        if (currentPickupItem != null)
+        {
+            Map2PickupInteract item = currentPickupItem;
+
+            item.SetPrompt(false);
+
+            currentPickupItem = null;
+
+            item.Interact();
         }
     }
 
+
+    // =========================================================
+    // TÌM OBJECT GẦN NHẤT
+    // =========================================================
+
     private void FindNearestItem()
     {
-        Map2PickupInteract[] items =
-            FindObjectsByType<Map2PickupInteract>(
+        Map2PickupInteract nearestPickup = null;
+        UniversalInteractable nearestUniversal = null;
+
+        float nearestDistance = Mathf.Infinity;
+
+
+        // =====================================================
+        // TÌM UNIVERSAL INTERACTABLE
+        // =====================================================
+
+        UniversalInteractable[] universalItems =
+            FindObjectsByType<UniversalInteractable>(
                 FindObjectsInactive.Exclude,
                 FindObjectsSortMode.None
             );
 
-        Map2PickupInteract nearestItem = null;
-        float nearestDistance = Mathf.Infinity;
 
-        foreach (Map2PickupInteract item in items)
+        foreach (UniversalInteractable item in universalItems)
         {
-            Collider itemCollider = item.GetItemCollider();
+            float distance = GetDistance(
+                item.transform,
+                item.GetItemCollider()
+            );
 
-            float distance;
-
-            if (itemCollider != null)
-            {
-                Vector3 closestPoint =
-                    itemCollider.ClosestPoint(transform.position);
-
-                distance = Vector3.Distance(
-                    transform.position,
-                    closestPoint
-                );
-            }
-            else
-            {
-                distance = Vector3.Distance(
-                    transform.position,
-                    item.transform.position
-                );
-            }
 
             if (distance <= interactionDistance &&
                 distance < nearestDistance)
             {
                 nearestDistance = distance;
-                nearestItem = item;
+
+                nearestUniversal = item;
+                nearestPickup = null;
             }
         }
 
-        // Không thay đổi vật phẩm
-        if (nearestItem == currentItem)
-            return;
 
-        // Tắt E item cũ
-        if (currentItem != null)
-            currentItem.SetPrompt(false);
+        // =====================================================
+        // TÌM MAP2 PICKUP CŨ
+        // =====================================================
 
-        currentItem = nearestItem;
-
-        // Bật E item mới
-        if (currentItem != null)
-            currentItem.SetPrompt(true);
-    }
-
-    private void HideAllPrompts()
-    {
-        Map2PickupInteract[] items =
+        Map2PickupInteract[] pickupItems =
             FindObjectsByType<Map2PickupInteract>(
                 FindObjectsInactive.Exclude,
                 FindObjectsSortMode.None
             );
 
-        foreach (Map2PickupInteract item in items)
-            item.SetPrompt(false);
+
+        foreach (Map2PickupInteract item in pickupItems)
+        {
+            float distance = GetDistance(
+                item.transform,
+                item.GetItemCollider()
+            );
+
+
+            if (distance <= interactionDistance &&
+                distance < nearestDistance)
+            {
+                nearestDistance = distance;
+
+                nearestPickup = item;
+                nearestUniversal = null;
+            }
+        }
+
+
+        // =====================================================
+        // KHÔNG THAY ĐỔI TARGET
+        // =====================================================
+
+        if (nearestPickup == currentPickupItem &&
+            nearestUniversal == currentUniversalItem)
+        {
+            return;
+        }
+
+
+        // =====================================================
+        // TẮT PROMPT CŨ
+        // =====================================================
+
+        if (currentPickupItem != null)
+            currentPickupItem.SetPrompt(false);
+
+        if (currentUniversalItem != null)
+            currentUniversalItem.SetPrompt(false);
+
+
+        // =====================================================
+        // ĐỔI TARGET
+        // =====================================================
+
+        currentPickupItem = nearestPickup;
+        currentUniversalItem = nearestUniversal;
+
+
+        // =====================================================
+        // BẬT PROMPT MỚI
+        // =====================================================
+
+        if (currentPickupItem != null)
+            currentPickupItem.SetPrompt(true);
+
+        if (currentUniversalItem != null)
+            currentUniversalItem.SetPrompt(true);
     }
+
+
+    // =========================================================
+    // TÍNH KHOẢNG CÁCH
+    // =========================================================
+
+    private float GetDistance(
+        Transform itemTransform,
+        Collider itemCollider
+    )
+    {
+        if (itemCollider != null)
+        {
+            Vector3 closestPoint =
+                itemCollider.ClosestPoint(transform.position);
+
+            return Vector3.Distance(
+                transform.position,
+                closestPoint
+            );
+        }
+
+
+        return Vector3.Distance(
+            transform.position,
+            itemTransform.position
+        );
+    }
+
+
+    // =========================================================
+    // TẮT TẤT CẢ PROMPT
+    // =========================================================
+
+    private void HideAllPrompts()
+    {
+        Map2PickupInteract[] pickupItems =
+            FindObjectsByType<Map2PickupInteract>(
+                FindObjectsInactive.Exclude,
+                FindObjectsSortMode.None
+            );
+
+
+        foreach (Map2PickupInteract item in pickupItems)
+        {
+            item.SetPrompt(false);
+        }
+
+
+        UniversalInteractable[] universalItems =
+            FindObjectsByType<UniversalInteractable>(
+                FindObjectsInactive.Exclude,
+                FindObjectsSortMode.None
+            );
+
+
+        foreach (UniversalInteractable item in universalItems)
+        {
+            item.SetPrompt(false);
+        }
+    }
+
 
     private void OnDisable()
     {
-        if (currentItem != null)
-            currentItem.SetPrompt(false);
+        if (currentPickupItem != null)
+            currentPickupItem.SetPrompt(false);
+
+        if (currentUniversalItem != null)
+            currentUniversalItem.SetPrompt(false);
     }
+
 
     private void OnDrawGizmosSelected()
     {

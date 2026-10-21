@@ -57,11 +57,7 @@ public class FlashlightController : MonoBehaviour
         CapNhatTrangThaiDen(false, false);
     }
 
-    private void Update()
-    {
-        XuLyTieuHaoPin();
-        CapNhatGiaoDienUI();
-    }
+
 
     private void LateUpdate()
     {
@@ -139,5 +135,10 @@ public class FlashlightController : MonoBehaviour
         {
             pinHienTai = pinToiDa;
         }
+    }
+
+    public void ForceOff()
+    {
+        CapNhatTrangThaiDen(false, true);
     }
 }

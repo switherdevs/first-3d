@@ -7,7 +7,7 @@ public class OilLampController : MonoBehaviour
     [SerializeField] private LightResourceManager resources;
     [SerializeField] private GameObject oilLampHolder;
     [SerializeField] private Light oilLampLight;
-    [SerializeField] private NgocHan.Map2.FlashlightController flashlightController;
+    [SerializeField] private FlashlightController flashlightController;
 
     [Header("SETTINGS")]
     [SerializeField] private KeyCode toggleKey = KeyCode.G;
