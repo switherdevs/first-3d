@@ -14866,7 +14866,7 @@ MonoBehaviour:
   englishTextUI: {fileID: 1796547481}
   vietnameseTextUI: {fileID: 532407060}
   typingSpeed: 0.03
-  useEnglish: 0
+  useEnglish: 1
 --- !u!114 &1268627455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15158,7 +15158,6 @@ MonoBehaviour:
     vietnameseText: niga
   interactionRadius: 3
   playerTransform: {fileID: 1065289800}
-  interactionPromptUI: {fileID: 1268627453}
 --- !u!136 &1322381906
 CapsuleCollider:
   m_ObjectHideFlags: 0

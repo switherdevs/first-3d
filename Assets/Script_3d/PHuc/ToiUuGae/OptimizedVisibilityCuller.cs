@@ -8,10 +8,16 @@ public class OptimizedVisibilityCuller : MonoBehaviour
     [Tooltip("Camera chính dùng để kiểm tra tầm nhìn của Player")]
     public Camera mainCamera;
 
+    [Tooltip("Transform của Player (Dùng để tính khoảng cách bán kính an toàn. Nếu trống sẽ lấy vị trí MainCamera)")]
+    public Transform playerTransform;
+
     [Tooltip("Danh sách các MeshRenderer của các vật thể cần tối ưu")]
     public List<MeshRenderer> objectRenderers = new List<MeshRenderer>();
 
-    [Header("--- Cài Đặt Tối Ưu Performance ---")]
+    [Header("--- Cài Đặt Tối Ưu & Bán Kính An Toàn ---")]
+    [Tooltip("Bán kính quanh Player/Camera. Bất kỳ MeshRenderer nào nằm trong khoảng cách này sẽ KHÔNG BAO GIỜ bị ẩn.")]
+    public float banKinhAnToan = 10.0f;
+
     [Tooltip("Thời gian giãn cách giữa các lần kiểm tra (giây). 0.1s tức là 10 lần/giây.")]
     public float thoiGianCapNhat = 0.1f;
 
@@ -35,6 +41,12 @@ public class OptimizedVisibilityCuller : MonoBehaviour
             mainCamera = Camera.main;
         }
 
+        // Tự động tìm Player nếu chưa gán thủ công
+        if (playerTransform == null && mainCamera != null)
+        {
+            playerTransform = mainCamera.transform;
+        }
+
         // Bắt đầu vòng lặp kiểm tra tối ưu
         processCoroutine = StartCoroutine(KiemTraTamNhinVongLap());
     }
@@ -48,6 +60,9 @@ public class OptimizedVisibilityCuller : MonoBehaviour
         {
             if (mainCamera != null && objectRenderers.Count > 0)
             {
+                // Xác định tâm để tính bán kính an toàn (Ưu tiên Player, nếu không có lấy Camera)
+                Vector3 tamKiemTra = playerTransform != null ? playerTransform.position : mainCamera.transform.position;
+
                 // Bước 1: Trích xuất 6 mặt phẳng nón nhìn (Frustum Planes) gốc của Camera
                 cameraPlanes = GeometryUtility.CalculateFrustumPlanes(mainCamera);
 
@@ -56,25 +71,35 @@ public class OptimizedVisibilityCuller : MonoBehaviour
                 {
                     for (int j = 0; j < cameraPlanes.Length; j++)
                     {
-                        // Dịch chuyển khoảng cách mặt phẳng theo hướng pháp tuyến (Normal)
                         cameraPlanes[j].distance += doRongDem;
                     }
                 }
 
-                // Bước 3: Duyệt qua tất cả vật thể để ẩn/hiện dựa trên khung nhìn đã nới rộng
+                // Bước 3: Duyệt qua tất cả vật thể để ẩn/hiện dựa trên bán kính và khung nhìn
                 for (int i = 0; i < objectRenderers.Count; i++)
                 {
                     MeshRenderer rendererTarget = objectRenderers[i];
 
                     if (rendererTarget != null)
                     {
-                        // Kiểm tra Bounding Box (AABB) vật thể với nón nhìn đã được nới rộng
-                        bool dangTrongTamNhin = GeometryUtility.TestPlanesAABB(cameraPlanes, rendererTarget.bounds);
+                        bool hienThi = false;
+
+                        // Kiểm tra 1: Nếu vật thể nằm trong bán kính an toàn -> Luôn hiển thị
+                        float khoangCachBinhPhuong = Vector3.SqrMagnitude(rendererTarget.transform.position - tamKiemTra);
+                        if (khoangCachBinhPhuong <= (banKinhAnToan * banKinhAnToan))
+                        {
+                            hienThi = true;
+                        }
+                        else
+                        {
+                            // Kiểm tra 2: Nếu nằm ngoài bán kính -> Kiểm tra xem có đang nằm trong tầm nhìn Camera không
+                            hienThi = GeometryUtility.TestPlanesAABB(cameraPlanes, rendererTarget.bounds);
+                        }
 
                         // Chỉ đổi trạng thái enablement khi cần thiết để tiết kiệm CPU/GPU
-                        if (rendererTarget.enabled != dangTrongTamNhin)
+                        if (rendererTarget.enabled != hienThi)
                         {
-                            rendererTarget.enabled = dangTrongTamNhin;
+                            rendererTarget.enabled = hienThi;
                         }
                     }
                 }
