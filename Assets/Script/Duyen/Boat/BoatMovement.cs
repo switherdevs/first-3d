@@ -10,8 +10,14 @@ public class BoatMovement : MonoBehaviour
     public float tocDoRe = 60f;
 
     [Header("Huong tien cua mo hinh")]
-    [Tooltip("Bat neu mui xuong nam theo truc X thay vi truc Z")]
     public bool dungTrucX = true;
+
+    [Header("Gioi han vung nuoc")]
+    public bool batGioiHan = true;
+    public float minX = -20f;
+    public float maxX = 20f;
+    public float minZ = -20f;
+    public float maxZ = 20f;
 
     private Rigidbody rb;
     private float tienLui;
@@ -32,7 +38,6 @@ public class BoatMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // Lay huong tien theo truc da chon
         Vector3 huong = dungTrucX
             ? transform.right
             : transform.forward;
@@ -40,13 +45,23 @@ public class BoatMovement : MonoBehaviour
         huong.y = 0f;
         huong.Normalize();
 
-        // W tien, S lui
-        float tocDo = tienLui >= 0f ? tocDoTien : tocDoLui;
+        float tocDo = tienLui >= 0f
+            ? tocDoTien
+            : tocDoLui;
 
         Vector3 buocDiChuyen =
-        huong * -tienLui * tocDo * Time.fixedDeltaTime;
+            huong * -tienLui * tocDo * Time.fixedDeltaTime;
 
-        rb.MovePosition(rb.position + buocDiChuyen);
+        Vector3 viTriMoi = rb.position + buocDiChuyen;
+
+        // Khong cho tam xuong vuot qua ranh gioi
+        if (batGioiHan)
+        {
+            viTriMoi.x = Mathf.Clamp(viTriMoi.x, minX, maxX);
+            viTriMoi.z = Mathf.Clamp(viTriMoi.z, minZ, maxZ);
+        }
+
+        rb.MovePosition(viTriMoi);
 
         // A quay trai, D quay phai
         if (Mathf.Abs(re) > 0.01f)
@@ -55,7 +70,8 @@ public class BoatMovement : MonoBehaviour
                 re * tocDoRe * Time.fixedDeltaTime;
 
             rb.MoveRotation(
-                rb.rotation * Quaternion.Euler(0f, gocQuay, 0f)
+                rb.rotation *
+                Quaternion.Euler(0f, gocQuay, 0f)
             );
         }
     }
