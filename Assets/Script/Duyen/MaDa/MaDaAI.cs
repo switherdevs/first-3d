@@ -24,27 +24,34 @@ public class MaDaAI : MonoBehaviour
     public float wanderTimer = 4f;
     public float catchDistance = 1.5f;
 
+    [Header("Salt Effect")]
+    public string tagSalt = "Salt";
+    public float heSoGiamTocDoMuoi = 0.3f;
+    public float thoiGianDinhMuoi = 10f;
+
     private float timer;
+    private float tocDoGocAgent = 3.5f;
+    private bool dangDinhMuoi = false;
+    private float boDemThoiGianMuoi = 0f;
 
     private void Start()
     {
         if (agent == null)
             agent = GetComponent<NavMeshAgent>();
 
+        if (agent != null)
+            tocDoGocAgent = agent.speed;
+
         if (survivalManager == null)
-        {
             survivalManager =
                 FindFirstObjectByType<PlayerSurvivalManager>();
-        }
 
-        // Lay Player tu SurvivalManager
         if (survivalManager != null &&
             survivalManager.player != null)
         {
             playerTransform = survivalManager.player.transform;
         }
 
-        // Neu chua tim thay thi tim theo tag Player
         if (playerTransform == null)
         {
             GameObject playerObj =
@@ -60,23 +67,33 @@ public class MaDaAI : MonoBehaviour
         timer = wanderTimer;
 
         if (playerTransform == null)
-            Debug.LogWarning(
-                "Ma Da AI: Khong tim thay Player!"
-            );
+            Debug.LogWarning("Ma Da AI: Khong tim thay Player!");
 
         if (waterSystem == null)
-            Debug.LogWarning(
-                "Ma Da AI: Khong tim thay WaterSystem!"
-            );
+            Debug.LogWarning("Ma Da AI: Khong tim thay WaterSystem!");
 
         if (agent == null)
-            Debug.LogWarning(
-                "Ma Da AI: Khong tim thay NavMeshAgent!"
-            );
+            Debug.LogWarning("Ma Da AI: Khong tim thay NavMeshAgent!");
     }
 
     private void Update()
     {
+        // Dem nguoc hieu ung dinh muoi
+        if (dangDinhMuoi)
+        {
+            boDemThoiGianMuoi -= Time.deltaTime;
+
+            if (boDemThoiGianMuoi <= 0f)
+            {
+                dangDinhMuoi = false;
+
+                if (agent != null)
+                    agent.speed = tocDoGocAgent;
+
+                Debug.Log("Ma Da da het dinh muoi!");
+            }
+        }
+
         if (agent == null ||
             playerTransform == null ||
             waterSystem == null)
@@ -85,8 +102,11 @@ public class MaDaAI : MonoBehaviour
         if (!agent.isOnNavMesh)
             return;
 
-        // PLAYER DANG TREN THUYEN
-        // Ma Da khong duoc duoi hoac bat Player
+        // Dinh muoi: dung AI tam thoi, khong duoi bat Player
+        if (dangDinhMuoi)
+            return;
+
+        // Player dang tren thuyen
         if (BoatController.PlayerDangTrenThuyen)
         {
             agent.ResetPath();
@@ -157,9 +177,42 @@ public class MaDaAI : MonoBehaviour
         }
     }
 
+    // Phat hien muoi bang Trigger
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag(tagSalt))
+            XuLyDinhMuoi();
+    }
+
+    // Phat hien muoi bang Collision
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag(tagSalt))
+            XuLyDinhMuoi();
+    }
+
+    private void XuLyDinhMuoi()
+    {
+        if (agent == null || !agent.isOnNavMesh)
+            return;
+
+        // Khung lai ngay lap tuc
+        agent.ResetPath();
+        agent.velocity = Vector3.zero;
+
+        // Giam toc do
+        agent.speed = tocDoGocAgent * heSoGiamTocDoMuoi;
+
+        dangDinhMuoi = true;
+        boDemThoiGianMuoi = thoiGianDinhMuoi;
+
+        currentState = AIState.Wander;
+
+        Debug.Log("Ma Da dinh muoi! Bi khung va di cham trong 10 giay.");
+    }
+
     private void CatchPlayer()
     {
-        // Kiem tra lai truoc khi bat Player
         if (BoatController.PlayerDangTrenThuyen)
         {
             currentState = AIState.Wander;
@@ -169,10 +222,7 @@ public class MaDaAI : MonoBehaviour
 
         if (survivalManager == null)
         {
-            Debug.LogWarning(
-                "Chua tim thay PlayerSurvivalManager!"
-            );
-
+            Debug.LogWarning("Chua tim thay PlayerSurvivalManager!");
             currentState = AIState.Wander;
             timer = wanderTimer;
             return;
@@ -181,7 +231,6 @@ public class MaDaAI : MonoBehaviour
         Debug.Log("Ma Da bat duoc Player!");
         survivalManager.PlayerCaught();
 
-        // Chi bat mot lan
         currentState = AIState.Wander;
         timer = wanderTimer;
     }
@@ -229,10 +278,6 @@ public class MaDaAI : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-
-        Gizmos.DrawWireSphere(
-            transform.position,
-            detectionRadius
-        );
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
     }
 }
