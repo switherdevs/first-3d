@@ -44,9 +44,9 @@ public class PlayerSurvivalManager : MonoBehaviour
         PlayerMovement playerMovement =
             player.GetComponent<PlayerMovement>();
 
-        if (playerMovement != null)
-        {
-            playerMovement.DatLaiTrangThaiNuocNguyHiem();
-        }
+        //if (playerMovement != null)
+        //{
+        //    playerMovement.DatLaiTrangThaiNuocNguyHiem();
+        //}
     }
 }

@@ -19,9 +19,24 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Camera chính trong Game (Nếu để trống script sẽ tự tìm MainCamera)")]
     public Transform cameraChinh;
 
-    [Header("--- Animator Tham Chiếu ---")]
+    [Header("--- Animator & Tên Parameter (Dùng để copy vào Animator Controller) ---")]
     [Tooltip("Animator của nhân vật để điều khiển hoạt ảnh")]
     public Animator animatorNhanVat;
+
+    [Tooltip("Tên Parameter kiểu Float điều khiển tốc độ di chuyển (Walk/Run)")]
+    public string animParamSpeed = "Speed";
+
+    [Tooltip("Tên Parameter kiểu Bool điều khiển tư thế ngồi")]
+    public string animParamIsCrouching = "IsCrouching";
+
+    [Tooltip("Tên Parameter kiểu Bool kiểm tra trạng thái chạm đất")]
+    public string animParamIsGrounded = "IsGrounded";
+
+    [Tooltip("Tên Parameter kiểu Bool kiểm tra đang ở trong nước")]
+    public string animParamIsInWater = "IsInWater";
+
+    [Tooltip("Tên Parameter kiểu Trigger kích hoạt hành động nhảy")]
+    public string animParamJumpTrigger = "Jump";
 
     [Header("--- Hệ thống Âm thanh Đa Lớp (2 AudioSources) ---")]
     [Tooltip("Nguồn âm thanh CHUYÊN DÙNG CHO BƯỚC CHÂN (Đi bộ, Chạy, Ngồi, Dưới nước)")]
@@ -269,7 +284,8 @@ public class PlayerMovement : MonoBehaviour
 
                 if (animatorNhanVat != null)
                 {
-                    animatorNhanVat.SetTrigger("Jump");
+                    // Gọi Trigger nhảy bằng tên biến cấu hình trên Inspector
+                    animatorNhanVat.SetTrigger(animParamJumpTrigger);
                 }
 
                 if (nguonAmThanhHieuUng != null && amThanhNhay != null)
@@ -327,7 +343,6 @@ public class PlayerMovement : MonoBehaviour
     {
         if (dangKhoaDiChuyen)
         {
-            // Triệt tiêu vận tốc ngang ngay lập tức khi bị khóa di chuyển
             boDieuKhienNhanVat.linearVelocity = new Vector3(0f, boDieuKhienNhanVat.linearVelocity.y, 0f);
             return;
         }
@@ -533,20 +548,22 @@ public class PlayerMovement : MonoBehaviour
     {
         if (animatorNhanVat == null) return;
 
+        // Tính toán tốc độ di chuyển truyền vào Animator
         float tocDoTruyenAnimator = 0f;
         if (DangDiChuyen)
         {
             bool dangChayThucSu = dangNhanChay && theLucHienTai > 0 && !dangNhanNgoi;
             tocDoTruyenAnimator = dangChayThucSu ? 1.0f : 0.5f;
         }
-        animatorNhanVat.SetFloat("Speed", tocDoTruyenAnimator);
 
         bool coVatCanTrenDau = diemKiemTraDau != null && Physics.CheckSphere(diemKiemTraDau.position, banKinhKiemTraDau, lopMatDat);
         bool thucSuDangNgoi = dangNhanNgoi || coVatCanTrenDau;
 
-        animatorNhanVat.SetBool("IsCrouching", thucSuDangNgoi);
-        animatorNhanVat.SetBool("IsGrounded", kiemTagDanGiapDat);
-        animatorNhanVat.SetBool("IsInWater", dangOTrongNuoc);
+        // Gửi dữ liệu xuống Animator Controller sử dụng tên biến cấu hình trên Inspector
+        animatorNhanVat.SetFloat(animParamSpeed, tocDoTruyenAnimator);
+        animatorNhanVat.SetBool(animParamIsCrouching, thucSuDangNgoi);
+        animatorNhanVat.SetBool(animParamIsGrounded, kiemTagDanGiapDat);
+        animatorNhanVat.SetBool(animParamIsInWater, dangOTrongNuoc);
     }
 
     /// <summary>
