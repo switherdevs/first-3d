@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class OilLampController : MonoBehaviour
@@ -9,19 +8,43 @@ public class OilLampController : MonoBehaviour
     [SerializeField] private Light oilLampLight;
     [SerializeField] private FlashlightController flashlightController;
 
+
+    // =========================================================
+    // AUDIO
+    // =========================================================
+    [Header("--- Audio ---")]
+
+    [SerializeField] private AudioSource audioSource;
+
+    [SerializeField] private AudioClip oilLampClick;
+
+    // =========================================================
+    // SETTINGS
+    // =========================================================
+
     [Header("SETTINGS")]
     [SerializeField] private KeyCode toggleKey = KeyCode.G;
 
-    [Tooltip("Bao nhiêu giây thì trừ dầu 1 lần")]
+    [Tooltip("How many seconds before draining oil")]
     [SerializeField] private float oilDrainInterval = 10f;
 
-    [Tooltip("Mỗi lần trừ bao nhiêu % dầu")]
+    [Tooltip("How much oil percentage is drained each time")]
     [SerializeField] private float oilDrainPercent = 1f;
+
+
+    // =========================================================
+    // LIGHT STRENGTH
+    // =========================================================
 
     [Header("LIGHT STRENGTH")]
     [SerializeField] private float maxIntensity = 2.5f;
     [SerializeField] private float minRange = 2f;
     [SerializeField] private float maxRange = 7f;
+
+
+    // =========================================================
+    // PRIVATE
+    // =========================================================
 
     private bool isOn = false;
     private float oilTimer = 0f;
@@ -29,14 +52,23 @@ public class OilLampController : MonoBehaviour
     public bool IsOn => isOn;
 
 
+    // =========================================================
+    // START
+    // =========================================================
+
     private void Start()
     {
         if (resources == null)
             resources = LightResourceManager.Instance;
 
-        ForceOff();
+        // Turn off at game start without playing sound
+        SetLampOff(false);
     }
 
+
+    // =========================================================
+    // UPDATE
+    // =========================================================
 
     private void Update()
     {
@@ -45,7 +77,7 @@ public class OilLampController : MonoBehaviour
 
 
         // =====================================================
-        // G BẬT / TẮT
+        // G TOGGLE ON / OFF
         // =====================================================
 
         if (Input.GetKeyDown(toggleKey))
@@ -58,7 +90,7 @@ public class OilLampController : MonoBehaviour
 
 
         // =====================================================
-        // KHÔNG BẬT -> KHÔNG HAO DẦU
+        // IF OFF -> DO NOT DRAIN OIL
         // =====================================================
 
         if (!isOn)
@@ -66,7 +98,7 @@ public class OilLampController : MonoBehaviour
 
 
         // =====================================================
-        // ĐẾM THỜI GIAN
+        // OIL TIMER
         // =====================================================
 
         oilTimer += Time.deltaTime;
@@ -80,18 +112,17 @@ public class OilLampController : MonoBehaviour
         }
 
 
-        // Cập nhật độ sáng theo lượng dầu
+        // Update light strength based on oil amount
         UpdateLightStrength();
     }
 
 
     // =========================================================
-    // TRỪ DẦU
+    // DRAIN OIL
     // =========================================================
 
     private void DrainOil()
     {
-        // 1% của Max Oil
         float amount =
             resources.MaxOil *
             (oilDrainPercent / 100f);
@@ -101,21 +132,21 @@ public class OilLampController : MonoBehaviour
 
 
         Debug.Log(
-            "[OIL LAMP] Trừ " +
+            "[OIL LAMP] Drained " +
             oilDrainPercent +
-            "% dầu. Còn: " +
+            "% oil. Remaining: " +
             resources.CurrentOil
         );
 
 
         // =====================================================
-        // HẾT DẦU
+        // OUT OF OIL
         // =====================================================
 
         if (resources.CurrentOil <= 0f)
         {
             Debug.Log(
-                "[OIL LAMP] HẾT DẦU"
+                "[OIL LAMP] OUT OF OIL"
             );
 
             ForceOff();
@@ -124,7 +155,7 @@ public class OilLampController : MonoBehaviour
 
 
     // =========================================================
-    // BẬT ĐÈN DẦU
+    // TURN ON OIL LAMP
     // =========================================================
 
     private void TryTurnOn()
@@ -132,7 +163,7 @@ public class OilLampController : MonoBehaviour
         if (!resources.HasOilLamp)
         {
             Debug.LogWarning(
-                "[OIL LAMP] Chưa nhặt đèn dầu!"
+                "[OIL LAMP] Oil lamp has not been collected!"
             );
 
             return;
@@ -142,14 +173,14 @@ public class OilLampController : MonoBehaviour
         if (resources.CurrentOil <= 0f)
         {
             Debug.LogWarning(
-                "[OIL LAMP] Hết dầu!"
+                "[OIL LAMP] No oil remaining!"
             );
 
             return;
         }
 
 
-        // Bật đèn dầu -> tắt đèn pin
+        // Turn on oil lamp -> turn off flashlight
         if (flashlightController != null)
             flashlightController.ForceOff();
 
@@ -170,19 +201,23 @@ public class OilLampController : MonoBehaviour
         UpdateLightStrength();
 
 
+        // Play click sound
+        PlayClickSound();
+
+
         Debug.Log(
-            "[OIL LAMP] BẬT ĐÈN"
+            "[OIL LAMP] TURNED ON"
         );
     }
 
 
     // =========================================================
-    // ĐỘ SÁNG THEO DẦU
+    // UPDATE LIGHT STRENGTH
     // =========================================================
 
     private void UpdateLightStrength()
     {
-        if (oilLampLight == null)
+        if (oilLampLight == null || resources == null)
             return;
 
 
@@ -197,7 +232,7 @@ public class OilLampController : MonoBehaviour
             Mathf.Clamp01(oilRatio);
 
 
-        // Dầu càng ít -> đèn càng yếu
+        // Less oil -> weaker light
         oilLampLight.intensity =
             maxIntensity * oilRatio;
 
@@ -212,10 +247,28 @@ public class OilLampController : MonoBehaviour
 
 
     // =========================================================
-    // TẮT ĐÈN
+    // TURN OFF OIL LAMP
     // =========================================================
 
     public void ForceOff()
+    {
+        bool wasOn = isOn;
+
+        SetLampOff(false);
+
+        // Only play sound if it was actually on
+        if (wasOn)
+        {
+            PlayClickSound();
+        }
+    }
+
+
+    // =========================================================
+    // INTERNAL TURN OFF
+    // =========================================================
+
+    private void SetLampOff(bool playSound)
     {
         isOn = false;
 
@@ -228,5 +281,28 @@ public class OilLampController : MonoBehaviour
 
         if (oilLampHolder != null)
             oilLampHolder.SetActive(false);
+
+
+        if (playSound)
+        {
+            PlayClickSound();
+        }
+    }
+
+
+    // =========================================================
+    // PLAY CLICK SOUND
+    // =========================================================
+
+    private void PlayClickSound()
+    {
+        if (audioSource == null)
+            return;
+
+        if (oilLampClick == null)
+            return;
+
+
+        audioSource.PlayOneShot(oilLampClick);
     }
 }

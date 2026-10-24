@@ -158,7 +158,6 @@ GameObject:
   - component: {fileID: 2809007364025534925}
   - component: {fileID: 7664222515644885087}
   - component: {fileID: 1610966523598963235}
-  - component: {fileID: 1456740767271367243}
   m_Layer: 0
   m_Name: OilPickup
   m_TagString: Untagged
@@ -258,27 +257,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PuzzleWorldPrompt
   worldPrompt: {fileID: 625660514038346180}
---- !u!65 &1456740767271367243
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1775490246421125763}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.15040354, y: 0.18074201, z: 0.08838053}
-  m_Center: {x: 0.0020125867, y: 0.085858874, z: -0.012715864}
 --- !u!1 &5695502608839877773
 GameObject:
   m_ObjectHideFlags: 0

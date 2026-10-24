@@ -1,144 +1,288 @@
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.InputSystem;
 
 public class FlashlightController : MonoBehaviour
 {
-    [Header("--- Thành phần tham chiếu ---")]
-    [Tooltip("Nguồn sáng Light của đèn pin")]
-    public Light denPinLight;
+    [Header("REFERENCES")]
+    [SerializeField] private LightResourceManager resources;
+    [SerializeField] private GameObject flashlightHolder;
+    [SerializeField] private Light flashlightLight;
+    [SerializeField] private OilLampController oilLampController;
 
-    [Tooltip("Thanh Slider hiển thị lượng pin còn lại trên UI")]
-    public Slider thanhPinUI;
 
-    [Tooltip("Tham chiếu đến Camera chính")]
-    public Camera cameraChinh;
+    // =========================================================
+    // AUDIO
+    // =========================================================
 
     [Header("--- Âm thanh (Audio) ---")]
-    [Tooltip("Component AudioSource để phát âm thanh bật/tắt")]
-    public AudioSource amThanhSource;
 
-    [Tooltip("File âm thanh tiếng click bật/tắt đèn pin")]
-    public AudioClip tiengClickDenPin;
+    [Tooltip("AudioSource dùng để phát âm thanh đèn pin")]
+    [SerializeField] private AudioSource audioSource;
 
-    [Header("--- Cấu hình Pin ---")]
-    [Tooltip("Mức pin tối đa")]
-    public float pinToiDa = 200f;
+    [Tooltip("Âm thanh click khi bật / tắt đèn pin")]
+    [SerializeField] private AudioClip flashlightClick;
 
-    [Tooltip("Lượng pin tiêu hao mỗi giây khi bật đèn")]
-    public float pinTieuHaoMoiGiay = 1f;
 
-    // --- Biến nội bộ quản lý trạng thái ---
-    private float pinHienTai;
-    private bool dangBatDen = false;
+    // =========================================================
+    // SETTINGS
+    // =========================================================
+
+    [Header("SETTINGS")]
+    [SerializeField] private KeyCode toggleKey = KeyCode.F;
+
+    [Tooltip("Bao nhiêu giây thì trừ pin 1 lần")]
+    [SerializeField] private float batteryDrainInterval = 10f;
+
+    [Tooltip("Mỗi lần trừ bao nhiêu % pin")]
+    [SerializeField] private float batteryDrainPercent = 1f;
+
+
+    // =========================================================
+    // PRIVATE
+    // =========================================================
+
+    private bool isOn = false;
+
+    private float batteryTimer = 0f;
+
+    public bool IsOn => isOn;
+
+
+    // =========================================================
+    // START
+    // =========================================================
 
     private void Start()
     {
-        pinHienTai = pinToiDa;
+        if (resources == null)
+            resources = LightResourceManager.Instance;
 
-        if (cameraChinh == null)
-        {
-            cameraChinh = Camera.main;
-        }
-
-        // Tự động tìm AudioSource trên GameObject này hoặc con nếu chưa kéo
-        if (amThanhSource == null)
-        {
-            amThanhSource = GetComponentInChildren<AudioSource>();
-        }
-
-        if (thanhPinUI != null)
-        {
-            thanhPinUI.maxValue = pinToiDa;
-            thanhPinUI.value = pinHienTai;
-        }
-
-        // Khởi tạo trạng thái tắt ban đầu, KHÔNG phát âm thanh khi vào game
-        CapNhatTrangThaiDen(false, false);
+        // Tắt đèn lúc bắt đầu game
+        // Không phát âm thanh
+        SetFlashlightOff(false);
     }
 
 
+    // =========================================================
+    // UPDATE
+    // =========================================================
 
-    private void LateUpdate()
+    private void Update()
     {
-        DongBoGocXoayTheoCamera();
-    }
+        if (resources == null)
+            return;
 
-    private void DongBoGocXoayTheoCamera()
-    {
-        // Chỉ xoay vị trí của nguồn sáng Light (denPinLight) theo Camera chứ KHÔNG xoay toàn bộ Player
-        if (dangBatDen && denPinLight != null && cameraChinh != null)
+
+        // =====================================================
+        // F BẬT / TẮT
+        // =====================================================
+
+        if (Input.GetKeyDown(toggleKey))
         {
-            denPinLight.transform.rotation = cameraChinh.transform.rotation;
-        }
-    }
-
-    #region Input Event (New Input System)
-    public void OnToggleFlashlight(InputAction.CallbackContext context)
-    {
-        if (context.started)
-        {
-            if (!dangBatDen && pinHienTai > 0f)
+            if (isOn)
             {
-                CapNhatTrangThaiDen(true, true);
+                ForceOff();
             }
-            else if (dangBatDen)
+            else
             {
-                CapNhatTrangThaiDen(false, true);
+                TryTurnOn();
             }
         }
-    }
-    #endregion
 
-    private void XuLyTieuHaoPin()
+
+        // =====================================================
+        // KHÔNG BẬT -> KHÔNG TÍNH THỜI GIAN
+        // =====================================================
+
+        if (!isOn)
+            return;
+
+
+        // =====================================================
+        // ĐẾM THỜI GIAN TRỪ PIN
+        // =====================================================
+
+        batteryTimer += Time.deltaTime;
+
+
+        if (batteryTimer >= batteryDrainInterval)
+        {
+            batteryTimer = 0f;
+
+            DrainBattery();
+        }
+    }
+
+
+    // =========================================================
+    // TRỪ PIN
+    // =========================================================
+
+    private void DrainBattery()
     {
-        if (dangBatDen)
-        {
-            pinHienTai -= pinTieuHaoMoiGiay * Time.deltaTime;
+        // Tính % pin dựa trên Max Battery
+        float amount =
+            resources.MaxBattery *
+            (batteryDrainPercent / 100f);
 
-            if (pinHienTai <= 0f)
-            {
-                pinHienTai = 0f;
-                CapNhatTrangThaiDen(false, true); // Hết pin sập nguồn cũng phát tiếng click
-            }
+
+        resources.ConsumeBattery(amount);
+
+
+        Debug.Log(
+            "[FLASHLIGHT] Trừ " +
+            batteryDrainPercent +
+            "% pin. Còn: " +
+            resources.CurrentBattery
+        );
+
+
+        // =====================================================
+        // HẾT PIN
+        // =====================================================
+
+        if (resources.CurrentBattery <= 0f)
+        {
+            Debug.Log(
+                "[FLASHLIGHT] HẾT PIN"
+            );
+
+            ForceOff();
         }
     }
 
-    private void CapNhatTrangThaiDen(bool trangThai, bool phatAmThanh = true)
+
+    // =========================================================
+    // BẬT ĐÈN
+    // =========================================================
+
+    private void TryTurnOn()
     {
-        dangBatDen = trangThai;
-
-        if (denPinLight != null)
+        // Chưa nhặt đèn pin
+        if (!resources.HasFlashlight)
         {
-            denPinLight.enabled = dangBatDen;
+            Debug.LogWarning(
+                "[FLASHLIGHT] Chưa nhặt đèn pin!"
+            );
+
+            return;
         }
 
-        // Kiểm tra và phát âm thanh tiếng click bật/tắt
-        if (phatAmThanh && amThanhSource != null && tiengClickDenPin != null)
+
+        // Hết pin
+        if (resources.CurrentBattery <= 0f)
         {
-            amThanhSource.PlayOneShot(tiengClickDenPin);
+            Debug.LogWarning(
+                "[FLASHLIGHT] Hết pin!"
+            );
+
+            return;
         }
+
+
+        // =====================================================
+        // BẬT ĐÈN PIN -> TẮT ĐÈN DẦU
+        // =====================================================
+
+        if (oilLampController != null)
+        {
+            oilLampController.ForceOff();
+        }
+
+
+        isOn = true;
+
+        // Bắt đầu đếm pin từ 0
+        batteryTimer = 0f;
+
+
+        // Bật holder
+        if (flashlightHolder != null)
+        {
+            flashlightHolder.SetActive(true);
+        }
+
+
+        // Bật Light
+        if (flashlightLight != null)
+        {
+            flashlightLight.enabled = true;
+        }
+
+
+        // Phát âm thanh click
+        PlayClickSound();
+
+
+        Debug.Log(
+            "[FLASHLIGHT] BẬT ĐÈN"
+        );
     }
 
-    private void CapNhatGiaoDienUI()
-    {
-        if (thanhPinUI != null)
-        {
-            thanhPinUI.value = pinHienTai;
-        }
-    }
 
-    public void SacPin(float luongPinSac)
-    {
-        pinHienTai += luongPinSac;
-        if (pinHienTai > pinToiDa)
-        {
-            pinHienTai = pinToiDa;
-        }
-    }
+    // =========================================================
+    // TẮT ĐÈN
+    // =========================================================
 
     public void ForceOff()
     {
-        CapNhatTrangThaiDen(false, true);
+        // Chỉ phát tiếng click nếu đèn đang bật
+        bool wasOn = isOn;
+
+        SetFlashlightOff(false);
+
+        if (wasOn)
+        {
+            PlayClickSound();
+        }
+    }
+
+
+    // =========================================================
+    // TẮT ĐÈN NỘI BỘ
+    // =========================================================
+
+    private void SetFlashlightOff(bool playSound)
+    {
+        isOn = false;
+
+        batteryTimer = 0f;
+
+
+        // Tắt Light
+        if (flashlightLight != null)
+        {
+            flashlightLight.enabled = false;
+        }
+
+
+        // Tắt Holder
+        if (flashlightHolder != null)
+        {
+            flashlightHolder.SetActive(false);
+        }
+
+
+        // Phát âm thanh nếu yêu cầu
+        if (playSound)
+        {
+            PlayClickSound();
+        }
+    }
+
+
+    // =========================================================
+    // ÂM THANH CLICK
+    // =========================================================
+
+    private void PlayClickSound()
+    {
+        if (audioSource == null)
+            return;
+
+        if (flashlightClick == null)
+            return;
+
+
+        audioSource.PlayOneShot(flashlightClick);
     }
 }
