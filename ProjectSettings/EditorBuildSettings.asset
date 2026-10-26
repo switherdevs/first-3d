@@ -5,12 +5,18 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Map 1.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
     path: Assets/Scenes/PuzzleDemo_Map1.unity
     guid: d3f2f2aa31d52024580bb983c6ed9d24
+  - enabled: 1
+    path: Assets/Scenes/BadEnding_Market.unity
+    guid: a357e6d8a46d059458f143b20f1f6135
+  - enabled: 1
+    path: Assets/Scenes/GoodEnding_Market.unity
+    guid: 0dddb23aa3a430548ae79ca8e3a646bd
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
