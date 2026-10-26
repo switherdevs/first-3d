@@ -23,8 +23,11 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Animator của nhân vật để điều khiển hoạt ảnh")]
     public Animator animatorNhanVat;
 
-    [Tooltip("Tên Parameter kiểu Float điều khiển tốc độ di chuyển (Walk/Run)")]
-    public string animParamSpeed = "Speed";
+    [Tooltip("Tên Parameter kiểu Bool điều khiển đi bộ (Walk)")]
+    public string animParamWalk = "Walk";
+
+    [Tooltip("Tên Parameter kiểu Bool điều khiển chạy (Run)")]
+    public string animParamRun = "Run";
 
     [Tooltip("Tên Parameter kiểu Bool điều khiển tư thế ngồi")]
     public string animParamIsCrouching = "IsCrouching";
@@ -284,7 +287,6 @@ public class PlayerMovement : MonoBehaviour
 
                 if (animatorNhanVat != null)
                 {
-                    // Gọi Trigger nhảy bằng tên biến cấu hình trên Inspector
                     animatorNhanVat.SetTrigger(animParamJumpTrigger);
                 }
 
@@ -548,19 +550,20 @@ public class PlayerMovement : MonoBehaviour
     {
         if (animatorNhanVat == null) return;
 
-        // Tính toán tốc độ di chuyển truyền vào Animator
-        float tocDoTruyenAnimator = 0f;
-        if (DangDiChuyen)
-        {
-            bool dangChayThucSu = dangNhanChay && theLucHienTai > 0 && !dangNhanNgoi;
-            tocDoTruyenAnimator = dangChayThucSu ? 1.0f : 0.5f;
-        }
+        // 1. Kiểm tra các trạng thái logic đầu vào
+        bool dangDiChuyen = DangDiChuyen;
+        bool dangChayThucSu = dangNhanChay && theLucHienTai > 0 && !dangNhanNgoi;
 
         bool coVatCanTrenDau = diemKiemTraDau != null && Physics.CheckSphere(diemKiemTraDau.position, banKinhKiemTraDau, lopMatDat);
         bool thucSuDangNgoi = dangNhanNgoi || coVatCanTrenDau;
 
-        // Gửi dữ liệu xuống Animator Controller sử dụng tên biến cấu hình trên Inspector
-        animatorNhanVat.SetFloat(animParamSpeed, tocDoTruyenAnimator);
+        // 2. Xác định giá trị Bool cho Walk và Run (Không đứng yên hoặc ngồi thì mới xét Walk/Run)
+        bool dieuKienWalk = dangDiChuyen && !dangChayThucSu && !thucSuDangNgoi;
+        bool dieuKienRun = dangDiChuyen && dangChayThucSu && !thucSuDangNgoi;
+
+        // 3. Gửi dữ liệu xuống Animator Controller
+        animatorNhanVat.SetBool(animParamWalk, dieuKienWalk);
+        animatorNhanVat.SetBool(animParamRun, dieuKienRun);
         animatorNhanVat.SetBool(animParamIsCrouching, thucSuDangNgoi);
         animatorNhanVat.SetBool(animParamIsGrounded, kiemTagDanGiapDat);
         animatorNhanVat.SetBool(animParamIsInWater, dangOTrongNuoc);
@@ -570,6 +573,11 @@ public class PlayerMovement : MonoBehaviour
     /// Hàm nhận lệnh từ DialogueManager để khóa/mở khóa di chuyển của nhân vật
     /// </summary>
     public void SetKhoaDiChuyen(bool khoa)
+    {
+        dangKhoaDivChuyenNo(khoa);
+    }
+
+    private void dangKhoaDivChuyenNo(bool khoa)
     {
         dangKhoaDiChuyen = khoa;
         if (khoa)
