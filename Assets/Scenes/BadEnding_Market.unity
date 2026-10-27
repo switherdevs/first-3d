@@ -8582,7 +8582,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.03, g: 0.06, b: 0.1, a: 0.4509804}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10259,7 +10259,7 @@ Transform:
   m_GameObject: {fileID: 866146574}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -172.5, y: -35.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -11600,7 +11600,7 @@ Transform:
   m_GameObject: {fileID: 948665916}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -212.5, y: -118.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -13702,7 +13702,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6396318447755932127, guid: 00db83bb7997a0346a23ce8b6ad85b73, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 23.2
+      value: -154.9
       objectReference: {fileID: 0}
     - target: {fileID: 6396318447755932127, guid: 00db83bb7997a0346a23ce8b6ad85b73, type: 3}
       propertyPath: m_LocalPosition.y
@@ -13710,7 +13710,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6396318447755932127, guid: 00db83bb7997a0346a23ce8b6ad85b73, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -154.1
+      value: 103.16
       objectReference: {fileID: 0}
     - target: {fileID: 6396318447755932127, guid: 00db83bb7997a0346a23ce8b6ad85b73, type: 3}
       propertyPath: m_LocalRotation.w
@@ -15303,7 +15303,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BadEndingSceneController
   player: {fileID: 1102494368}
   playerPoint: {fileID: 1721719044}
-  playerScriptsToDisable: []
+  playerScriptsToDisable:
+  - {fileID: 1757396521}
   mada: {fileID: 3703218527036909215, guid: 116a073388473e74195fb087081cedf9, type: 3}
   madaStartPoint: {fileID: 0}
   madaEndPoint: {fileID: 0}
@@ -21774,7 +21775,7 @@ Transform:
   m_GameObject: {fileID: 1721719043}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -164.82999, y: 1, z: 90.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -22295,6 +22296,17 @@ MonoBehaviour:
   maxIntensity: 2.5
   minRange: 2
   maxRange: 7
+--- !u!114 &1757396521 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2997133542996981757, guid: 00db83bb7997a0346a23ce8b6ad85b73, type: 3}
+  m_PrefabInstance: {fileID: 1102494367}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 690551864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90188b99f2aeb4e4495ff5700ee169b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMap1Interaction
 --- !u!1 &1767228265
 GameObject:
   m_ObjectHideFlags: 0
