@@ -27,6 +27,9 @@ public class MaDaAI : MonoBehaviour
     public float thoiGianAmThanhRandom = 10f;
     [Tooltip("Âm thanh phát lên đúng 1 lần khi phát hiện ra Player")]
     public AudioClip detectionClip;
+    [Range(0f, 1f)]
+    [Tooltip("Tùy chỉnh âm lượng của âm thanh phát hiện Player")]
+    public float detectionVolume = 1.0f;
 
     [Header("Settings - Tên Thông Số Animator (Animation Parameters)")]
     [Tooltip("Tên tham số Bool điều khiển trạng thái đi bộ (ví dụ: IsWalking)")]
@@ -86,6 +89,10 @@ public class MaDaAI : MonoBehaviour
     private float boDemTimKiem = 0f;
     private float boDemAmThanhRandom = 0f;
 
+    // Biến quản lý trạng thái phát âm thanh phát hiện
+    private bool daPhatAmThanhPhatHien = false;
+    private bool daBatDuocPlayer = false; // Cờ khóa hẳn AI khi đã bắt được người chơi
+
     // Biến nội bộ cho chu kỳ 4 lần quan sát
     private bool đangDungQuanSat = false;
     private int soLanDaNhin = 0;
@@ -98,16 +105,13 @@ public class MaDaAI : MonoBehaviour
 
     private void Awake()
     {
-        // Tự động tìm kiếm các component gắn chung trên GameObject này
         if (agent == null) agent = GetComponent<NavMeshAgent>();
         if (animator == null) animator = GetComponent<Animator>();
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
 
-        // Tự động tìm các Manager / Hệ thống trong Scene
         if (waterSystem == null) waterSystem = FindFirstObjectByType<WaterSystem>();
         if (survivalManager == null) survivalManager = FindFirstObjectByType<PlayerSurvivalManager>();
 
-        // Tự động tìm Player thông qua SurvivalManager hoặc Tag "Player"
         if (survivalManager != null && survivalManager.player != null)
         {
             playerTransform = survivalManager.player.transform;
@@ -132,8 +136,17 @@ public class MaDaAI : MonoBehaviour
 
     private void Update()
     {
-        if (agent == null || playerTransform == null || waterSystem == null)
+        // Nếu đã bắt được người chơi hoặc chết thì dừng toàn bộ AI, không xử lý nữa
+        if (daBatDuocPlayer || agent == null || playerTransform == null || waterSystem == null)
             return;
+
+        // Bổ sung kiểm tra: Nếu tag của player không còn là "Player" nữa (đã chuyển thành default/Untagged khi chết) thì dừng phát hiện
+        if (playerTransform.CompareTag("Untagged") || !playerTransform.gameObject.activeInHierarchy)
+        {
+            agent.ResetPath();
+            CapNhatAnimation(false, false);
+            return;
+        }
 
         if (!agent.isOnNavMesh)
             return;
@@ -194,6 +207,7 @@ public class MaDaAI : MonoBehaviour
                 {
                     agent.ResetPath();
                     boDemTimKiem = thoiGianTimKiemKhiMatDau;
+                    daPhatAmThanhPhatHien = false;
                     ChuyenDienTrangThai(AIState.Search);
                     break;
                 }
@@ -202,6 +216,7 @@ public class MaDaAI : MonoBehaviour
                 {
                     agent.ResetPath();
                     boDemTimKiem = thoiGianTimKiemKhiMatDau;
+                    daPhatAmThanhPhatHien = false;
                     ChuyenDienTrangThai(AIState.Search);
                     break;
                 }
@@ -242,6 +257,7 @@ public class MaDaAI : MonoBehaviour
                 if (boDemTimKiem <= 0f)
                 {
                     agent.ResetPath();
+                    daPhatAmThanhPhatHien = false;
                     ChuyenDienTrangThai(AIState.Wander);
                     timer = wanderTimer;
                 }
@@ -259,7 +275,7 @@ public class MaDaAI : MonoBehaviour
     #region Quản lý Âm Thanh (Audio Management)
     private void XuLyAmThanhRandom()
     {
-        if (audioSource == null || randomAmbientClips == null || randomAmbientClips.Length == 0)
+        if (audioSource == null || randomAmbientClips == null || randomAmbientClips.Length == 0 || daBatDuocPlayer)
             return;
 
         boDemAmThanhRandom -= Time.deltaTime;
@@ -276,9 +292,11 @@ public class MaDaAI : MonoBehaviour
 
     private void PhatAmThanhPhatHien()
     {
-        if (audioSource != null && detectionClip != null)
+        // Chỉ phát nếu chưa từng phát và người chơi chưa chết
+        if (!daPhatAmThanhPhatHien && !daBatDuocPlayer && audioSource != null && detectionClip != null)
         {
-            audioSource.PlayOneShot(detectionClip);
+            audioSource.PlayOneShot(detectionClip, detectionVolume);
+            daPhatAmThanhPhatHien = true;
         }
     }
     #endregion
@@ -334,7 +352,7 @@ public class MaDaAI : MonoBehaviour
     #region Xử lý Vùng Nước & Va Chạm Muối
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag(tagVungNuoc))
+        if (other.CompareTag(tagVungNuoc) || other.CompareTag(tagVungNuoc))
         {
             đangTrongVungNuoc = true;
             vungNuocHienTai = other;
@@ -412,6 +430,7 @@ public class MaDaAI : MonoBehaviour
             if (đangTrongVungNuoc)
             {
                 agent.ResetPath();
+                daPhatAmThanhPhatHien = false;
                 ChuyenDienTrangThai(AIState.Wander);
                 timer = wanderTimer;
             }
@@ -434,16 +453,18 @@ public class MaDaAI : MonoBehaviour
 
     private void CatchPlayer()
     {
-        if (survivalManager == null)
+        daBatDuocPlayer = true; // Đánh dấu đã tóm được player, khóa vĩnh viễn AI
+
+        if (agent != null)
         {
-            ChuyenDienTrangThai(AIState.Wander);
-            timer = wanderTimer;
-            return;
+            agent.ResetPath();
+            agent.isStopped = true;
         }
 
-        survivalManager.PlayerCaught();
-        ChuyenDienTrangThai(AIState.Wander);
-        timer = wanderTimer;
+        if (survivalManager != null)
+        {
+            survivalManager.PlayerCaught();
+        }
     }
 
     private void HandleWander()

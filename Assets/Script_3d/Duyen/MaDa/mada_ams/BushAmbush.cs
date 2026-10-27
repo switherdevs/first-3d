@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI; // Thêm thư viện để làm việc với UI Button
 
 public class BushAmbushTrap : MonoBehaviour
 {
@@ -11,6 +12,12 @@ public class BushAmbushTrap : MonoBehaviour
     public int soLanNhanECanThiet = 10;
     [Tooltip("Thời gian giới hạn (giây) phải nhấn đủ số lần, nếu không sẽ chết")]
     public float thoiGianGioiHan = 3f;
+
+    [Header("Cấu hình Giao diện Canvas UI khi bị bắt")]
+    [Tooltip("GameObject Canvas UI hoặc Panel hiển thị khi bị bắt (Sẽ tự động bật/tắt)")]
+    public GameObject trapCanvasUI;
+    [Tooltip("UI Button được chỉ định sẽ chạy hiệu ứng click mỗi lần người chơi nhấn phím E")]
+    public Button actionButton;
 
     [Header("Cấu hình Rung Camera khi bị bắt")]
     [Tooltip("Biên độ rung lắc camera khi đang dính bẫy (Càng cao càng dữ dội)")]
@@ -34,6 +41,10 @@ public class BushAmbushTrap : MonoBehaviour
     {
         if (maDaObject != null)
             maDaObject.SetActive(false);
+
+        // Ban đầu ẩn bảng Canvas UI giãy giụa đi
+        if (trapCanvasUI != null)
+            trapCanvasUI.SetActive(false);
 
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
@@ -70,7 +81,13 @@ public class BushAmbushTrap : MonoBehaviour
             playerMovementRef.SetKhoaDiChuyen(true);
         }
 
-        // 2. Hiện Ma Da ngay lập tức tại vị trí cố định
+        // 2. Hiện Canvas UI thông báo dính bẫy lên màn hình
+        if (trapCanvasUI != null)
+        {
+            trapCanvasUI.SetActive(true);
+        }
+
+        // 3. Hiện Ma Da ngay lập tức tại vị trí cố định
         if (maDaObject != null)
         {
             if (fixedSpawnPoint != null)
@@ -81,7 +98,7 @@ public class BushAmbushTrap : MonoBehaviour
             maDaObject.SetActive(true);
         }
 
-        // 3. Phát âm thanh hù dọa
+        // 4. Phát âm thanh hù dọa
         if (audioSource != null && jumpscareSound != null)
         {
             audioSource.PlayOneShot(jumpscareSound);
@@ -110,6 +127,9 @@ public class BushAmbushTrap : MonoBehaviour
             soLanDaNhanE++;
             Debug.Log("Đang giãy giụa thoát thân... Số lần E: " + soLanDaNhanE + "/" + soLanNhanECanThiet);
 
+            // Kích hoạt hiệu ứng click trên UI Button mỗi lần bấm E
+            KichHoatHieuUngClickButton();
+
             if (soLanDaNhanE >= soLanNhanECanThiet)
             {
                 ThoatTrap();
@@ -124,6 +144,29 @@ public class BushAmbushTrap : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Giả lập hiệu ứng nút bấm UI được click (chuyển sang trạng thái Pressed)
+    /// </summary>
+    private void KichHoatHieuUngClickButton()
+    {
+        if (actionButton != null)
+        {
+            // Kích hoạt sự kiện OnClick của Button (nếu bạn muốn gọi các hàm gắn sẵn trong Inspector)
+            actionButton.onClick.Invoke();
+
+            // Gọi Coroutine để tạo hiệu ứng chuyển đổi đồ họa sang trạng thái Pressed rồi trả về Normal
+            StartCoroutine(Routine_HieuUngNhanNut(actionButton));
+        }
+    }
+
+    private System.Collections.IEnumerator Routine_HieuUngNhanNut(Button btn)
+    {
+        // Chuyển UI Button sang trạng thái Highlighted / Pressed trực tiếp qua Selectable
+        btn.transform.localScale = Vector3.one * 0.9f; // Thu nhỏ nhẹ nút tạo cảm giác đang bị nhấn
+        yield return new WaitForSecondsRealtime(0.08f); // Chờ ngắn trong thời gian thực
+        btn.transform.localScale = Vector3.one;       // Trở lại kích thước ban đầu
+    }
+
     void ThoatTrap()
     {
         daThoat = true;
@@ -134,6 +177,12 @@ public class BushAmbushTrap : MonoBehaviour
         if (mainCamTransform != null)
         {
             mainCamTransform.localPosition = cameraLocalPosBanDau;
+        }
+
+        // Ẩn bảng Canvas UI đi khi đã thoát
+        if (trapCanvasUI != null)
+        {
+            trapCanvasUI.SetActive(false);
         }
 
         // Mở khóa di chuyển cho nhân vật
@@ -162,6 +211,12 @@ public class BushAmbushTrap : MonoBehaviour
         if (mainCamTransform != null)
         {
             mainCamTransform.localPosition = cameraLocalPosBanDau;
+        }
+
+        // Ẩn bảng Canvas UI khi chết (để nhường chỗ cho màn hình Game Over chính nếu có)
+        if (trapCanvasUI != null)
+        {
+            trapCanvasUI.SetActive(false);
         }
 
         Debug.Log("Người chơi đã chết vì không giãy thoát kịp!");

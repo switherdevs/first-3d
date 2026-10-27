@@ -162,9 +162,11 @@ MonoBehaviour:
   survivalManager: {fileID: 0}
   animator: {fileID: 8460054801007432403}
   audioSource: {fileID: 7406484539305407937}
-  randomAmbientClips: []
+  randomAmbientClips:
+  - {fileID: 8300000, guid: eb05cc2222291f343aaa7c2b15e64ea4, type: 3}
   thoiGianAmThanhRandom: 10
-  detectionClip: {fileID: 8300000, guid: eb05cc2222291f343aaa7c2b15e64ea4, type: 3}
+  detectionClip: {fileID: 8300000, guid: 41cb9877ae218274baf379843aebb164, type: 3}
+  detectionVolume: 0.5
   animParamIsWalking: IsWalking
   animParamIsRunning: IsRunning
   animParamAttackTrigger: Attack

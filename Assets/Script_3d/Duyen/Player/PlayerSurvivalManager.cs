@@ -14,14 +14,14 @@ public class PlayerSurvivalManager : MonoBehaviour
 
     private void Start()
     {
-        // Tự động tìm Player nếu chưa gán trên Inspector
+        // Tự động tìm Player nếu chưa gán trên Inspector[cite: 11]
         if (player == null)
         {
             GameObject p = GameObject.FindGameObjectWithTag("Player");
             if (p != null) player = p;
         }
 
-        // Ẩn bảng Thua Game khi bắt đầu vào chơi
+        // Ẩn bảng Thua Game khi bắt đầu vào chơi[cite: 11]
         if (gameOverUI != null)
         {
             gameOverUI.SetActive(false);
@@ -29,7 +29,7 @@ public class PlayerSurvivalManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Hàm được gọi khi Ma Da hoặc bẫy bắt được người chơi
+    /// Hàm được gọi khi Ma Da hoặc bẫy bắt được người chơi[cite: 11]
     /// </summary>
     public void PlayerCaught()
     {
@@ -38,13 +38,13 @@ public class PlayerSurvivalManager : MonoBehaviour
 
         Debug.Log("Người chơi đã bị bắt! Kích hoạt màn hình Thua Game.");
 
-        // 1. Hiển thị giao diện Thua Game lên màn hình
+        // 1. Hiển thị giao diện Thua Game lên màn hình[cite: 11]
         if (gameOverUI != null)
         {
             gameOverUI.SetActive(true);
         }
 
-        // 2. Khóa di chuyển của Player (Nhân vật đứng yên tại chỗ, hoàn toàn KHÔNG bị ẩn hay xóa)
+        // 2. Khóa di chuyển của Player (Nhân vật đứng yên tại chỗ, hoàn toàn KHÔNG bị ẩn hay xóa)[cite: 11]
         if (player != null)
         {
             PlayerMovement playerMovement = player.GetComponent<PlayerMovement>();
@@ -52,9 +52,13 @@ public class PlayerSurvivalManager : MonoBehaviour
             {
                 playerMovement.SetKhoaDiChuyen(true);
             }
+
+            // 3. Đổi Tag của Player thành "Untagged" (mặc định) khi chết để quái vật ngừng phát hiện
+            player.tag = "Untagged";
+            Debug.Log("Tag của Player đã được chuyển về 'Untagged' (Default).");
         }
 
-        // 3. Mở khóa con trỏ chuột để người chơi có thể bấm các nút như Chơi lại (Restart) hoặc Thoát (Quit) trên UI
+        // 4. Mở khóa con trỏ chuột để người chơi có thể bấm các nút như Chơi lại (Restart) hoặc Thoát (Quit) trên UI[cite: 11]
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }

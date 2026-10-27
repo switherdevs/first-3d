@@ -16,11 +16,6 @@ public class AudioInitializer : MonoBehaviour
     private const string KEY_MUSIC = "Save_MusicVolume";
     private const string KEY_SFX = "Save_SFXVolume";
 
-    private void Awake()
-    {
-        // Giữ AudioManager không bị xoá khi chuyển Scene
-        DontDestroyOnLoad(gameObject);
-    }
 
     private void Start()
     {

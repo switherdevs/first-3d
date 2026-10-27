@@ -1176,7 +1176,6 @@ GameObject:
   - component: {fileID: 497080016}
   - component: {fileID: 497080017}
   - component: {fileID: 497080018}
-  - component: {fileID: 497080019}
   m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
@@ -1416,22 +1415,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &497080019
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 497080009}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e53f2b281302dd4b8644fbd8c8bced6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AudioInitializer
-  mainAudioMixer: {fileID: 24100000, guid: 0ecce87050d012c45bd184301a9271f2, type: 2}
-  parameterMaster: MasterVolume
-  parameterMusic: MusicVolume
-  parameterSFX: SFXVolume
 --- !u!1 &757830424
 GameObject:
   m_ObjectHideFlags: 0
@@ -1603,7 +1586,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -8.479465, y: 2.699017}
+  m_AnchoredPosition: {x: -8.4794655, y: 2.6990166}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &890302344
