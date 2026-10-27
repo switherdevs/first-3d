@@ -449,7 +449,8 @@ MonoBehaviour:
   thanhTheLucUI: {fileID: 0}
   cameraChinh: {fileID: 0}
   animatorNhanVat: {fileID: 2822878492920329272}
-  animParamSpeed: Speed
+  animParamWalk: Walk
+  animParamRun: Run
   animParamIsCrouching: IsCrouching
   animParamIsGrounded: IsGrounded
   animParamIsInWater: IsInWater
@@ -1358,7 +1359,7 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6188893846885381838}
   m_Enabled: 1
-  m_Avatar: {fileID: 0}
+  m_Avatar: {fileID: 9000000, guid: 5adf9ec5b82a914418823099a756ca7a, type: 3}
   m_Controller: {fileID: 9100000, guid: f7240ad29ff0c6f45b107e953b491d5b, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0

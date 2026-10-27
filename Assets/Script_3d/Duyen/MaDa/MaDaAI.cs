@@ -12,11 +12,29 @@ public class MaDaAI : MonoBehaviour
         Search
     }
 
-    [Header("References")]
+    [Header("References (Tự động tìm kiếm)")]
     public NavMeshAgent agent;
     public Transform playerTransform;
     public WaterSystem waterSystem;
     public PlayerSurvivalManager survivalManager;
+    public Animator animator;
+    public AudioSource audioSource;
+
+    [Header("Settings - Âm Thanh (Audio Configuration)")]
+    [Tooltip("Danh sách các âm thanh rên rỉ/hù dọa ngẫu nhiên")]
+    public AudioClip[] randomAmbientClips;
+    [Tooltip("Khoảng thời gian (giây) giữa các lần phát âm thanh ngẫu nhiên")]
+    public float thoiGianAmThanhRandom = 10f;
+    [Tooltip("Âm thanh phát lên đúng 1 lần khi phát hiện ra Player")]
+    public AudioClip detectionClip;
+
+    [Header("Settings - Tên Thông Số Animator (Animation Parameters)")]
+    [Tooltip("Tên tham số Bool điều khiển trạng thái đi bộ (ví dụ: IsWalking)")]
+    public string animParamIsWalking = "IsWalking";
+    [Tooltip("Tên tham số Bool điều khiển trạng thái chạy rượt đuổi (ví dụ: IsRunning)")]
+    public string animParamIsRunning = "IsRunning";
+    [Tooltip("Tên tham số Trigger kích hoạt hành động tấn công (ví dụ: Attack)")]
+    public string animParamAttackTrigger = "Attack";
 
     [Header("Settings - Vùng Nước (Water Boundary)")]
     [Tooltip("Tag nhận diện các vùng nước")]
@@ -66,6 +84,7 @@ public class MaDaAI : MonoBehaviour
     private bool dangDinhMuoi = false;
     private float boDemThoiGianMuoi = 0f;
     private float boDemTimKiem = 0f;
+    private float boDemAmThanhRandom = 0f;
 
     // Biến nội bộ cho chu kỳ 4 lần quan sát
     private bool đangDungQuanSat = false;
@@ -77,14 +96,18 @@ public class MaDaAI : MonoBehaviour
     private bool đangTrongVungNuoc = false;
     private Collider vungNuocHienTai = null;
 
-    private void Start()
+    private void Awake()
     {
-        if (agent == null)
-            agent = GetComponent<NavMeshAgent>();
+        // Tự động tìm kiếm các component gắn chung trên GameObject này
+        if (agent == null) agent = GetComponent<NavMeshAgent>();
+        if (animator == null) animator = GetComponent<Animator>();
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
 
-        if (survivalManager == null)
-            survivalManager = FindFirstObjectByType<PlayerSurvivalManager>();
+        // Tự động tìm các Manager / Hệ thống trong Scene
+        if (waterSystem == null) waterSystem = FindFirstObjectByType<WaterSystem>();
+        if (survivalManager == null) survivalManager = FindFirstObjectByType<PlayerSurvivalManager>();
 
+        // Tự động tìm Player thông qua SurvivalManager hoặc Tag "Player"
         if (survivalManager != null && survivalManager.player != null)
         {
             playerTransform = survivalManager.player.transform;
@@ -96,13 +119,14 @@ public class MaDaAI : MonoBehaviour
             if (playerObj != null)
                 playerTransform = playerObj.transform;
         }
+    }
 
-        if (waterSystem == null)
-            waterSystem = FindFirstObjectByType<WaterSystem>();
-
+    private void Start()
+    {
         TuDongTimVungNuocGanNhat();
 
         timer = wanderTimer;
+        boDemAmThanhRandom = thoiGianAmThanhRandom;
         CapNhatCauHinhTheoTrangThai();
     }
 
@@ -114,7 +138,10 @@ public class MaDaAI : MonoBehaviour
         if (!agent.isOnNavMesh)
             return;
 
-        // 1. Xử lý thời gian dính muối
+        // 1. Xử lý âm thanh ngẫu nhiên theo thời gian
+        XuLyAmThanhRandom();
+
+        // 2. Xử lý thời gian dính muối
         if (dangDinhMuoi)
         {
             boDemThoiGianMuoi -= Time.deltaTime;
@@ -125,7 +152,7 @@ public class MaDaAI : MonoBehaviour
             }
         }
 
-        // 2. Kiểm tra nếu ra khỏi vùng nước thì buộc quay về
+        // 3. Kiểm tra nếu ra khỏi vùng nước thì buộc quay về
         if (!đangTrongVungNuoc && currentState != AIState.ReturnToWater)
         {
             ChuyenDienTrangThai(AIState.ReturnToWater);
@@ -143,20 +170,21 @@ public class MaDaAI : MonoBehaviour
         float gocQuetToPlayer = Vector3.Angle(transform.forward, huongToPlayer);
         bool playerTrongTamNhin = distanceToPlayer <= detectionRadius && gocQuetToPlayer <= (fieldOfViewAngle / 2f);
 
-        // 3. State Machine
+        // 4. State Machine
         switch (currentState)
         {
             case AIState.ReturnToWater:
                 XuLyQuayVeVungNuoc();
+                CapNhatAnimation(true, false);
                 break;
 
             case AIState.Wander:
                 HandleWander();
 
-                // Nếu đang đứng lại quan sát mà thấy Player thì lập tức rượt đuổi
                 if (playerTrongTamNhin && waterSystem.playerInWater && đangTrongVungNuoc)
                 {
                     đangDungQuanSat = false;
+                    PhatAmThanhPhatHien();
                     ChuyenDienTrangThai(AIState.Chase);
                 }
                 break;
@@ -184,6 +212,7 @@ public class MaDaAI : MonoBehaviour
                 if (distanceToPlayer > catchDistance)
                 {
                     agent.SetDestination(chasePosition);
+                    CapNhatAnimation(false, true);
                 }
                 else
                 {
@@ -201,8 +230,11 @@ public class MaDaAI : MonoBehaviour
                     agent.SetDestination(randomSearchPos);
                 }
 
+                CapNhatAnimation(false, true);
+
                 if (playerTrongTamNhin && waterSystem.playerInWater && đangTrongVungNuoc)
                 {
+                    PhatAmThanhPhatHien();
                     ChuyenDienTrangThai(AIState.Chase);
                     break;
                 }
@@ -217,10 +249,60 @@ public class MaDaAI : MonoBehaviour
 
             case AIState.Attack:
                 agent.ResetPath();
+                CapNhatAnimation(false, false);
+                TriggerAttackAnimation();
                 CatchPlayer();
                 break;
         }
     }
+
+    #region Quản lý Âm Thanh (Audio Management)
+    private void XuLyAmThanhRandom()
+    {
+        if (audioSource == null || randomAmbientClips == null || randomAmbientClips.Length == 0)
+            return;
+
+        boDemAmThanhRandom -= Time.deltaTime;
+        if (boDemAmThanhRandom <= 0f)
+        {
+            AudioClip clipNgauNhien = randomAmbientClips[Random.Range(0, randomAmbientClips.Length)];
+            if (clipNgauNhien != null)
+            {
+                audioSource.PlayOneShot(clipNgauNhien);
+            }
+            boDemAmThanhRandom = thoiGianAmThanhRandom;
+        }
+    }
+
+    private void PhatAmThanhPhatHien()
+    {
+        if (audioSource != null && detectionClip != null)
+        {
+            audioSource.PlayOneShot(detectionClip);
+        }
+    }
+    #endregion
+
+    #region Quản lý Hoạt hoạ (Animation Management)
+    private void CapNhatAnimation(bool isWalking, bool isRunning)
+    {
+        if (animator == null) return;
+
+        if (!string.IsNullOrEmpty(animParamIsWalking))
+            animator.SetBool(animParamIsWalking, isWalking);
+
+        if (!string.IsNullOrEmpty(animParamIsRunning))
+            animator.SetBool(animParamIsRunning, isRunning);
+    }
+
+    private void TriggerAttackAnimation()
+    {
+        if (animator == null) return;
+
+        if (!string.IsNullOrEmpty(animParamAttackTrigger))
+            animator.SetTrigger(animParamAttackTrigger);
+    }
+    #endregion
 
     #region Quản lý Trạng thái, Tốc độ & Góc xoay
     private void ChuyenDienTrangThai(AIState trangThaiMoi)
@@ -366,37 +448,33 @@ public class MaDaAI : MonoBehaviour
 
     private void HandleWander()
     {
-        // 1. Xử lý trạng thái đứng lại thực hiện đủ 4 lần quan sát ngẫu nhiên
         if (đangDungQuanSat)
         {
+            CapNhatAnimation(false, false);
+
             if (đangXoayHuongMoi)
             {
-                // Xoay mượt mà sang hướng ngẫu nhiên mục tiêu
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, gocXoayMucTieu, tocDoXoayQuanSat * Time.deltaTime);
 
-                // Khi đã xoay xong hướng đó thì dừng lại nhìn
                 if (Quaternion.Angle(transform.rotation, gocXoayMucTieu) < 1f)
                 {
                     đangXoayHuongMoi = false;
-                    boDemNhinHuong = thoiGianNhinMoiHuong; // Bắt đầu đếm thời gian nhìn tại chỗ
+                    boDemNhinHuong = thoiGianNhinMoiHuong;
                 }
             }
             else
             {
-                // Đứng nhìn tại chỗ trong khoảng thời gian `thoiGianNhinMoiHuong`
                 boDemNhinHuong -= Time.deltaTime;
                 if (boDemNhinHuong <= 0f)
                 {
                     soLanDaNhin++;
                     if (soLanDaNhin >= 4)
                     {
-                        // Đã nhìn đủ 4 lần -> Kết thúc quan sát, tiếp tục đi lang thang
                         đangDungQuanSat = false;
                         timer = 0f;
                     }
                     else
                     {
-                        // Chưa đủ 4 lần -> Random một hướng mới để xoay sang quan sát tiếp
                         ChonHuongQuanSatNgauNhien();
                     }
                 }
@@ -406,12 +484,10 @@ public class MaDaAI : MonoBehaviour
 
         timer += Time.deltaTime;
 
-        // Kiểm tra xem đã đến đích chưa
         bool daDenDich = !agent.pathPending && (agent.remainingDistance <= agent.stoppingDistance + 0.2f);
 
         if (daDenDich && agent.hasPath)
         {
-            // Dừng lại, kích hoạt chuỗi 4 lần quan sát
             agent.ResetPath();
             đangDungQuanSat = true;
             soLanDaNhin = 0;
@@ -419,7 +495,11 @@ public class MaDaAI : MonoBehaviour
             return;
         }
 
-        // Tìm điểm đi tiếp sau khi hết thời gian lang thang
+        if (agent.hasPath && agent.remainingDistance > agent.stoppingDistance + 0.2f)
+        {
+            CapNhatAnimation(true, false);
+        }
+
         if (timer >= wanderTimer || (!agent.pathPending && !agent.hasPath))
         {
             Vector3 newPos = RandomNavMeshLocation(wanderRadius);
@@ -458,7 +538,7 @@ public class MaDaAI : MonoBehaviour
         Gizmos.color = Color.cyan;
         float halfFOV = fieldOfViewAngle / 2f;
         Vector3 leftBoundary = Quaternion.Euler(0, -halfFOV, 0) * transform.forward * detectionRadius;
-        Vector3 rightBoundary = Quaternion.Euler(0, halfFOV, 0) * transform.forward * detectionRadius;
+        Vector3 rightBoundary = Quaternion.Euler(0, fieldOfViewAngle / 2f, 0) * transform.forward * detectionRadius;
 
         Vector3 originPos = transform.position + Vector3.up * 0.5f;
         Gizmos.DrawLine(originPos, originPos + leftBoundary);

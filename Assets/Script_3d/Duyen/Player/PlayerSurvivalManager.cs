@@ -1,52 +1,61 @@
-﻿
-using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerSurvivalManager : MonoBehaviour
 {
-    [Header("Player và Checkpoint")]
+    [Header("UI Thua Game (Game Over)")]
+    [Tooltip("GameObject giao diện hoặc màn hình Thua Game cần hiển thị khi bị bắt")]
+    public GameObject gameOverUI;
+
+    [Header("Tham chiếu Player")]
+    [Tooltip("GameObject của người chơi (Sẽ không bị ẩn hay xóa)")]
     public GameObject player;
-    public Transform checkpoint;
 
-    [Header("Thời gian hồi sinh")]
-    public float respawnDelay = 3f;
+    private bool daThuaGame = false;
 
-    private bool isRespawning = false;
-
-    public void PlayerCaught()
+    private void Start()
     {
-        if (isRespawning) return;
+        // Tự động tìm Player nếu chưa gán trên Inspector
+        if (player == null)
+        {
+            GameObject p = GameObject.FindGameObjectWithTag("Player");
+            if (p != null) player = p;
+        }
 
-        StartCoroutine(RespawnPlayer());
+        // Ẩn bảng Thua Game khi bắt đầu vào chơi
+        if (gameOverUI != null)
+        {
+            gameOverUI.SetActive(false);
+        }
     }
 
-    private IEnumerator RespawnPlayer()
+    /// <summary>
+    /// Hàm được gọi khi Ma Da hoặc bẫy bắt được người chơi
+    /// </summary>
+    public void PlayerCaught()
     {
-        isRespawning = true;
+        if (daThuaGame) return;
+        daThuaGame = true;
 
-        // Player khi bị Ma Da bắt
-        player.SetActive(false);
+        Debug.Log("Người chơi đã bị bắt! Kích hoạt màn hình Thua Game.");
 
-        yield return new WaitForSeconds(respawnDelay);
+        // 1. Hiển thị giao diện Thua Game lên màn hình
+        if (gameOverUI != null)
+        {
+            gameOverUI.SetActive(true);
+        }
 
-        //  Đưa Player về Checkpoint
-        player.transform.position = checkpoint.position;
-        player.transform.rotation = checkpoint.rotation;
+        // 2. Khóa di chuyển của Player (Nhân vật đứng yên tại chỗ, hoàn toàn KHÔNG bị ẩn hay xóa)
+        if (player != null)
+        {
+            PlayerMovement playerMovement = player.GetComponent<PlayerMovement>();
+            if (playerMovement != null)
+            {
+                playerMovement.SetKhoaDiChuyen(true);
+            }
+        }
 
-        // Hiện Player trở lạii
-        player.SetActive(true);
-
-        isRespawning = false;
-
-        Debug.Log("Player đã hồi sinh tại Checkpoint!");
-
-        // Đặt lại trạng thái nước nguy hiểm
-        PlayerMovement playerMovement =
-            player.GetComponent<PlayerMovement>();
-
-        //if (playerMovement != null)
-        //{
-        //    playerMovement.DatLaiTrangThaiNuocNguyHiem();
-        //}
+        // 3. Mở khóa con trỏ chuột để người chơi có thể bấm các nút như Chơi lại (Restart) hoặc Thoát (Quit) trên UI
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 }

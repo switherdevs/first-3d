@@ -13,8 +13,6 @@ public enum NgonNgu
 
 public class SettingsManager : MonoBehaviour
 {
-    public static SettingsManager Instance;
-
     [Header("--- KHUNG GIAO DIỆN UI SETTING ---")]
     [Tooltip("Kéo GameObject Bảng Menu Setting (Panel) bị Active False vào đây")]
     public GameObject panelSettingUI;
@@ -94,18 +92,7 @@ public class SettingsManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            // Nếu đã có Instance tồn tại, chuyển toàn bộ liên kết UI mới sang Instance cũ
-            Instance.CapNhatLienKetUIMoi(this);
-            Destroy(gameObject);
-            return;
-        }
+        // Không còn sử dụng DontDestroyOnLoad hay Singleton Instance
     }
 
     private void Start()
@@ -175,35 +162,6 @@ public class SettingsManager : MonoBehaviour
         LoadAllSettings();
     }
 
-    // Cập nhật lại các tham chiếu UI khi reload scene mới
-    public void CapNhatLienKetUIMoi(SettingsManager newSettings)
-    {
-        this.panelSettingUI = newSettings.panelSettingUI;
-        this.sliderMaster = newSettings.sliderMaster;
-        this.sliderMusic = newSettings.sliderMusic;
-        this.sliderSFX = newSettings.sliderSFX;
-        this.sliderSensitivity = newSettings.sliderSensitivity;
-
-        this.textMasterValue = newSettings.textMasterValue;
-        this.textMusicValue = newSettings.textMusicValue;
-        this.textSFXValue = newSettings.textSFXValue;
-        this.textSensitivityValue = newSettings.textSensitivityValue;
-
-        this.btnDungDuaCam = newSettings.btnDungDuaCam;
-        this.mauNutKhiBat = newSettings.mauNutKhiBat;
-        this.mauNutKhiTat = newSettings.mauNutKhiTat;
-        this.iconChietBaoNut = newSettings.iconChietBaoNut;
-
-        this.animatorSetting = newSettings.animatorSetting;
-        this.tenAniIn = newSettings.tenAniIn;
-        this.tenAniOut = newSettings.tenAniOut;
-        this.thoiGianChoAniOut = newSettings.thoiGianChoAniOut;
-
-        this.amThanhClick = newSettings.amThanhClick;
-
-        KhoiTaoSettings();
-    }
-
     private void CauHinhSlider(Slider slider, float min, float max)
     {
         if (slider != null)
@@ -256,12 +214,10 @@ public class SettingsManager : MonoBehaviour
     // HÀM MỞ / ĐÓNG (RESUME) SETTING VỚI ANIMATION IN/OUT
     // =========================================================
 
-    // 🎯 HÀM MỞ SETTING (Gán cho nút Setting hoặc phím Pause)
     public void MoSettingUI()
     {
         PhatAmThanhClick();
 
-        // Bật Bảng Menu UI Setting lên
         if (panelSettingUI != null)
         {
             panelSettingUI.SetActive(true);
@@ -271,7 +227,6 @@ public class SettingsManager : MonoBehaviour
             gameObject.SetActive(true);
         }
 
-        // Đồng bộ vị trí Slider & Text khi mở UI
         CapNhatGiaoDienUI();
 
         if (animatorSetting != null && !string.IsNullOrEmpty(tenAniIn))
@@ -279,12 +234,10 @@ public class SettingsManager : MonoBehaviour
             animatorSetting.Play(tenAniIn, 0, 0f);
         }
 
-        // Hiện chuột để thao tác UI
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
-    // 🎯 HÀM BỔ SUNG: NÚT RESUME (Gán vào Button Resume/Đóng trong Setting UI)
     public void ResumeGame()
     {
         PhatAmThanhClick();
@@ -299,16 +252,13 @@ public class SettingsManager : MonoBehaviour
 
     private IEnumerator Routine_ResumeGame()
     {
-        // 1. Chạy Animation ani_out biến mất
         if (animatorSetting != null && !string.IsNullOrEmpty(tenAniOut))
         {
             animatorSetting.Play(tenAniOut, 0, 0f);
         }
 
-        // 2. Chờ thời gian chạy hết animation ani_out (Realtime không bị ảnh hưởng bởi Time.timeScale = 0)
         yield return new WaitForSecondsRealtime(thoiGianChoAniOut);
 
-        // 3. Tắt Panel UI Setting
         if (panelSettingUI != null)
         {
             panelSettingUI.SetActive(false);
@@ -318,13 +268,10 @@ public class SettingsManager : MonoBehaviour
             gameObject.SetActive(false);
         }
 
-        // 4. Khôi phục lại thời gian Game
         Time.timeScale = 1f;
-
         coroutineChuyenGiaoUI = null;
     }
 
-    // 🎯 1. XỬ LÝ ÂM THANH MASTER
     public void SetMasterVolume(float value)
     {
         float clampedVal = Mathf.Clamp(value, 0.0001f, 1f);
@@ -346,7 +293,6 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    // 🎯 2. XỬ LÝ ÂM THANH MUSIC
     public void SetMusicVolume(float value)
     {
         float clampedVal = Mathf.Clamp(value, 0.0001f, 1f);
@@ -368,7 +314,6 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    // 🎯 3. XỬ LÝ ÂM THANH SFX
     public void SetSFXVolume(float value)
     {
         float clampedVal = Mathf.Clamp(value, 0.0001f, 1f);
@@ -390,7 +335,6 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    // 🎯 4. XỬ LÝ ĐỘ NHẠY CHUỘT & TRUYỀN THÔNG SỐ TỚI CAMERACONTROLLER
     public void SetMouseSensitivity(float value)
     {
         currentMouseSensitivity = value;
@@ -413,33 +357,25 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    // 🎯 5. BỔ SUNG: XỬ LÝ BUTTON TOGGLE TẮT / BẬT ĐUNG ĐƯA CAMERA
     public void ToggleCameraBobbing()
     {
         PhatAmThanhClick();
 
-        // Đảo ngược trạng thái
         isCameraBobbingDisabled = !isCameraBobbingDisabled;
-
-        // Áp dụng trạng thái cho CameraController
         ApDungTrangThaiDungDuaCam(isCameraBobbingDisabled);
 
-        // Lưu vào PlayerPrefs (1 = Tắt đung đưa / 0 = Bình thường)
         PlayerPrefs.SetInt(KEY_CAMERA_BOBBING, isCameraBobbingDisabled ? 1 : 0);
         PlayerPrefs.Save();
     }
 
     private void ApDungTrangThaiDungDuaCam(bool isDisabled)
     {
-        // Tìm CameraController trong Scene
         CameraController camControl = Object.FindFirstObjectByType<CameraController>();
         if (camControl != null)
         {
-            // kichHoatDungDua = true khi isDisabled = false
             camControl.kichHoatDungDua = !isDisabled;
         }
 
-        // Cập nhật màu sắc / icon giao diện nút bấm
         CapNhatMauNutDungDua(isDisabled);
     }
 
@@ -447,7 +383,6 @@ public class SettingsManager : MonoBehaviour
     {
         if (btnDungDuaCam != null)
         {
-            // Đổi màu nền Nút (Nếu có Image component)
             Image imgNut = btnDungDuaCam.GetComponent<Image>();
             if (imgNut != null)
             {
@@ -455,22 +390,18 @@ public class SettingsManager : MonoBehaviour
             }
         }
 
-        // Bật / Ẩn Icon chỉ báo
         if (iconChietBaoNut != null)
         {
             iconChietBaoNut.SetActive(isDisabled);
         }
     }
 
-    // 🎯 6. HÀM ĐỔI NGÔN NGỮ (TIẾNG VIỆT / TIẾNG ANH)
     public void DoiNgonNgu(int indexNgonNgu)
     {
         PhatAmThanhClick();
         ngonNguHienTai = (NgonNgu)indexNgonNgu;
         PlayerPrefs.SetInt(KEY_LANGUAGE, indexNgonNgu);
         PlayerPrefs.Save();
-
-        Debug.Log("<color=cyan>[SettingsManager]</color> Đã chuyển ngôn ngữ sang: " + ngonNguHienTai.ToString());
     }
 
     public void ChuyenDoiQuaLaiNgonNgu()
@@ -486,7 +417,6 @@ public class SettingsManager : MonoBehaviour
         }
     }
 
-    // 🎯 7. LOAD TẤT CẢ DỮ LIỆU ĐÃ LƯU TỪ PLAYERPREFS
     public void LoadAllSettings()
     {
         float masterVal = PlayerPrefs.GetFloat(KEY_MASTER, 0.75f);
@@ -495,7 +425,6 @@ public class SettingsManager : MonoBehaviour
         float sensitivityVal = PlayerPrefs.GetFloat(KEY_SENSITIVITY, 0.3f);
         int languageVal = PlayerPrefs.GetInt(KEY_LANGUAGE, (int)NgonNgu.TiengViet);
 
-        // Lấy trạng thái Tắt đung đưa (Mặc định 0 = không tắt)
         isCameraBobbingDisabled = PlayerPrefs.GetInt(KEY_CAMERA_BOBBING, 0) == 1;
 
         SetMasterVolume(masterVal);
@@ -509,9 +438,6 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    /// <summary>
-    /// Làm mới Slider, Text và Nút Bấm khi người chơi mở UI Setting lên
-    /// </summary>
     private void CapNhatGiaoDienUI()
     {
         float masterVal = PlayerPrefs.GetFloat(KEY_MASTER, 0.75f);
