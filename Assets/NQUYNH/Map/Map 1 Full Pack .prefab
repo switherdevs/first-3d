@@ -233,8 +233,8 @@ GameObject:
   - component: {fileID: 599386137554538084}
   - component: {fileID: 3665974516337605106}
   - component: {fileID: 4767453941003667542}
-  - component: {fileID: 2278793619278245073}
   - component: {fileID: 2923152091638280170}
+  - component: {fileID: 2278793619278245073}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -317,6 +317,37 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 121876160662709235}
   m_Enabled: 1
+--- !u!114 &2923152091638280170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 121876160662709235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fc1966e7f155334ea07c304e69a4450, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraController
+  thanNhanVat: {fileID: 6396318447755932127}
+  khoangCach: 4
+  khoangCachToiThieu: 0.8
+  chieuCaoDiemNhin: 1.5
+  doLechGocVai: 0.5
+  tagTuong: Wall
+  lopVatCan:
+    serializedVersion: 2
+    m_Bits: 0
+  banKinhKiemTraCam: 0.2
+  thoiGianThuPhongNeTuong: 0.05
+  doNhayNgang: 3
+  doNhayDoc: 3
+  gocNhinThapNhat: -20
+  gocNhinCaoNhat: 60
+  kichHoatDungDua: 1
+  tocDoDungDua: 2
+  bienDoGocX: 0.8
+  bienDoGocY: 0.5
 --- !u!114 &2278793619278245073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -361,37 +392,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!114 &2923152091638280170
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 121876160662709235}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1fc1966e7f155334ea07c304e69a4450, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CameraController
-  thanNhanVat: {fileID: 6396318447755932127}
-  khoangCach: 4
-  khoangCachToiThieu: 0.8
-  chieuCaoDiemNhin: 1.5
-  doLechGocVai: 0.5
-  tagTuong: Wall
-  lopVatCan:
-    serializedVersion: 2
-    m_Bits: 0
-  banKinhKiemTraCam: 0.2
-  thoiGianThuPhongNeTuong: 0.05
-  doNhayNgang: 3
-  doNhayDoc: 3
-  gocNhinThapNhat: -20
-  gocNhinCaoNhat: 60
-  kichHoatDungDua: 1
-  tocDoDungDua: 2
-  bienDoGocX: 0.8
-  bienDoGocY: 0.5
 --- !u!1 &334924637586064733
 GameObject:
   m_ObjectHideFlags: 0

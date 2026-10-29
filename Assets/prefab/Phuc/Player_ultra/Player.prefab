@@ -11,13 +11,14 @@ GameObject:
   - component: {fileID: 2821810737384870912}
   - component: {fileID: 5264477406761448634}
   - component: {fileID: 7961212209373135358}
+  - component: {fileID: 4880953221578088738}
+  - component: {fileID: 6209279846287423806}
+  - component: {fileID: 2059019556657777433}
   - component: {fileID: 6231479146548974114}
   - component: {fileID: 3837591230149046580}
   - component: {fileID: 3315865635703472045}
   - component: {fileID: 2242016706310598689}
-  - component: {fileID: 4880953221578088738}
   - component: {fileID: 5830872234561818388}
-  - component: {fileID: 6209279846287423806}
   - component: {fileID: 2902571133660485716}
   m_Layer: 0
   m_Name: Player
@@ -100,6 +101,111 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &4880953221578088738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6415875096108477121}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d81c1e381b5491040a11f1f5b60a3da1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
+  boDieuKhienNhanVat: {fileID: 3315865635703472045}
+  vaChamNhanVat: {fileID: 2242016706310598689}
+  thanhTheLucUI: {fileID: 0}
+  cameraChinh: {fileID: 0}
+  nguonAmThanhBuocChan: {fileID: 0}
+  nguonAmThanhHieuUng: {fileID: 0}
+  amThanhBuocChan: {fileID: 8300000, guid: 177d46b001cbd6c4b8cdb0758779620f, type: 3}
+  amLuongBuocChan: 0.7
+  amThanhChay: {fileID: 8300000, guid: 177d46b001cbd6c4b8cdb0758779620f, type: 3}
+  amLuongChay: 1
+  amThanhDiCham: {fileID: 0}
+  amLuongDiCham: 0.5
+  amThanhNgoi: {fileID: 0}
+  amLuongNgoi: 0.35
+  amThanhDuoiNuoc: {fileID: 8300000, guid: f7f8e80480dfaa54d8b8bbe46c203b05, type: 3}
+  amLuongDuoiNuoc: 0.8
+  amThanhChayDuoiNuoc: {fileID: 8300000, guid: f7f8e80480dfaa54d8b8bbe46c203b05, type: 3}
+  amLuongChayDuoiNuoc: 1
+  amThanhNhay: {fileID: 8300000, guid: c4e4e4732b644214a9659ccd57a52acf, type: 3}
+  amLuongNhay: 0.8
+  amThanhTiepDat: {fileID: 8300000, guid: 64ca5b36f0f122345a8a843fae50196f, type: 3}
+  amLuongTiepDat: 0.8
+  thoiGianBuocDiBo: 0.55
+  thoiGianBuocChay: 0.3
+  thoiGianBuocDiCham: 0.7
+  thoiGianBuocNgoi: 0.65
+  thoiGianBuocDuoiNuoc: 0.6
+  thoiGianBuocChayDuoiNuoc: 0.35
+  tocDoDiBo: 10
+  tocDoChay: 15
+  tocDoDiCham: 2
+  tocDoNgoi: 7
+  tocDoXoayNhanVat: 12
+  dangTrongVungNuocNguyHiem: 0
+  heSoGiamTocDoNuocNguyHiem: 0.5
+  tagVungNuoc: Water
+  lucNhay: 7
+  diemKiemTraChan: {fileID: 5540788423182922033}
+  banKinhKiemTraDat: 0.2
+  lopMatDat:
+    serializedVersion: 2
+    m_Bits: 64
+  chieuCaoDung: 2
+  chieuCaoNgoi: 1
+  tocDoChuyenTuThe: 8
+  theLucToiDa: 500
+  theLucTieuHaoMoiGiay: 20
+  theLucHoiPhucMoiGiay: 15
+--- !u!114 &6209279846287423806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6415875096108477121}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 996a1a2d60d15364b8a0a10b8928a964, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashlightController
+  resources: {fileID: 0}
+  flashlightHolder: {fileID: 0}
+  flashlightLight: {fileID: 0}
+  oilLampController: {fileID: 0}
+  audioSource: {fileID: 0}
+  flashlightClick: {fileID: 0}
+  toggleKey: 102
+  batteryDrainInterval: 10
+  batteryDrainPercent: 1
+--- !u!114 &2059019556657777433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6415875096108477121}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c99af3d552c642d45aa875efc721203a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OilLampController
+  resources: {fileID: 0}
+  oilLampHolder: {fileID: 0}
+  oilLampLight: {fileID: 0}
+  flashlightController: {fileID: 0}
+  audioSource: {fileID: 0}
+  oilLampClick: {fileID: 0}
+  toggleKey: 103
+  oilDrainInterval: 10
+  oilDrainPercent: 1
+  maxIntensity: 2.5
+  minRange: 2
+  maxRange: 7
 --- !u!114 &6231479146548974114
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184,66 +290,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4880953221578088738
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6415875096108477121}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d81c1e381b5491040a11f1f5b60a3da1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  boDieuKhienNhanVat: {fileID: 3315865635703472045}
-  vaChamNhanVat: {fileID: 2242016706310598689}
-  thanhTheLucUI: {fileID: 0}
-  cameraChinh: {fileID: 0}
-  nguonAmThanhBuocChan: {fileID: 0}
-  nguonAmThanhHieuUng: {fileID: 0}
-  amThanhBuocChan: {fileID: 8300000, guid: 177d46b001cbd6c4b8cdb0758779620f, type: 3}
-  amLuongBuocChan: 0.7
-  amThanhChay: {fileID: 8300000, guid: 177d46b001cbd6c4b8cdb0758779620f, type: 3}
-  amLuongChay: 1
-  amThanhDiCham: {fileID: 0}
-  amLuongDiCham: 0.5
-  amThanhNgoi: {fileID: 0}
-  amLuongNgoi: 0.35
-  amThanhDuoiNuoc: {fileID: 8300000, guid: f7f8e80480dfaa54d8b8bbe46c203b05, type: 3}
-  amLuongDuoiNuoc: 0.8
-  amThanhChayDuoiNuoc: {fileID: 8300000, guid: f7f8e80480dfaa54d8b8bbe46c203b05, type: 3}
-  amLuongChayDuoiNuoc: 1
-  amThanhNhay: {fileID: 8300000, guid: c4e4e4732b644214a9659ccd57a52acf, type: 3}
-  amLuongNhay: 0.8
-  amThanhTiepDat: {fileID: 8300000, guid: 64ca5b36f0f122345a8a843fae50196f, type: 3}
-  amLuongTiepDat: 0.8
-  thoiGianBuocDiBo: 0.55
-  thoiGianBuocChay: 0.3
-  thoiGianBuocDiCham: 0.7
-  thoiGianBuocNgoi: 0.65
-  thoiGianBuocDuoiNuoc: 0.6
-  thoiGianBuocChayDuoiNuoc: 0.35
-  tocDoDiBo: 10
-  tocDoChay: 15
-  tocDoDiCham: 2
-  tocDoNgoi: 7
-  tocDoXoayNhanVat: 12
-  dangTrongVungNuocNguyHiem: 0
-  heSoGiamTocDoNuocNguyHiem: 0.5
-  tagVungNuoc: Water
-  lucNhay: 7
-  diemKiemTraChan: {fileID: 5540788423182922033}
-  banKinhKiemTraDat: 0.2
-  lopMatDat:
-    serializedVersion: 2
-    m_Bits: 64
-  chieuCaoDung: 2
-  chieuCaoNgoi: 1
-  tocDoChuyenTuThe: 8
-  theLucToiDa: 500
-  theLucTieuHaoMoiGiay: 20
-  theLucHoiPhucMoiGiay: 15
 --- !u!114 &5830872234561818388
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -402,25 +448,6 @@ MonoBehaviour:
   m_DefaultActionMap: 
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &6209279846287423806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6415875096108477121}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 996a1a2d60d15364b8a0a10b8928a964, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FlashlightController
-  denPinLight: {fileID: 4554298446267090019}
-  thanhPinUI: {fileID: 0}
-  cameraChinh: {fileID: 0}
-  amThanhSource: {fileID: 2902571133660485716}
-  tiengClickDenPin: {fileID: 8300000, guid: e9714f1845fffcc44abec4e621c10140, type: 3}
-  pinToiDa: 200
-  pinTieuHaoMoiGiay: 1
 --- !u!82 &2902571133660485716
 AudioSource:
   m_ObjectHideFlags: 0

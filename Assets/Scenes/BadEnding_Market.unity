@@ -15282,6 +15282,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1182116395}
   - component: {fileID: 1182116394}
+  - component: {fileID: 1182116396}
   m_Layer: 0
   m_Name: BadEndingManager
   m_TagString: Untagged
@@ -15301,23 +15302,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d47b9a63581124fbb0dd1506077b80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BadEndingSceneController
-  player: {fileID: 1102494368}
-  playerPoint: {fileID: 1721719044}
-  playerScriptsToDisable:
+  player: {fileID: 690551864}
+  scriptsToDisable:
+  - {fileID: 1757396522}
   - {fileID: 1757396521}
-  mada: {fileID: 3703218527036909215, guid: 116a073388473e74195fb087081cedf9, type: 3}
-  madaStartPoint: {fileID: 0}
-  madaEndPoint: {fileID: 0}
-  madaRiseDuration: 2.5
-  audioSource: {fileID: 0}
-  ambienceSound: {fileID: 0}
-  madaRiseSound: {fileID: 0}
-  horrorSting: {fileID: 0}
-  endingCanvas: {fileID: 86896760}
-  beforeMadaDelay: 3
-  afterMadaDelay: 2
-  fadeDuration: 2
-  nextSceneName: PuzzleDemo_Map1
+  - {fileID: 2059019556657777433, guid: c83ffb6c57c7bf14688967b38d7a9dac, type: 3}
+  - {fileID: 6209279846287423806, guid: c83ffb6c57c7bf14688967b38d7a9dac, type: 3}
+  - {fileID: 4880953221578088738, guid: c83ffb6c57c7bf14688967b38d7a9dac, type: 3}
+  - {fileID: 566955034}
+  badEndingAudioSource: {fileID: 1182116396}
+  badEndingMusic: {fileID: 8300000, guid: d74499afbba0b9d4ab3280b1d98a9ae4, type: 3}
 --- !u!224 &1182116395
 RectTransform:
   m_ObjectHideFlags: 0
@@ -15337,6 +15331,103 @@ RectTransform:
   m_AnchoredPosition: {x: 555.19775, y: 217.52544}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!82 &1182116396
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1182116393}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 41cb9877ae218274baf379843aebb164, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &1201920621 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2824570654477058357, guid: 29fb72f940a95e642bcf97fd5a6a44be, type: 3}
@@ -22267,7 +22358,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 1102494367}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 690551864}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 996a1a2d60d15364b8a0a10b8928a964, type: 3}
   m_Name: 
@@ -22307,6 +22398,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90188b99f2aeb4e4495ff5700ee169b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMap1Interaction
+--- !u!114 &1757396522 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5380817162292188395, guid: 00db83bb7997a0346a23ce8b6ad85b73, type: 3}
+  m_PrefabInstance: {fileID: 1102494367}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 690551864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dfb46ecfb71bc448b414189e80ab129, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerPuzzleInteractor
 --- !u!1 &1767228265
 GameObject:
   m_ObjectHideFlags: 0
