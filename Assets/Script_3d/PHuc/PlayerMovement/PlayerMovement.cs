@@ -19,6 +19,10 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Camera chính trong Game (Nếu để trống script sẽ tự tìm MainCamera)")]
     public Transform cameraChinh;
 
+    [Header("--- Kiểm tra Vùng Bơi (Box Collider) ---")]
+    [Tooltip("Kéo Box Collider dùng để kiểm tra vùng bơi vào đây (Box này thường nằm ở chân hoặc quanh người nhân vật)")]
+    public BoxCollider vungKiemTraBoi;
+
     [Header("--- Animator & Tên Parameter (Dùng để copy vào Animator Controller) ---")]
     [Tooltip("Animator của nhân vật để điều khiển hoạt ảnh")]
     public Animator animatorNhanVat;
@@ -35,7 +39,7 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Tên Parameter kiểu Bool kiểm tra trạng thái chạm đất")]
     public string animParamIsGrounded = "IsGrounded";
 
-    [Tooltip("Tên Parameter kiểu Bool kiểm tra đang ở trong nước")]
+    [Tooltip("Tên Parameter kiểu Bool kiểm tra đang ở trong nước (Bơi)")]
     public string animParamIsInWater = "IsInWater";
 
     [Tooltip("Tên Parameter kiểu Trigger kích hoạt hành động nhảy")]
@@ -187,6 +191,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        // Kiểm tra vùng nước liên tục bằng Box Collider được gán
+        KiemTraVungNuocBangBoxCollider();
+
         if (diemKiemTraChan != null)
         {
             kiemTagDanGiapDat = Physics.CheckSphere(
@@ -219,7 +226,40 @@ public class PlayerMovement : MonoBehaviour
         XuLyNhay();
     }
 
-    #region Trigger Events (Phát hiện vùng nước)
+    /// <summary>
+    /// Sử dụng Box Collider được chỉ định để quét va chạm IsTrigger với tag "Water"
+    /// </summary>
+    private void KiemTraVungNuocBangBoxCollider()
+    {
+        if (vungKiemTraBoi == null)
+        {
+            dangOTrongNuoc = false;
+            return;
+        }
+
+        // Lấy tâm và kích thước của Box Collider trong không gian thế giới (World Space)
+        Vector3 center = vungKiemTraBoi.bounds.center;
+        Vector3 halfExtents = vungKiemTraBoi.bounds.extents;
+        Quaternion orientation = vungKiemTraBoi.transform.rotation;
+
+        // Quét tất cả các Collider đang nằm chồng lấp với Box Collider này
+        Collider[] hitColliders = Physics.OverlapBox(center, halfExtents, orientation);
+
+        bool timThayNuoc = false;
+        foreach (Collider col in hitColliders)
+        {
+            // Kiểm tra xem collider đó có phải là Trigger và mang Tag Water không
+            if (col.isTrigger && col.CompareTag(tagVungNuoc))
+            {
+                timThayNuoc = true;
+                break;
+            }
+        }
+
+        dangOTrongNuoc = timThayNuoc;
+    }
+
+    #region Trigger Events dự phòng (Vẫn giữ lại để tương thích ngược)
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag(tagVungNuoc))
@@ -232,7 +272,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (other.CompareTag(tagVungNuoc))
         {
-            dangOTrongNuoc = false;
+            // Chỉ tắt khi Box Collider kiểm tra thực sự không còn chạm nước nữa
+            // Hoặc có thể để logic tự xử lý qua OverlapBox ở hàm Update ở trên.
         }
     }
     #endregion
@@ -281,7 +322,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (context.performed)
         {
-            if (kiemTagDanGiapDat && !dangNhanNgoi)
+            if (kiemTagDanGiapDat && !dangNhanNgoi && !dangOTrongNuoc)
             {
                 dangDaThietLapNhay = true;
 
@@ -557,7 +598,7 @@ public class PlayerMovement : MonoBehaviour
         bool coVatCanTrenDau = diemKiemTraDau != null && Physics.CheckSphere(diemKiemTraDau.position, banKinhKiemTraDau, lopMatDat);
         bool thucSuDangNgoi = dangNhanNgoi || coVatCanTrenDau;
 
-        // 2. Xác định giá trị Bool cho Walk và Run (Không đứng yên hoặc ngồi thì mới xét Walk/Run)
+        // 2. Xác định giá trị Bool cho Walk và Run
         bool dieuKienWalk = dangDiChuyen && !dangChayThucSu && !thucSuDangNgoi;
         bool dieuKienRun = dangDiChuyen && dangChayThucSu && !thucSuDangNgoi;
 
@@ -566,11 +607,11 @@ public class PlayerMovement : MonoBehaviour
         animatorNhanVat.SetBool(animParamRun, dieuKienRun);
         animatorNhanVat.SetBool(animParamIsCrouching, thucSuDangNgoi);
         animatorNhanVat.SetBool(animParamIsGrounded, kiemTagDanGiapDat);
-        animatorNhanVat.SetBool(animParamIsInWater, dangOTrongNuoc);
+        animatorNhanVat.SetBool(animParamIsInWater, dangOTrongNuoc); // Chuyển sang animation bơi khi box collider chạm vùng Water isTrigger
     }
 
     /// <summary>
-    /// Hàm nhận lệnh từ DialogueManager để khóa/mở khóa di chuyển của nhân vật
+    /// Hàm nhận lệnh từ DialogueManager hoặc bẫy để khóa/mở khóa di chuyển của nhân vật
     /// </summary>
     public void SetKhoaDiChuyen(bool khoa)
     {
